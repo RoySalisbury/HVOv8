@@ -1,10 +1,9 @@
-﻿using HVO.Hardware.Camera.ASISDK;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
-namespace HVO.WebSite.SkyMonitorv3.HostedServices.AllSkyCamera
+namespace HVO.WebSite.SkyMonitorv3.CameraServices.ZWO
 {
     public static class ASICameras
     {
@@ -101,7 +100,7 @@ namespace HVO.WebSite.SkyMonitorv3.HostedServices.AllSkyCamera
             get
             {
                 var info = Info;
-                return new Size((int)info.MaxWidth, (int)info.MaxHeight);
+                return new Size(info.MaxWidth, info.MaxHeight);
             }
         }
 
@@ -288,9 +287,9 @@ namespace HVO.WebSite.SkyMonitorv3.HostedServices.AllSkyCamera
 
         public string Name { get { return _props.Name; } }
         public string Description { get { return _props.Description; } }
-        public int MinValue { get { return (int)_props.MinValue; } }
-        public int MaxValue { get { return (int)_props.MaxValue; } }
-        public int DefaultValue { get { return (int)_props.DefaultValue; } }
+        public int MinValue { get { return _props.MinValue; } }
+        public int MaxValue { get { return _props.MaxValue; } }
+        public int DefaultValue { get { return _props.DefaultValue; } }
         public ASICameraDLL2.ASI_CONTROL_TYPE ControlType { get { return _props.ControlType; } }
         public bool IsAutoAvailable { get { return _props.IsAutoSupported != ASICameraDLL2.ASI_BOOL.ASI_FALSE; } }
         public bool Writeable { get { return _props.IsWritable != ASICameraDLL2.ASI_BOOL.ASI_FALSE; } }
@@ -300,7 +299,7 @@ namespace HVO.WebSite.SkyMonitorv3.HostedServices.AllSkyCamera
             get
             {
                 bool isAuto;
-                return (int)ASICameraDLL2.GetControlValue32(_cameraId, _props.ControlType, out isAuto);
+                return ASICameraDLL2.GetControlValue32(_cameraId, _props.ControlType, out isAuto);
             }
             set
             {

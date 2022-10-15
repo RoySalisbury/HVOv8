@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Linq;
 using System.Drawing;
 
-namespace HVO.Hardware.Camera.ASISDK
+namespace HVO.WebSite.SkyMonitorv3.CameraServices.ZWO
 {
     public static class ASICameraDLL2
     {
@@ -177,7 +177,7 @@ namespace HVO.Hardware.Camera.ASISDK
 
             public string Name
             {
-                get { return Encoding.ASCII.GetString(name).TrimEnd((Char)0); }
+                get { return Encoding.ASCII.GetString(name).TrimEnd((char)0); }
             }
         };
 
@@ -200,12 +200,12 @@ namespace HVO.Hardware.Camera.ASISDK
 
             public string Name
             {
-                get { return Encoding.ASCII.GetString(name).TrimEnd((Char)0); }
+                get { return Encoding.ASCII.GetString(name).TrimEnd((char)0); }
             }
 
             public string Description
             {
-                get { return Encoding.ASCII.GetString(description).TrimEnd((Char)0); }
+                get { return Encoding.ASCII.GetString(description).TrimEnd((char)0); }
             }
         }
 
@@ -227,12 +227,12 @@ namespace HVO.Hardware.Camera.ASISDK
 
             public string Name
             {
-                get { return Encoding.ASCII.GetString(name).TrimEnd((Char)0); }
+                get { return Encoding.ASCII.GetString(name).TrimEnd((char)0); }
             }
 
             public string Description
             {
-                get { return Encoding.ASCII.GetString(description).TrimEnd((Char)0); }
+                get { return Encoding.ASCII.GetString(description).TrimEnd((char)0); }
             }
         }
 

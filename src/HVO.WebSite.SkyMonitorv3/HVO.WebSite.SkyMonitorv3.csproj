@@ -11,14 +11,32 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.13" />
+    <Compile Remove="HostedServices\AllSkyImageCleanup\**" />
+    <Compile Remove="HostedServices\AllSkyImageSave\**" />
+    <Compile Remove="HostedServices\AllSkyTimeLapse\**" />
+    <Content Remove="HostedServices\AllSkyImageCleanup\**" />
+    <Content Remove="HostedServices\AllSkyImageSave\**" />
+    <Content Remove="HostedServices\AllSkyTimeLapse\**" />
+    <EmbeddedResource Remove="HostedServices\AllSkyImageCleanup\**" />
+    <EmbeddedResource Remove="HostedServices\AllSkyImageSave\**" />
+    <EmbeddedResource Remove="HostedServices\AllSkyTimeLapse\**" />
+    <None Remove="HostedServices\AllSkyImageCleanup\**" />
+    <None Remove="HostedServices\AllSkyImageSave\**" />
+    <None Remove="HostedServices\AllSkyTimeLapse\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="HostedServices\AllSkyImageCleanup\" />
-    <Folder Include="HostedServices\AllSkyImageSave\" />
-    <Folder Include="HostedServices\AllSkyTimeLapse\" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.10" />
+    <PackageReference Include="ZWOptical.ASISDK" Version="1.0.61" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="HostedServices\AllSkyCamera\" />
     <Folder Include="wwwroot\lib\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HVO.Hardware.Camera\HVO.Hardware.Camera.csproj" />
   </ItemGroup>
 
   <ItemGroup>
