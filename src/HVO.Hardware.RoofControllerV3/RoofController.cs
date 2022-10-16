@@ -62,7 +62,7 @@ namespace HVO.Hardware.RoofControllerV3
         {
             lock (this._syncLock)
             {
-
+                throw new Exception("Unknown open error");
             }
         }
 

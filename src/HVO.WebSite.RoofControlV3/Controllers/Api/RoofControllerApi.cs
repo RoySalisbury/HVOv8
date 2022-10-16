@@ -12,6 +12,7 @@ namespace HVO.WebSite.RoofControlV3.Controllers.Api
 {
     [ApiController, ApiVersion("3.0"), Produces("application/json")]
     [Route("api/v{version:apiVersion}/RoofControl")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public class RoofControllerApi : ControllerBase
     {
         private readonly ILogger<RoofController> _logger;
