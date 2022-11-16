@@ -1,0 +1,243 @@
+﻿@page "/weather"
+@using System.Globalization;
+
+<PageTitle>Weather</PageTitle>
+
+<div class="row pb-0">
+    <div class="col-12 w-100">
+        <img src="images/M33_LRGB_Final2.jpg" width="275" class="ms-3 float-md-end"/>
+        <p class="fs-5">
+            The observatory gets it primary power from the sun. There are six 210 watt, six 320 watt, and twelve 330 watt solar panels that 
+            can generate, if required, approx 44 kW per day (on a good sunny day). The collected power is stored in a 24 volt, 1640 ah DC battery bank
+            that is converted to AC power by a 3.5 kW inverter. There is also a 6 kW LP generator that can be used for larger loads and
+            provides backup power when solar power is not enough.
+        </p>
+        <p class="fs-5">
+            Listed below are the power generation and utilization details for the system. Data is collected from the system every second
+            and stored in a database for later access. The default chart view is for the prior day plus the data for the current day but
+            longer or shorter periods can be selected.
+        </p>
+    </div>
+</div>
+
+<div class="row pb-3">
+    <div class="d-flex">
+        <div class="flex-grow-1 pe-2">
+            <WeatherSummary />
+        </div>
+        <div class="flex ps-2">
+            <AstronomicalInformationSummary />
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 w-100">
+        <div class="card h-100 hvo-card">
+            <div class="card-body py-1">
+                <div class="row mx-0">
+                    <div class="col-12 px-0">
+                        <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="Radzen.TabRenderMode.Server">
+                            <Tabs>
+                                <RadzenTabsItem Text="Forecast">
+                                    Forecast
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Temperature">
+                                    <RadzenChart>
+                                        <RadzenLineSeries Smooth="@smooth" Data="@revenue2019" CategoryProperty="Date" Title="2019" LineType="LineType.Dashed" ValueProperty="Revenue">
+                                            <RadzenMarkers MarkerType="MarkerType.Square" />
+                                            <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                                        </RadzenLineSeries>
+
+                                        <RadzenLineSeries Smooth="@smooth" Data="@revenue2020" CategoryProperty="Date" Title="2020" ValueProperty="Revenue">
+                                            <RadzenMarkers MarkerType="MarkerType.Circle" />
+                                            <RadzenSeriesDataLabels Visible="@showDataLabels" />
+                                        </RadzenLineSeries>
+
+                                        <RadzenCategoryAxis Padding="20" Formatter="@FormatAsMonth">
+                                            <RadzenAxisTitle Text="Month" />
+                                        </RadzenCategoryAxis>
+
+                                        <RadzenValueAxis Formatter="@FormatAsUSD">
+                                            <RadzenGridLines Visible="true" />
+                                            <RadzenAxisTitle Text="Revenue in USD" />
+                                        </RadzenValueAxis>
+                                    </RadzenChart>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Humidity">
+                                    Humidity
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Barometric Pressure">
+                                    Barometric Pressure
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Wind">
+                                    Wind
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Rain">
+                                    Rain
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="Solar Radiation">
+                                    Solar Radiation
+                                </RadzenTabsItem>
+                            </Tabs>
+
+                        </RadzenTabs>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    bool smooth = false;
+    bool showDataLabels = false;
+
+    class DataItem
+    {
+        public string Date { get; set; }
+        public double Revenue { get; set; }
+    }
+
+    string FormatAsUSD(object value)
+    {
+        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-US"));
+    }
+
+    string FormatAsMonth(object value)
+    {
+        if (value != null)
+        {
+            return Convert.ToDateTime(value).ToString("MMM");
+        }
+
+        return string.Empty;
+    }
+
+    DataItem[] revenue2019 = new DataItem[] {
+        new DataItem
+        {
+            Date = ("2019-01-01"),
+            Revenue = 234000
+        },
+        new DataItem
+        {
+            Date = ("2019-02-01"),
+            Revenue = 269000
+        },
+        new DataItem
+        {
+            Date = ("2019-03-01"),
+            Revenue = 233000
+        },
+        new DataItem
+        {
+            Date = ("2019-04-01"),
+            Revenue = 244000
+        },
+        new DataItem
+        {
+            Date = ("2019-05-01"),
+            Revenue = 214000
+        },
+        new DataItem
+        {
+            Date = ("2019-06-01"),
+            Revenue = 253000
+        },
+        new DataItem
+        {
+            Date = ("2019-07-01"),
+            Revenue = 274000
+        },
+        new DataItem
+        {
+            Date = ("2019-08-01"),
+            Revenue = 284000
+        },
+        new DataItem
+        {
+            Date = ("2019-09-01"),
+            Revenue = 273000
+        },
+        new DataItem
+        {
+            Date = ("2019-10-01"),
+            Revenue = 282000
+        },
+        new DataItem
+        {
+            Date = ("2019-11-01"),
+            Revenue = 289000
+        },
+        new DataItem
+        {
+            Date = ("2019-12-01"),
+            Revenue = 294000
+        }
+    };
+
+    DataItem[] revenue2020 = new DataItem[] {
+        new DataItem
+        {
+            Date = ("2019-01-01"),
+            Revenue = 334000
+        },
+        new DataItem
+        {
+            Date = ("2019-02-01"),
+            Revenue = 369000
+        },
+        new DataItem
+        {
+            Date = ("2019-03-01"),
+            Revenue = 333000
+        },
+        new DataItem
+        {
+            Date = ("2019-04-01"),
+            Revenue = 344000
+        },
+        new DataItem
+        {
+            Date = ("2019-05-01"),
+            Revenue = 314000
+        },
+        new DataItem
+        {
+            Date = ("2019-06-01"),
+            Revenue = 353000
+        },
+        new DataItem
+        {
+            Date = ("2019-07-01"),
+            Revenue = 374000
+        },
+        new DataItem
+        {
+            Date = ("2019-08-01"),
+            Revenue = 384000
+        },
+        new DataItem
+        {
+            Date = ("2019-09-01"),
+            Revenue = 373000
+        },
+        new DataItem
+        {
+            Date = ("2019-10-01"),
+            Revenue = 382000
+        },
+        new DataItem
+        {
+            Date = ("2019-11-01"),
+            Revenue = 389000
+        },
+        new DataItem
+        {
+            Date = ("2019-12-01"),
+            Revenue = 394000
+        }
+    };
+}

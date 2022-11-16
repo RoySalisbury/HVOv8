@@ -68,31 +68,31 @@ namespace HVO.WebSite.SkyMonitorv3.CameraServices
                         try
                         {
                             // Allocate the memory needed for the image 
-                            IntPtr dataPtr = Marshal.AllocHGlobal((int)bufferSize);
-                            GC.AddMemoryPressure(bufferSize);
+                            //IntPtr dataPtr = Marshal.AllocHGlobal((int)bufferSize);
+                            //GC.AddMemoryPressure(bufferSize);
 
-                            try
-                            {
-                                while (cancellationToken.IsCancellationRequested == false)
-                                {
-                                    if (this._asiCamera.GetVideoData(dataPtr, bufferSize, -1))
-                                    {
-                                        using (var currentImage = GenerateImage(dataPtr, bufferSize, this._asiCamera.CaptureAreaInfo.ImageType, imageWidth, imageHeight))
-                                        {
-                                            // Call the even handler(s) for this camera image;
-                                            this._asiCamera.OnVideoImageReceived(this, new EventArgs(currentImage, ...));
-                                        }
-                                    }
+                            //try
+                            //{
+                            //    while (cancellationToken.IsCancellationRequested == false)
+                            //    {
+                            //        if (this._asiCamera.GetVideoData(dataPtr, bufferSize, -1))
+                            //        {
+                            //            using (var currentImage = GenerateImage(dataPtr, bufferSize, this._asiCamera.CaptureAreaInfo.ImageType, imageWidth, imageHeight))
+                            //            {
+                            //                // Call the even handler(s) for this camera image;
+                            //                this._asiCamera.OnVideoImageReceived(this, new EventArgs(currentImage, ...));
+                            //            }
+                            //        }
 
-                                    // This allows the cancellation signals to not get starved out.
-                                    await Task.Delay(1, cancellationToken);
-                                }
-                            }
-                            finally
-                            {
-                                Marshal.FreeHGlobal(dataPtr);
-                                GC.RemoveMemoryPressure(bufferSize);
-                            }
+                            //        // This allows the cancellation signals to not get starved out.
+                            //        await Task.Delay(1, cancellationToken);
+                            //    }
+                            //}
+                            //finally
+                            //{
+                            //    Marshal.FreeHGlobal(dataPtr);
+                            //    GC.RemoveMemoryPressure(bufferSize);
+                            //}
                         }
                         finally 
                         {

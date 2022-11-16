@@ -1,4 +1,3 @@
-using Hellang.Middleware.ProblemDetails;
 using HVO.Hardware.RoofControllerV3;
 using HVO.WebSite.RoofControlV3.HostedServices;
 using Microsoft.AspNetCore.Builder;
@@ -63,22 +62,7 @@ namespace HVO.WebSite.RoofControlV3
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
             services.AddSwaggerGen(options => options.OperationFilter<SwaggerDefaultValues>());
 
-
-            services.AddProblemDetails(options => { });
-            //{
-            //    options.IncludeExceptionDetails = (context, ex) => true;
-            //    options.Rethrow<NotSupportedException>();
-
-            //    // This will map NotImplementedException to the 501 Not Implemented status code.
-            //    options.MapToStatusCode<NotImplementedException>(StatusCodes.Status501NotImplemented);
-
-            //    // This will map HttpRequestException to the 503 Service Unavailable status code.
-            //    options.MapToStatusCode<HttpRequestException>(StatusCodes.Status503ServiceUnavailable);
-
-            //    // Because exceptions are handled polymorphically, this will act as a "catch all" mapping, which is why it's added last.
-            //    // If an exception other than NotImplementedException and HttpRequestException is thrown, this will handle it.
-            //    options.MapToStatusCode<Exception>(StatusCodes.Status500InternalServerError);
-            //});
+            services.AddProblemDetails();
             services.AddServerSideBlazor();
             services.AddControllersWithViews();
         }
@@ -88,15 +72,15 @@ namespace HVO.WebSite.RoofControlV3
             // Configure the HTTP request pipeline.
             if (env.IsDevelopment())
             {
+                app.UseDeveloperExceptionPage();
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler();
+                //app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
-            app.UseProblemDetails();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using HVO.Hardware.RoofControllerV3;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace HVO.WebSite.RoofControlV3.Controllers.Api
 {
