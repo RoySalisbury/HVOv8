@@ -180,6 +180,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 Console.WriteLine($"Request: VERFW \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
 
                 return (true, Version.Parse("0.0").ToString());
+            } else
+            {
+                Console.WriteLine($"FAIL: VERFW")
             }
 
             await Task.Yield();
