@@ -14,8 +14,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             // The base 'abstract' version does nothing, but for completness/standardization we call it. At some point it may do something.
             base.InitializeFromPayload(payload);
 
-            // The payload consists of just the data and NOT the header or CRC.
-            if (payload == null || payload.Length == 0)
+            if (payload.IsEmpty)
             {
                 throw new ArgumentOutOfRangeException(nameof(payload));
             }

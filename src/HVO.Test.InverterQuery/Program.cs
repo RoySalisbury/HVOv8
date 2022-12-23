@@ -8,13 +8,13 @@ namespace HVO.Test.InverterQuery
         {
             using var client = new InverterCommunicationsClient();
 
-            var request = new InverterGetSerialNumberRequest();
-            var bytes = request.ToBytes();
+            var request1 = new InverterGetSerialNumberRequest();
+            var request2 = new InverterGetDeviceProtocolIDRequest();
 
             client.Open();
 
-            var result = await client.SendRequest(request);
-            
+            var result1 = await client.SendRequest<InverterGetSerialNumberResponse>(request1);
+            var result2 = await client.SendRequest<InverterGetDeviceProtocolIDResponse>(request2);
         }
     }
 }
