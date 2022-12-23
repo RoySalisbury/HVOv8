@@ -4,4 +4,5 @@
     {
         public InverterGetSerialNumberRequest() : base("QID") { }
     }
+
 }

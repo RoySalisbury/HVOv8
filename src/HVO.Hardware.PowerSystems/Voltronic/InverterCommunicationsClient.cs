@@ -74,7 +74,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 {
                     try
                     {
-                        var responseMessage = InverterResponseMessage.CreateInstance(request, sendResponse.Data);
+                        var responseMessage = InverterResponseMessage.CreateInstance(request, sendResponse.Data.Span);
                         if (responseValidation == null && responseMessage == null)
                         {
                             // This usually means that the CreateInstance factory needs updated with this response type

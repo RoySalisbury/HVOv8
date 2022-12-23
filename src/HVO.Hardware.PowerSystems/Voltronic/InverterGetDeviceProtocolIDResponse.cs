@@ -1,11 +1,8 @@
-﻿using System;
-using System.Diagnostics.Contracts;
-
-namespace HVO.Hardware.PowerSystems.Voltronic
+﻿namespace HVO.Hardware.PowerSystems.Voltronic
 {
-    public sealed class InverterGetSerialNumberResponse : InverterResponseMessage
+    public sealed class InverterGetDeviceProtocolIDResponse : InverterResponseMessage
     {
-        public InverterGetSerialNumberResponse() : base("QID")
+        public InverterGetDeviceProtocolIDResponse() : base("QPI")
         {
         }
 
@@ -20,11 +17,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 throw new ArgumentOutOfRangeException(nameof(payload));
             }
 
-            SerialNumber = System.Text.Encoding.ASCII.GetString(payload);
+            ProtocolID = System.Text.Encoding.ASCII.GetString(payload);
         }
 
-        public string SerialNumber { get; private set; }
-
+        public string ProtocolID { get; private set; }
     }
-
 }

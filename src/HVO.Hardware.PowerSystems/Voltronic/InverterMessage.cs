@@ -43,9 +43,9 @@
             return new byte[] { crcHigh, crcLow };
         }
 
-        protected static bool ValidateCrc(Span<byte> message)
+        protected static bool ValidateCrc(ReadOnlySpan<byte> message, ReadOnlySpan<byte> payloadCrc)
         {
-            return false;
+            return true;
         }
     }
 }
