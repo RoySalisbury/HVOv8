@@ -1,10 +1,20 @@
-﻿namespace HVO.Test.InverterQuery
+﻿using HVO.Hardware.PowerSystems.Voltronic;
+
+namespace HVO.Test.InverterQuery
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            using var client = new InverterCommunicationsClient();
+
+            var request = new InverterGetSerialNumberRequest();
+            var bytes = request.ToBytes();
+
+            client.Open();
+
+            var result = await client.SendRequest(request);
+            
         }
     }
 }

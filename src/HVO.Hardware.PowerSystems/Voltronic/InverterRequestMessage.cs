@@ -18,13 +18,12 @@
             var crc = CalculateCrc(payload, 0);
 
             // Im sure this is a better way to do this, but this is clean and easy to understand.
-            var packetData = new byte[header.Length + payload.Length + crc.Length];
+            List<byte> packetData = new List<byte>() { HidReportId };
+            packetData.AddRange(payload);
+            packetData.AddRange(crc);
+            packetData.Add(0x0D);
 
-            Array.Copy(header, 0, packetData, 0, header.Length);
-            Array.Copy(payload, 0, packetData, header.Length, payload.Length);
-            Array.Copy(crc, 0, packetData, packetData.Length - crc.Length, crc.Length);
-
-            return packetData;
+            return packetData.ToArray();
         }
 
         protected internal virtual byte[] PayloadBytes()

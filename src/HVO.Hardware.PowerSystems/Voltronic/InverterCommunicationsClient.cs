@@ -9,9 +9,13 @@ namespace HVO.Hardware.PowerSystems.Voltronic
         private readonly ILogger<InverterCommunicationsClient> _logger;
         private readonly InverterCommunicationsClientOptions _options;
 
-        private readonly object _syncLock = new object();
         private readonly System.Diagnostics.Stopwatch _lastPoll = System.Diagnostics.Stopwatch.StartNew();
         private FileStream _deviceStream;
+
+        public InverterCommunicationsClient()
+        {
+            this._options = new InverterCommunicationsClientOptions();
+        }
 
         public InverterCommunicationsClient(ILogger<InverterCommunicationsClient> logger, IOptions<InverterCommunicationsClientOptions> options)
         {
@@ -30,6 +34,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
             if (_deviceStream == null)
             {
+                //_deviceStream = new FileStream(_options.PortPath, FileMode.Open, FileAccess.Read | FileAccess.Write, FileShare.ReadWrite, 4096, true);
                 _deviceStream = File.Open(_options.PortPath, FileMode.Open);
             }
         }
@@ -73,8 +78,8 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                         if (responseValidation == null && responseMessage == null)
                         {
                             // This usually means that the CreateInstance factory needs updated with this response type
-                            _logger.LogWarning("Retry - Unknown Response: {retryNumber}  -  Request: {requestBytes}   -   Response: {responseBytes}",
-                                retryNumber, BitConverter.ToString(request.ToBytes()), BitConverterExtras.BytesToHexString(sendResponse.Data.ToArray()));
+                            // _logger.LogWarning("Retry - Unknown Response: {retryNumber}  -  Request: {requestBytes}   -   Response: {responseBytes}",
+                            //     retryNumber, BitConverter.ToString(request.ToBytes()), BitConverterExtras.BytesToHexString(sendResponse.Data.ToArray()));
 
                             continue;
                         }
@@ -82,8 +87,8 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                         // Do we have a valid reponse (optional)
                         if (responseValidation != null && responseValidation(responseMessage, retryNumber) == false)
                         {
-                            _logger.LogWarning("Retry - Response validation failed: {retryNumber}  -  Request: {requestBytes}   -   Response: {responseBytes}",
-                                retryNumber, BitConverter.ToString(request.ToBytes()), BitConverterExtras.BytesToHexString(sendResponse.Data.ToArray()));
+                            // _logger.LogWarning("Retry - Response validation failed: {retryNumber}  -  Request: {requestBytes}   -   Response: {responseBytes}",
+                            //     retryNumber, BitConverter.ToString(request.ToBytes()), BitConverterExtras.BytesToHexString(sendResponse.Data.ToArray()));
 
                             continue; // Next retry
                         }
@@ -98,7 +103,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                     }
                 }
 
-                _logger.LogWarning("Retry - No Response: {retryNumber} - {request}", retryNumber, request.GetType());
+//                _logger.LogWarning("Retry - No Response: {retryNumber} - {request}", retryNumber, request.GetType());
             }
 
             return (false, null);
@@ -112,9 +117,14 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 throw new ObjectDisposedException(GetType().FullName);
             }
 
-            // First thing we have to do is acquire a lock on the instance so only one thread can control the communicates at a time.
-            if (Monitor.TryEnter(_syncLock))
+            // First thing we have to do is acquire a lock on the instance so only one thread can control the communications at a time.
+            using (SemaphoreSlim semiphoreLock = new SemaphoreSlim(1))
             {
+                await semiphoreLock.WaitAsync(cancellationToken);
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return (false, ReadOnlyMemory<byte>.Empty);
+                }
 
                 // Before we can poll we need to make sure the minimum polling interval has elapsed. Because Task.Delay may not wait the EXACT value, we loop it until its 0 or less.
                 while (_lastPoll.ElapsedMilliseconds < MaxPollingRate.TotalMilliseconds)
@@ -124,7 +134,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                     {
                         break;
                     }
-                    _logger.LogWarning("Delaying for correct polling rate: {waitTime}", waitTime);
+                    //_logger.LogWarning("Delaying for correct polling rate: {waitTime}", waitTime);
                     Task.Delay(TimeSpan.FromMilliseconds(waitTime > 0 ? waitTime : 0), cancellationToken).Wait();
                 }
 
@@ -149,7 +159,6 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 finally
                 {
                     _lastPoll.Restart();
-                    Monitor.Exit(_syncLock);
                 }
             }
 
@@ -185,13 +194,13 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 var buffer = new byte[1024];
 
                 int bytesRead = 0;
-                while (bytesRead < buffer.Length) // Don't overflow our buffer...
+                do
                 {
                     // Continue trying to read bytes until we timeout (or nothing is left to read), or the termination character (0x0D) appears
                     // BUG: ... what if the 0X0D is valid WITHIN the packet and not just at the end
                     try
                     {
-                        _deviceStream.ReadTimeout = 2000;
+                        // Being an HID request "behind the sceens", this is actually done in blocks of 8 bytes at a time.
                         var b = await _deviceStream.ReadAsync(buffer, bytesRead, buffer.Length - bytesRead, cancellationToken);
                         if (b == 0)
                         {
@@ -200,15 +209,16 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
                         bytesRead += b;
                     }
-                    catch (TimeoutException) { break; }
-                }
+                    catch (TimeoutException) 
+                    { 
+                        break; 
+                    }
+                } while (buffer.Any(x => x == 0x0D) == false);
 
-                // BUG: Dont know if this fixes the internal 0x0D issue or not.
+                // BUG: If the buffer contains a valid 0x0D before the termination, then this breaks.
                 var response = buffer
                     .Take(bytesRead)
-                    .Reverse()
-                    .SkipWhile(b => b != 0x0D)
-                    .Reverse()
+                    .TakeWhile(x => x != 0x0D)
                     .ToArray()
                     .AsMemory();
 
