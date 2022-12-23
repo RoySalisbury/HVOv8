@@ -71,10 +71,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, string ProtocolID)> GetDeviceProtocolID(CancellationToken cancellationToken = default)
         {
-            // Request : QPI<CRC><cr>
-            // Response: (PI<NN><CRC><cr>
-
-            var request = GenerateStaticPayloadRequest("QPI");
+            //var request = GenerateStaticPayloadRequest("QPI");
+            var request = new byte[] { 0x00, 0x51, 0x50, 0x49, 0xBE, 0xAC, 0x0D }; // <null>QPI<crc><cr>
+            
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -89,10 +88,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, string SerialNumber)> GetDeviceSerialNumber(CancellationToken cancellationToken = default)
         {
-            // Request : QID<CRC><cr>
-            // Response: (XXXXXXXXXXXXXX<CRC><cr>
-
-            var request = GenerateStaticPayloadRequest("QID");
+            //var request = GenerateStaticPayloadRequest("QID");
+            var request = new byte[] { 0x00, 0x51, 0x49, 0x44, 0xD6, 0xEA, 0x0D }; // <null>QID<crc><cr>
+            
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -107,10 +105,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, string SerialNumber)> GetDeviceSerialNumberEx(CancellationToken cancellationToken = default)
         {
-            // Request : QSID<CRC><cr>
-            // Response: (NNXXXXXXXXXXXXXXXXXXXX<CRC><cr>
+            //var request = GenerateStaticPayloadRequest("QSID");
+            var request = new byte[] { 0x00, 0x51, 0x53, 0x49, 0x44, 0xBB, 0x05, 0x0D }; // <null>QSID<crc><cr>
 
-            var request = GenerateStaticPayloadRequest("QSID");
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -124,7 +121,159 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             return (false, string.Empty);
         }
 
+        public async Task<(bool IsSuccess, string Version)> GetMainCPUFirmwareVersion(CancellationToken cancellationToken = default)
+        {
+            //
 
+            var request = GenerateStaticPayloadRequest("QVFW");
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+
+                return (true, Version.Parse("0.0").ToString());
+            }
+
+            return (false, string.Empty);
+        }
+
+        public async Task<(bool IsSuccess, string Version)> GetAnotherCPUFirmwareVersion(CancellationToken cancellationToken = default)
+        {
+            //
+
+            var request = GenerateStaticPayloadRequest("QVFW2");
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+
+                return (true, Version.Parse("0.0").ToString());
+            }
+
+            return (false, string.Empty);
+        }
+
+        public async Task<(bool IsSuccess, string Version)> GetRemotePanelCPUFirmwareVersion(CancellationToken cancellationToken = default)
+        {
+            //
+
+            var request = GenerateStaticPayloadRequest("QVFW3");
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+
+                return (true, Version.Parse("0.0").ToString());
+            }
+
+            return (false, string.Empty);
+        }
+
+        public async Task<(bool IsSuccess, string Version)> GetBLECPUFirmwareVersion(CancellationToken cancellationToken = default)
+        {
+            // 
+
+            var request = GenerateStaticPayloadRequest("VERFW:");
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+
+                return (true, Version.Parse("0.0").ToString());
+            }
+
+            return (false, string.Empty);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> GetDeviceRatingInformation(CancellationToken cancellationToken = default)
+        {
+            //
+
+            var request = GenerateStaticPayloadRequest("QPIRI");
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> GetDeviceFlagStatus(CancellationToken cancellationToken = default)
+        {
+            // 
+
+            var request = GenerateStaticPayloadRequest("QFLAG");
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> GetDeviceGeneralStatusParameters(CancellationToken cancellationToken = default)
+        {
+            // 
+
+            var request = GenerateStaticPayloadRequest("QPIGS");
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> GetDeviceMode(CancellationToken cancellationToken = default)
+        {
+            // 
+
+            var request = GenerateStaticPayloadRequest("QMOD");
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> GetDeviceWarningStatus(CancellationToken cancellationToken = default)
+        {
+            // 
+
+            var request = GenerateStaticPayloadRequest("QPIWS");
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> GetDefaultSettingInformation(CancellationToken cancellationToken = default)
+        {
+            // 
+
+            var request = GenerateStaticPayloadRequest("QDI");
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+                return (true, null);
+            }
+
+            return (false, null);
+        }
 
 
 
