@@ -340,38 +340,33 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                     // Continue trying to read bytes until we timeout (or nothing is left to read), or the termination character (0x0D) appears
                     try
                     {
-                        CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                        cts.CancelAfter(750);
-
-                        // Being an HID request "behind the sceens", this is actually done in blocks of 8 bytes at a time.
-                        var readTask = _deviceStream.ReadAsync(buffer, bytesRead, buffer.Length - bytesRead);
-
-                        try
+                        // NOTE: Being an HID request "behind the sceens", this is actually done in blocks of 8 bytes at a time.
+                        // HACK: Because the FileStream provides no way to "cancel" the request, we use a special cancellation logic to actualy
+                        //       cancel the operation. This does however still leave the FileStream in a "Read" state that cant be stopped. We
+                        //       use the exception thrown to close and reopen the stream.  Is this just a LINUX thing?
+                        var b = await _deviceStream.ReadAsync(buffer, bytesRead, buffer.Length - bytesRead, cancellationToken).WithCancellation(timeout: 750, cancellationToken);
+                        if (b == 0)
                         {
-                            var b = await readTask.WithCancellation(cts.Token);
-                            if (b == -1)
-                            {
-                                throw new TimeoutException();
-                            }
-                            if (b == 0)
-                            {
-                                break;
-                            }
-
-                            bytesRead += b;
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            // This is a BIG hack ... cancelling a read does not work and leaves the device locked.
-                            this.Close();
-                            this.Open();
-
-                            bytesRead = 0;
                             break;
                         }
+
+                        bytesRead += b;
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // This is a BIG hack ... cancelling a read does not work and leaves the device locked.
+                        this.Close();
+                        this.Open();
+
+                        bytesRead = 0;
+                        break;
                     }
                     catch (TimeoutException)
                     {
+                        // This is a BIG hack ... cancelling a read does not work and leaves the device locked.
+                        this.Close();
+                        this.Open();
+
                         bytesRead = 0;
                         break;
                     }
