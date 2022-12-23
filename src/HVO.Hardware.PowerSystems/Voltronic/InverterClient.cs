@@ -49,8 +49,8 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
             if (_deviceStream == null)
             {
-                //_deviceStream = new FileStream(_options.PortPath, FileMode.Open, FileAccess.Read | FileAccess.Write, FileShare.ReadWrite, 4096, true);
-                _deviceStream = File.Open(_options.PortPath, FileMode.Open);
+                _deviceStream = new FileStream(_options.PortPath, FileMode.Open, FileAccess.Read | FileAccess.Write, FileShare.ReadWrite, 4096, true);
+                //_deviceStream = File.Open(_options.PortPath, FileMode.Open);
             }
         }
 
@@ -171,14 +171,14 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, string Version)> GetBLECPUFirmwareVersion(CancellationToken cancellationToken = default)
         {
-            //var request = GenerateStaticPayloadRequest("VERFW:"); // 0056455246573AF8250D
-            //var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
-            //if (response.IsSuccess)
-            //{
-            //    Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+            var request = GenerateStaticPayloadRequest("VERFW:"); // 0056455246573AF8250D
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+               Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
 
-            //    return (true, Version.Parse("0.0").ToString());
-            //}
+               return (true, Version.Parse("0.0").ToString());
+            }
 
             await Task.Yield();
             return (false, string.Empty);
@@ -362,6 +362,10 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                         }
                         catch (OperationCanceledException)
                         {
+                            // This is a BIG hack ... cancelling a read does not work and leaves the device locked.
+                            this.Close();
+                            this.Open();
+
                             bytesRead = 0;
                             break;
                         }
