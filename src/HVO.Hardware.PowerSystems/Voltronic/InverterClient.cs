@@ -340,18 +340,31 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                     // Continue trying to read bytes until we timeout (or nothing is left to read), or the termination character (0x0D) appears
                     try
                     {
+                        CancellationTokenSource cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                        cts.CancelAfter(750);
+
                         // Being an HID request "behind the sceens", this is actually done in blocks of 8 bytes at a time.
-                        var b = await _deviceStream.ReadAsyncWithTimeout(buffer, bytesRead, buffer.Length - bytesRead, readTimeout: 750, cancellationToken: cancellationToken);
-                        if (b == -1)
+                        var readTask = _deviceStream.ReadAsync(buffer, bytesRead, buffer.Length - bytesRead);
+
+                        try
                         {
-                            throw new TimeoutException();
+                            var b = await readTask.WithCancellation(cts.Token);
+                            if (b == -1)
+                            {
+                                throw new TimeoutException();
+                            }
+                            if (b == 0)
+                            {
+                                break;
+                            }
+
+                            bytesRead += b;
                         }
-                        if (b == 0)
+                        catch (OperationCanceledException)
                         {
+                            bytesRead = 0;
                             break;
                         }
-
-                        bytesRead += b;
                     }
                     catch (TimeoutException)
                     {
