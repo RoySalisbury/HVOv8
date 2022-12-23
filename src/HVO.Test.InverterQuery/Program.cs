@@ -22,9 +22,9 @@ namespace HVO.Test.InverterQuery
             // var r1 = await client.GetDeviceProtocolID();
             // var r2 = await client.GetDeviceSerialNumber();
             // var r3 = await client.GetDeviceSerialNumberEx();
-            // var r4 = await client.GetMainCPUFirmwareVersion();
-            // var r5 = await client.GetAnotherCPUFirmwareVersion();
-            // var r6 = await client.GetRemotePanelCPUFirmwareVersion();
+            var r4 = await client.GetMainCPUFirmwareVersion();
+            var r5 = await client.GetAnotherCPUFirmwareVersion();
+            var r6 = await client.GetRemotePanelCPUFirmwareVersion();
             var r7 = await client.GetBLECPUFirmwareVersion();
 
             var r8 = await client.GetDeviceRatingInformation();

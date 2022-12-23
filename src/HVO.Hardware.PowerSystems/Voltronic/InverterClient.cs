@@ -130,6 +130,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             if (response.IsSuccess)
             {
                 Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+                Console.WriteLine(System.Text.Encoding.ASCII.GetString(response.Data.ToArray()));
 
                 return (true, Version.Parse("0.0").ToString());
             }
@@ -146,6 +147,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             if (response.IsSuccess)
             {
                 Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+                Console.WriteLine(System.Text.Encoding.ASCII.GetString(response.Data.ToArray()));
 
                 return (true, Version.Parse("0.0").ToString());
             }
@@ -162,6 +164,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             if (response.IsSuccess)
             {
                 Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+                Console.WriteLine(System.Text.Encoding.ASCII.GetString(response.Data.ToArray()));
 
                 return (true, Version.Parse("0.0").ToString());
             }
@@ -171,13 +174,14 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, string Version)> GetBLECPUFirmwareVersion(CancellationToken cancellationToken = default)
         {
-            var request = GenerateStaticPayloadRequest("VERFW:"); // 0056455246573AF8250D
+            var request = GenerateStaticPayloadRequest("VERFW"); // 0056455246573AF8250D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+                Console.WriteLine(System.Text.Encoding.ASCII.GetString(response.Data.ToArray()));
 
-               return (true, Version.Parse("0.0").ToString());
+                return (true, Version.Parse("0.0").ToString());
             }
 
             await Task.Yield();
