@@ -15,6 +15,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HVO.WebSite.V8", "HVO.WebSi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HVO.Hardware.PowerSystems", "HVO.Hardware.PowerSystems\HVO.Hardware.PowerSystems.csproj", "{C80D273B-F0DD-40C3-A254-2AE7E66252FE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HVO.Test.InverterQuery", "HVO.Test.InverterQuery\HVO.Test.InverterQuery.csproj", "{7AF234CD-A4D3-4C1E-B29B-92F4DFD955D4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_TEST", "_TEST", "{9CA3B6B8-4753-47F3-B6A0-4F840B044289}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,9 +49,16 @@ Global
 		{C80D273B-F0DD-40C3-A254-2AE7E66252FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C80D273B-F0DD-40C3-A254-2AE7E66252FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C80D273B-F0DD-40C3-A254-2AE7E66252FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7AF234CD-A4D3-4C1E-B29B-92F4DFD955D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AF234CD-A4D3-4C1E-B29B-92F4DFD955D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AF234CD-A4D3-4C1E-B29B-92F4DFD955D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AF234CD-A4D3-4C1E-B29B-92F4DFD955D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7AF234CD-A4D3-4C1E-B29B-92F4DFD955D4} = {9CA3B6B8-4753-47F3-B6A0-4F840B044289}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FFF358D1-3DAE-4571-B9FB-7818C2D1F4E3}
