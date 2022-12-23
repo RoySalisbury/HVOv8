@@ -1,4 +1,6 @@
-﻿namespace HVO.Hardware.PowerSystems
+﻿using System.Net.Sockets;
+
+namespace HVO.Hardware.PowerSystems
 {
     public static class BitConverterExtras
     {

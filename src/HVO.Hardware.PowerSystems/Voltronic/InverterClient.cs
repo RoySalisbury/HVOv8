@@ -125,7 +125,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
         {
             //
 
-            var request = GenerateStaticPayloadRequest("QVFW");
+            var request = GenerateStaticPayloadRequest("QVFW"); // 005156465762990D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -141,7 +141,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
         {
             //
 
-            var request = GenerateStaticPayloadRequest("QVFW2");
+            var request = GenerateStaticPayloadRequest("QVFW2"); //005156465732C3F50D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -157,7 +157,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
         {
             //
 
-            var request = GenerateStaticPayloadRequest("QVFW3");
+            var request = GenerateStaticPayloadRequest("QVFW3"); // 005156465733D3D40D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -171,25 +171,22 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, string Version)> GetBLECPUFirmwareVersion(CancellationToken cancellationToken = default)
         {
-            // 
+            //var request = GenerateStaticPayloadRequest("VERFW:"); // 0056455246573AF8250D
+            //var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            //if (response.IsSuccess)
+            //{
+            //    Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
 
-            var request = GenerateStaticPayloadRequest("VERFW:");
-            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
-            if (response.IsSuccess)
-            {
-                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+            //    return (true, Version.Parse("0.0").ToString());
+            //}
 
-                return (true, Version.Parse("0.0").ToString());
-            }
-
+            await Task.Yield();
             return (false, string.Empty);
         }
 
         public async Task<(bool IsSuccess, object Model)> GetDeviceRatingInformation(CancellationToken cancellationToken = default)
         {
-            //
-
-            var request = GenerateStaticPayloadRequest("QPIRI");
+            var request = GenerateStaticPayloadRequest("QPIRI"); // 005150495249F8540D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -204,7 +201,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
         {
             // 
 
-            var request = GenerateStaticPayloadRequest("QFLAG");
+            var request = GenerateStaticPayloadRequest("QFLAG"); // 0051464C414798740D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -219,7 +216,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
         {
             // 
 
-            var request = GenerateStaticPayloadRequest("QPIGS");
+            var request = GenerateStaticPayloadRequest("QPIGS"); // 005150494753B7A90D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -234,7 +231,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
         {
             // 
 
-            var request = GenerateStaticPayloadRequest("QMOD");
+            var request = GenerateStaticPayloadRequest("QMOD"); // 00514D4F4449C10D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -249,7 +246,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
         {
             // 
 
-            var request = GenerateStaticPayloadRequest("QPIWS");
+            var request = GenerateStaticPayloadRequest("QPIWS"); // 005150495753B4DA0D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -264,7 +261,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
         {
             // 
 
-            var request = GenerateStaticPayloadRequest("QDI");
+            var request = GenerateStaticPayloadRequest("QDI"); // 00514449711B0D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -344,7 +341,11 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                     try
                     {
                         // Being an HID request "behind the sceens", this is actually done in blocks of 8 bytes at a time.
-                        var b = await _deviceStream.ReadAsync(buffer, bytesRead, buffer.Length - bytesRead, cancellationToken);
+                        var b = await _deviceStream.ReadAsyncWithTimeout(buffer, bytesRead, buffer.Length - bytesRead, readTimeout: 750, cancellationToken: cancellationToken);
+                        if (b == -1)
+                        {
+                            throw new TimeoutException();
+                        }
                         if (b == 0)
                         {
                             break;
@@ -354,6 +355,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                     }
                     catch (TimeoutException)
                     {
+                        bytesRead = 0;
                         break;
                     }
                 } while (buffer.Any(x => x == 0x0D) == false);
@@ -365,7 +367,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                     .AsMemory();
 
                 // Validate the CRC
-                if (ValidateCrc(response.Slice(0, response.Length - 2), response.Slice(response.Length - 2)))
+                if ((response.Length > 2) && ValidateCrc(response.Slice(0, response.Length - 2), response.Slice(response.Length - 2)))
                 {
                     // Return the validated data (NO CRC)
                     return (true, response.Slice(0, response.Length - 2));
