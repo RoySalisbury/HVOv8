@@ -1,8 +1,8 @@
 ﻿namespace HVO.Hardware.PowerSystems.Voltronic
 {
-    public abstract class InverterRequestMessage : InverterMessage
+    public abstract class InverterRequest : InverterMessage
     {
-        protected InverterRequestMessage(string command) : base(command)
+        protected InverterRequest(string command) : base(command)
         {
         }
 

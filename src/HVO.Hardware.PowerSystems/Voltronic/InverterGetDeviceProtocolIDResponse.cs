@@ -1,6 +1,6 @@
 ﻿namespace HVO.Hardware.PowerSystems.Voltronic
 {
-    public sealed class InverterGetDeviceProtocolIDResponse : InverterResponseMessage
+    public sealed class InverterGetDeviceProtocolIDResponse : InverterResponse
     {
         public InverterGetDeviceProtocolIDResponse() : base("QPI")
         {

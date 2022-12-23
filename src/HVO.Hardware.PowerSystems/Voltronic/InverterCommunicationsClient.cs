@@ -53,7 +53,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             }
         }
 
-        public async Task<(bool IsSuccess, T ResponseMessage)> SendRequest<T>(InverterRequestMessage request, byte retryCount = 1, CancellationToken cancellationToken = default)
+        public async Task<(bool IsSuccess, T ResponseMessage)> SendRequest<T>(InverterRequest request, byte retryCount = 1, CancellationToken cancellationToken = default)
         {
             var sendResponse = await SendRequest(request, (x, i) => x is T, retryCount, cancellationToken);
             if (sendResponse.IsSuccess)
@@ -65,7 +65,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             return (false, default);
         }
 
-        public async Task<(bool IsSuccess, InverterResponseMessage ResponseMessage)> SendRequest(InverterRequestMessage request, Func<InverterResponseMessage, byte, bool> responseValidation = null, byte retryCount = 1, CancellationToken cancellationToken = default)
+        public async Task<(bool IsSuccess, InverterResponse ResponseMessage)> SendRequest(InverterRequest request, Func<InverterResponse, byte, bool> responseValidation = null, byte retryCount = 1, CancellationToken cancellationToken = default)
         {
             for (byte retryNumber = 1; retryNumber <= retryCount; retryNumber++)
             {
@@ -74,7 +74,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 {
                     try
                     {
-                        var responseMessage = InverterResponseMessage.CreateInstance(request, sendResponse.Data.Span);
+                        var responseMessage = InverterResponse.CreateInstance(request, sendResponse.Data.Span);
                         if (responseValidation == null && responseMessage == null)
                         {
                             // This usually means that the CreateInstance factory needs updated with this response type

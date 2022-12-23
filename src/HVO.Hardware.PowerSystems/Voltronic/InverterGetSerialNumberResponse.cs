@@ -3,7 +3,7 @@ using System.Diagnostics.Contracts;
 
 namespace HVO.Hardware.PowerSystems.Voltronic
 {
-    public sealed class InverterGetSerialNumberResponse : InverterResponseMessage
+    public sealed class InverterGetSerialNumberResponse : InverterResponse
     {
         public InverterGetSerialNumberResponse() : base("QID")
         {
@@ -14,7 +14,8 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             // The base 'abstract' version does nothing, but for completness/standardization we call it. At some point it may do something.
             base.InitializeFromPayload(payload);
 
-            if (payload.IsEmpty)
+            // The payload consists of just the data and NOT the header or CRC.
+            if (payload == null || payload.Length == 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(payload));
             }

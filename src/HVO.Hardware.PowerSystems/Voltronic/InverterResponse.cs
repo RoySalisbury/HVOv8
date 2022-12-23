@@ -1,14 +1,14 @@
 ﻿namespace HVO.Hardware.PowerSystems.Voltronic
 {
-    public abstract class InverterResponseMessage : InverterMessage
+    public abstract class InverterResponse : InverterMessage
     {
-        protected InverterResponseMessage(string command) : base(command)
+        protected InverterResponse(string command) : base(command)
         {
         }
 
         protected virtual void InitializeFromPayload(ReadOnlySpan<byte> payload) { }
 
-        public static InverterResponseMessage CreateInstance(InverterRequestMessage request, ReadOnlySpan<byte> response)
+        public static InverterResponse CreateInstance(InverterRequest request, ReadOnlySpan<byte> response)
         {
             if (request == null)
             {
@@ -25,7 +25,7 @@
             var payload = response.Slice(0, response.Length - 2);
 
             // All responses are of this type
-            InverterResponseMessage result = null;
+            InverterResponse result = null;
 
             // validate the CRC.
             if (ValidateCrc(payload, response.Slice(response.Length - 2)) == false)
