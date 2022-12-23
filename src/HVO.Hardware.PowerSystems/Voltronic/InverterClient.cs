@@ -123,14 +123,13 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, string Version)> GetMainCPUFirmwareVersion(CancellationToken cancellationToken = default)
         {
-            //
+            //var request = GenerateStaticPayloadRequest("QVFW"); // 00 51 56 46 57 62 99 0D
+            var request = new byte[] { 0x00, 0x51, 0x56, 0x46, 0x57, 0x62, 0x99, 0x0D }; // <null>QVFW<crc><cr>
 
-            var request = GenerateStaticPayloadRequest("QVFW"); // 005156465762990D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
-                Console.WriteLine(System.Text.Encoding.ASCII.GetString(response.Data.ToArray()));
+                Console.WriteLine($"Reply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
 
                 return (true, Version.Parse("0.0").ToString());
             }
@@ -140,14 +139,13 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, string Version)> GetAnotherCPUFirmwareVersion(CancellationToken cancellationToken = default)
         {
-            //
+            //var request = GenerateStaticPayloadRequest("QVFW2"); //00 51 56 46 57 32 C3 F5 0D
+            var request = new byte[] { 0x00, 0x51, 0x56, 0x46, 0x57, 0x32, 0xC3, 0xF5, 0x0D }; // <null>QVFW2<crc><cr>
 
-            var request = GenerateStaticPayloadRequest("QVFW2"); //005156465732C3F50D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
-                Console.WriteLine(System.Text.Encoding.ASCII.GetString(response.Data.ToArray()));
+                Console.WriteLine($"Reply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
 
                 return (true, Version.Parse("0.0").ToString());
             }
@@ -157,14 +155,13 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, string Version)> GetRemotePanelCPUFirmwareVersion(CancellationToken cancellationToken = default)
         {
-            //
+            //var request = GenerateStaticPayloadRequest("QVFW3"); // 00 51 56 46 57 33 D3 D4 0D
+            var request = new byte[] { 0x00, 0x51, 0x56, 0x46, 0x57, 0x33, 0xD3, 0xD4, 0x0D }; // <null>QVFW3<crc><cr>
 
-            var request = GenerateStaticPayloadRequest("QVFW3"); // 005156465733D3D40D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
-                Console.WriteLine(System.Text.Encoding.ASCII.GetString(response.Data.ToArray()));
+                Console.WriteLine($"Reply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
 
                 return (true, Version.Parse("0.0").ToString());
             }
@@ -174,7 +171,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, string Version)> GetBLECPUFirmwareVersion(CancellationToken cancellationToken = default)
         {
-            var request = GenerateStaticPayloadRequest("VERFW"); // 0056455246573AF8250D
+            //var request = GenerateStaticPayloadRequest("VERFW"); // 00 56 45 52 46 57 3A F8 25 0D
+            var request = new byte[] { 0x00, 0x56, 0x45, 0x52, 0x46, 0x57, 0x3A, 0xF8, 0x25, 0x0D }; // <null>VERFW<crc><cr>
+
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -190,7 +189,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, object Model)> GetDeviceRatingInformation(CancellationToken cancellationToken = default)
         {
-            var request = GenerateStaticPayloadRequest("QPIRI"); // 005150495249F8540D
+            //var request = GenerateStaticPayloadRequest("QPIRI"); // 00 51 50 49 52 49 F8 54 0D
+            var request = new byte[] { 0x00, 0x51, 0x50, 0x49, 0x52, 0x49, 0xF8, 0x54, 0x0D }; // <null>QPIRI<crc><cr>
+
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -203,9 +204,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, object Model)> GetDeviceFlagStatus(CancellationToken cancellationToken = default)
         {
-            // 
+            //var request = GenerateStaticPayloadRequest("QFLAG"); // 00 51 46 4C 41 47 98 74 0D
+            var request = new byte[] { 0x00, 0x51, 0x46, 0x4C, 0x41, 0x47, 0x98, 0x74, 0x0D }; // <null>QFLAG<crc><cr>
 
-            var request = GenerateStaticPayloadRequest("QFLAG"); // 0051464C414798740D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -218,9 +219,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, object Model)> GetDeviceGeneralStatusParameters(CancellationToken cancellationToken = default)
         {
-            // 
+            //var request = GenerateStaticPayloadRequest("QPIGS"); // 00 51 50 49 47 53 B7 A9 0D
+            var request = new byte[] { 0x00, 0x51, 0x50, 0x49, 0x47, 0x53, 0xB7, 0xA9, 0x0D }; // <null>QPIGS<crc><cr>
 
-            var request = GenerateStaticPayloadRequest("QPIGS"); // 005150494753B7A90D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -233,9 +234,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, object Model)> GetDeviceMode(CancellationToken cancellationToken = default)
         {
-            // 
+            //var request = GenerateStaticPayloadRequest("QMOD"); // 00 51 4D 4F 44 49 C1 0D
+            var request = new byte[] { 0x00, 0x51, 0x4D, 0x4F, 0x44, 0x49, 0xC1, 0x0D }; // <null>QMOD<crc><cr>
 
-            var request = GenerateStaticPayloadRequest("QMOD"); // 00514D4F4449C10D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -248,9 +249,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, object Model)> GetDeviceWarningStatus(CancellationToken cancellationToken = default)
         {
-            // 
+            //var request = GenerateStaticPayloadRequest("QPIWS"); // 00 51 50 49 57 53 B4 DA 0D
+            var request = new byte[] { 0x00, 0x51, 0x50, 0x49, 0x57, 0x53, 0xB4, 0xDA, 0x0D }; // <null>QPIWS<crc><cr>
 
-            var request = GenerateStaticPayloadRequest("QPIWS"); // 005150495753B4DA0D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -263,9 +264,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, object Model)> GetDefaultSettingInformation(CancellationToken cancellationToken = default)
         {
-            // 
+            //var request = GenerateStaticPayloadRequest("QDI"); // 00 51 44 49 71 1B 0D
+            var request = new byte[] { 0x00, 0x51, 0x44, 0x49, 0x71, 0x1B, 0x0D }; // <null>QDI<crc><cr>
 
-            var request = GenerateStaticPayloadRequest("QDI"); // 00514449711B0D
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
