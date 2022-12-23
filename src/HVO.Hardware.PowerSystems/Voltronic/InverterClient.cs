@@ -188,8 +188,8 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, object Model)> GetDeviceRatingInformation(CancellationToken cancellationToken = default)
         {
-            //var request = GenerateStaticPayloadRequest("QPIRI"); // 00 51 50 49 52 49 F8 54 0D
-            var request = new byte[] { 0x00, 0x51, 0x50, 0x49, 0x52, 0x49, 0xF8, 0x54, 0x0D }; // <null>QPIRI<crc><cr>
+            var request = GenerateStaticPayloadRequest("QPIRI"); // 00 51 50 49 52 49 F8 54 0D
+            //var request = new byte[] { 0x00, 0x51, 0x50, 0x49, 0x52, 0x49, 0xF8, 0x54, 0x0D }; // <null>QPIRI<crc><cr>
 
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
