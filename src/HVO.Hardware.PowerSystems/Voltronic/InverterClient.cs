@@ -536,6 +536,18 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             return (false, null);
         }
 
+        public async Task<(bool IsSuccess, object Model)> QBV(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateGetRequest("QBV"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QBV \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
 
 
 
