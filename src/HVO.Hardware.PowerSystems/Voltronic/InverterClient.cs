@@ -85,7 +85,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+                Console.WriteLine($"Request: QPI \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
 
                 var s1 = System.Text.Encoding.ASCII.GetString(response.Data.Span);
                 return (true, s1);
@@ -100,7 +100,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+                Console.WriteLine($"Request: QID \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
 
                 var s1 = System.Text.Encoding.ASCII.GetString(response.Data.Span);
                 return (true, s1);
@@ -115,7 +115,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine(BitConverterExtras.BytesToHexString(response.Data.ToArray()));
+                Console.WriteLine($"Request: QSID \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
 
                 // The first 2 bytes are the lenght of the serial number
                 var s1 = System.Text.Encoding.ASCII.GetString(response.Data.Span);
@@ -266,7 +266,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
         public async Task<(bool IsSuccess, object Model)> QMCHGCR(CancellationToken cancellationToken = default)
         {
             var request = GenerateGetRequest("QMCHGCR"); // 0x00, 0x51, 0x4D, 0x43, 0x48, 0x47, 0x43, 0x52, 0xD8, 0x55, 0x0D
-            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            var response = await SendRequest(request, replyExpected: true, receiveTimeout: 2000, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
                 Console.WriteLine($"Request: QMCHGCR \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
@@ -542,7 +542,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
 
 
-        private async Task<(bool IsSuccess, ReadOnlyMemory<byte> Data)> SendRequest(ReadOnlyMemory<byte> request, bool replyExpected = true, CancellationToken cancellationToken = default)
+        private async Task<(bool IsSuccess, ReadOnlyMemory<byte> Data)> SendRequest(ReadOnlyMemory<byte> request, bool replyExpected = true, int receiveTimeout = 750, CancellationToken cancellationToken = default)
         {
             // Make sure we are not disposed of 
             if (_disposed)
@@ -581,7 +581,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                         return (true, ReadOnlyMemory<byte>.Empty);
                     }
 
-                    return await ReceivePacket(cancellationToken);
+                    return await ReceivePacket(receiveTimeout: receiveTimeout, cancellationToken);
                 }
                 catch (Exception)
                 {
@@ -596,7 +596,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             return (false, ReadOnlyMemory<byte>.Empty);
         }
 
-        private async Task<(bool IsSuccess, ReadOnlyMemory<byte> Data)> ReceivePacket(CancellationToken cancellationToken = default)
+        private async Task<(bool IsSuccess, ReadOnlyMemory<byte> Data)> ReceivePacket(int receiveTimeout = 500, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -612,7 +612,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                         // HACK: Because the FileStream provides no way to "cancel" the request, we use a special cancellation logic to actualy
                         //       cancel the operation. This does however still leave the FileStream in a "Read" state that cant be stopped. We
                         //       use the exception thrown to close and reopen the stream.  Is this just a LINUX thing?
-                        var b = await _deviceStream.ReadAsync(buffer, bytesRead, buffer.Length - bytesRead, cancellationToken).WithCancellation(timeout: 750, cancellationToken);
+                        var b = await _deviceStream.ReadAsync(buffer, bytesRead, buffer.Length - bytesRead, cancellationToken).WithCancellation(timeout: receiveTimeout, cancellationToken);
                         if (b == 0)
                         {
                             break;
