@@ -171,8 +171,8 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, string Version)> GetBLECPUFirmwareVersion(CancellationToken cancellationToken = default)
         {
-            //var request = GenerateStaticPayloadRequest("VERFW"); // 00 56 45 52 46 57 3A F8 25 0D
-            var request = new byte[] { 0x00, 0x56, 0x45, 0x52, 0x46, 0x57, 0x3A, 0xF8, 0x25, 0x0D }; // <null>VERFW<crc><cr>
+            //var request = GenerateStaticPayloadRequest("VERFW"); // 00 56 45 52 46 57 B7 B8 0D
+            var request = new byte[] { 0x00, 0x56, 0x45, 0x52, 0x46, 0x57, 0xB7, 0xB8, 0x0D }; // <null>VERFW<crc><cr>
 
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
@@ -182,7 +182,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 return (true, Version.Parse("0.0").ToString());
             } else
             {
-                Console.WriteLine($"FAIL: VERFW")
+                Console.WriteLine($"FAIL: VERFW");
             }
 
             await Task.Yield();
@@ -191,8 +191,8 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, object Model)> GetDeviceRatingInformation(CancellationToken cancellationToken = default)
         {
-            var request = GenerateStaticPayloadRequest("QPIRI"); // 00 51 50 49 52 49 F8 54 0D
-            //var request = new byte[] { 0x00, 0x51, 0x50, 0x49, 0x52, 0x49, 0xF8, 0x54, 0x0D }; // <null>QPIRI<crc><cr>
+            //var request = GenerateStaticPayloadRequest("QPIRI"); // 00 51 50 49 52 49 F8 54 0D
+            var request = new byte[] { 0x00, 0x51, 0x50, 0x49, 0x52, 0x49, 0xF8, 0x54, 0x0D }; // <null>QPIRI<crc><cr>
 
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
@@ -365,6 +365,10 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                         this.Close();
                         this.Open();
 
+                        // This seems to clear out the issue of the stream getting locked. We should get back the original request.
+                        var request = new byte[] { 0x00, 0x0D }; // <null><cr>
+                        await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+
                         bytesRead = 0;
                         break;
                     }
@@ -374,8 +378,12 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                         this.Close();
                         this.Open();
 
-                        bytesRead = 0;
-                        break;
+                        // This seems to clear out the issue of the stream getting locked. We should get back the original request.
+                        var request = new byte[] { 0x00, 0x0D }; // <null><cr>
+                        return await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+
+                        //bytesRead = 0;
+                        //break;
                     }
                 } while (buffer.Any(x => x == 0x0D) == false);
 
