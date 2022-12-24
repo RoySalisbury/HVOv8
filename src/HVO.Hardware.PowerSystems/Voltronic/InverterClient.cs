@@ -100,7 +100,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QPI \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QPI\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
 
                 var s1 = System.Text.Encoding.ASCII.GetString(response.Data.Span);
                 return (true, s1);
@@ -115,7 +115,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QID \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QID\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
 
                 var s1 = System.Text.Encoding.ASCII.GetString(response.Data.Span);
                 return (true, s1);
@@ -130,7 +130,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QSID \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QSID\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
 
                 // The first 2 bytes are the lenght of the serial number
                 var s1 = System.Text.Encoding.ASCII.GetString(response.Data.Span);
@@ -146,7 +146,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QVFW \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QVFW\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
 
                 return (true, Version.Parse("0.0").ToString());
             }
@@ -160,7 +160,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QVFW2 \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QVFW2\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
 
                 return (true, Version.Parse("0.0").ToString());
             }
@@ -174,7 +174,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QVFW3 \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QVFW3\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
 
                 return (true, Version.Parse("0.0").ToString());
             }
@@ -188,7 +188,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: VERFW \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: VERFW\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
 
                 return (true, Version.Parse("0.0").ToString());
             } else
@@ -206,7 +206,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QPIRI \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QPIRI\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -219,7 +219,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QFLAG \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QFLAG\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -232,7 +232,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QPIGS \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QPIGS\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -245,7 +245,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QMOD \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QMOD\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -258,7 +258,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QPIWS \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QPIWS\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -271,7 +271,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QDI \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QDI\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -285,7 +285,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QMCHGCR \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QMCHGCR\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -298,7 +298,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QMUCHGCR \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QMUCHGCR\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -311,7 +311,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QOPPT \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QOPPT\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -324,7 +324,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QCHPT \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QCHPT\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -337,7 +337,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QT \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QT\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -350,7 +350,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QMN \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QMN\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -363,7 +363,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QGMN \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QGMN\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -376,7 +376,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QBEQI \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QBEQI\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -389,7 +389,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QET \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QET\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -402,7 +402,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QEY \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QEY\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -415,7 +415,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QEM \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QEM\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -428,7 +428,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QED \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QED\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -441,7 +441,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QLT \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QLT\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -454,7 +454,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QLY \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QLY\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -467,7 +467,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QLM \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QLM\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -480,7 +480,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QLD \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QLD\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -493,7 +493,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QLED \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QLED\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -506,7 +506,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: Q1 \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: Q1\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -519,7 +519,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QBOOT \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QBOOT\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -532,7 +532,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QOPM \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QOPM\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -545,7 +545,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QPGS \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QPGS\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -558,7 +558,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QBV \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QBV\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
