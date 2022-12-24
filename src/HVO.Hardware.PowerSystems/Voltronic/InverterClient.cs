@@ -1,18 +1,28 @@
-﻿using System.Diagnostics;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System.Diagnostics;
 
 namespace HVO.Hardware.PowerSystems.Voltronic
 {
     public class InverterClient : IDisposable
     {
         private static readonly ushort[] CrcTable = { 0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7, 0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef };
-        private readonly InverterCommunicationsClientOptions _options;
-        private readonly Stopwatch _lastPoll = Stopwatch.StartNew();
+        private readonly ILogger<InverterClient> _logger;
+        private readonly InverterClientOptions _options;
 
+        private readonly Stopwatch _lastPoll = Stopwatch.StartNew();
         private Stream _deviceStream;
 
         public InverterClient() 
         {
-            this._options = new InverterCommunicationsClientOptions();
+            this._options = new InverterClientOptions();
+        }
+
+        public InverterClient(ILogger<InverterClient> logger, IOptions<InverterClientOptions> options)
+        {
+            this._logger = logger;
+            this._options = options.Value;
         }
 
         #region IDisposable Support
@@ -278,6 +288,128 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
             return (false, null);
         }
+
+
+        public async Task<(bool IsSuccess, object Model)> GetSelectableMaxChargingCurrentValues(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QMCHGCR"); // 
+            //var request = new byte[] { 0x00, 0x51, 0x44, 0x49, 0x71, 0x1B, 0x0D }; // <null>QDI<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QMCHGCR \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> GetSelectableMaxUtilityChargingCurrentValues(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QMUCHGCR"); // 
+            //var request = new byte[] { 0x00, 0x51, 0x44, 0x49, 0x71, 0x1B, 0x0D }; // <null>QDI<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QMUCHGCR \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> GetDeviceOutputSourcePriorityTime(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QOPPT"); // 
+            //var request = new byte[] { 0x00, 0x51, 0x44, 0x49, 0x71, 0x1B, 0x0D }; // <null>QDI<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QOPPT \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> GetDeviceChargerSourcePriorityTime(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QCHPT"); // 
+            //var request = new byte[] { 0x00, 0x51, 0x44, 0x49, 0x71, 0x1B, 0x0D }; // <null>QDI<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QCHPT \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> GetDeviceTime(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QT"); // 
+            //var request = new byte[] { 0x00, 0x51, 0x44, 0x49, 0x71, 0x1B, 0x0D }; // <null>QDI<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QT \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> GetDeviceModelName(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QMN"); // 
+            //var request = new byte[] { 0x00, 0x51, 0x44, 0x49, 0x71, 0x1B, 0x0D }; // <null>QDI<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QMN \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> GetDeviceGeneralModelName(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QGMN"); // 
+            //var request = new byte[] { 0x00, 0x51, 0x44, 0x49, 0x71, 0x1B, 0x0D }; // <null>QDI<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QGMN \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> GetBatteryEqualizationStatusParameters(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QBEQI"); // 
+            //var request = new byte[] { 0x00, 0x51, 0x44, 0x49, 0x71, 0x1B, 0x0D }; // <null>QDI<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QBEQI \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
 
 
 
