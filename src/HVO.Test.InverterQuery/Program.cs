@@ -37,7 +37,7 @@ namespace HVO.Test.InverterQuery
             var r15 = await client.QMUCHGCR();
             var r16 = await client.QOPPT();
             var r17 = await client.QCHPT();
-            var r18 = await client.GetDeviceTime();
+            var r18 = await client.QT();
             var r19 = await client.QMN();
             var r20 = await client.QGMN();
             var r21 = await client.QBEQI();
