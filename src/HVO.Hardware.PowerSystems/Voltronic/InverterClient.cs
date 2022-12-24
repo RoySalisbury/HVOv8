@@ -413,6 +413,207 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
 
 
+        public async Task<(bool IsSuccess, object Model)> QET(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QET"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            //var request = new byte[] { 0x00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D }; // <null>QMN<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QET \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> QEY(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QEY"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            //var request = new byte[] { 0x00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D }; // <null>QMN<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QEY \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> QEM(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QEM"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            //var request = new byte[] { 0x00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D }; // <null>QMN<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QEM \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> QED(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QED"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            //var request = new byte[] { 0x00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D }; // <null>QMN<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QED \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> QLT(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QLT"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            //var request = new byte[] { 0x00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D }; // <null>QMN<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QLT \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> QLY(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QLY"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            //var request = new byte[] { 0x00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D }; // <null>QMN<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QLY \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> QLM(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QLM"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            //var request = new byte[] { 0x00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D }; // <null>QMN<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QLM \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> QLD(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QLD"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            //var request = new byte[] { 0x00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D }; // <null>QMN<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QLD \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> QLED(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QLED"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            //var request = new byte[] { 0x00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D }; // <null>QMN<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QLED \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> Q1(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("Q1"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            //var request = new byte[] { 0x00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D }; // <null>QMN<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: Q1 \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> QBOOT(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QBOOT"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            //var request = new byte[] { 0x00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D }; // <null>QMN<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QBOOT \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> QOPM(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QOPM"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            //var request = new byte[] { 0x00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D }; // <null>QMN<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QOPM \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+        public async Task<(bool IsSuccess, object Model)> QPGS(CancellationToken cancellationToken = default)
+        {
+            var request = GenerateStaticPayloadRequest("QPGS"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            //var request = new byte[] { 0x00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D }; // <null>QMN<crc><cr>
+
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: QPGS \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
+                return (true, null);
+            }
+
+            return (false, null);
+        }
+
+
+
+
+
+
+
         private async Task<(bool IsSuccess, ReadOnlyMemory<byte> Data)> SendRequest(ReadOnlyMemory<byte> request, bool replyExpected = true, CancellationToken cancellationToken = default)
         {
             // Make sure we are not disposed of 
