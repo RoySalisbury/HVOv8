@@ -19,28 +19,28 @@ namespace HVO.Test.InverterQuery
             using var client = new InverterClient();
             client.Open();
 
-            //var r1 = await client.GetDeviceProtocolID();
-            //var r2 = await client.GetDeviceSerialNumber();
-            //var r3 = await client.GetDeviceSerialNumberEx();
-            //var r4 = await client.GetMainCPUFirmwareVersion();
-            //var r5 = await client.GetAnotherCPUFirmwareVersion(); //NAK
-            //var r6 = await client.GetRemotePanelCPUFirmwareVersion();
-            //var r7 = await client.GetBLECPUFirmwareVersion(); // NAK
-            //var r8 = await client.GetDeviceRatingInformation();
-            //var r9 = await client.GetDeviceFlagStatus();
-            //var r10 = await client.GetDeviceGeneralStatusParameters();
-            //var r11 = await client.GetDeviceMode();
-            //var r12 = await client.GetDeviceWarningStatus();
-            //var r13 = await client.GetDefaultSettingInformation();
+            var r1 = await client.QPI();
+            var r2 = await client.QID();
+            var r3 = await client.QSID();
+            var r4 = await client.QVFW();
+            var r5 = await client.QVFW2(); //NAK
+            var r6 = await client.QVFW3();
+            var r7 = await client.VERFW(); // NAK
+            var r8 = await client.QPIRI();
+            var r9 = await client.QFLAG();
+            var r10 = await client.QPIGS();
+            var r11 = await client.QMOD();
+            var r12 = await client.QPIWS();
+            var r13 = await client.QDI();
 
-            //var r14 = await client.GetSelectableMaxChargingCurrentValues();
-            //var r15 = await client.GetSelectableMaxUtilityChargingCurrentValues();
-            //var r16 = await client.GetDeviceOutputSourcePriorityTime();
-            //var r17 = await client.GetDeviceChargerSourcePriorityTime();
-            //var r18 = await client.GetDeviceTime();
-            //var r19 = await client.GetDeviceModelName();
-            //var r20 = await client.GetDeviceGeneralModelName();
-            //var r21 = await client.GetBatteryEqualizationStatusParameters();
+            var r14 = await client.QMCHGCR();
+            var r15 = await client.QMUCHGCR();
+            var r16 = await client.QOPPT();
+            var r17 = await client.QCHPT();
+            var r18 = await client.GetDeviceTime();
+            var r19 = await client.QMN();
+            var r20 = await client.QGMN();
+            var r21 = await client.QBEQI();
 
 
             var r22 = await client.QET();
