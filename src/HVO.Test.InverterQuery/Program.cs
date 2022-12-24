@@ -30,11 +30,11 @@ namespace HVO.Test.InverterQuery
             //var r9 = await client.QFLAG();
             //var r10 = await client.QPIGS();
             //var r11 = await client.QMOD();
-            var r12 = await client.QPIWS();
-            var r13 = await client.QDI();
+            //var r12 = await client.QPIWS();
+            //var r13 = await client.QDI();
 
             var r14 = await client.QMCHGCR();
-            var r15 = await client.QMUCHGCR();
+            //var r15 = await client.QMUCHGCR();
             //var r16 = await client.QOPPT();
             //var r17 = await client.QCHPT();
             //var r18 = await client.QT();
@@ -56,7 +56,9 @@ namespace HVO.Test.InverterQuery
             //var r32 = await client.QBOOT();
             //var r33 = await client.QOPM();
             //var r34 = await client.QPGS();
-            var r35 = await client.QBV();
+            //var r35 = await client.QBV();
+
+            var r0 = await client.Test();
 
 
 

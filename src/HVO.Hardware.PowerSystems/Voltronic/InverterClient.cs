@@ -78,6 +78,21 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             }
         }
 
+        public async Task<bool> Test()
+        {
+            await _deviceStream.WriteAsync(new byte[] { 0x00, 0x51, 0x4D, 0x43, 0x48, 0x47, 0x43, 0x52 });
+            await _deviceStream.FlushAsync();
+
+            await _deviceStream.WriteAsync(new byte[] { 0xD8, 0x55, 0x0D });
+            await _deviceStream.FlushAsync();
+
+            var buffer = new byte[1024];
+            var bytesRead = await _deviceStream.ReadAsync(buffer, 0, 8);
+            Console.WriteLine(System.Text.Encoding.ASCII.GetString(buffer.Take(bytesRead).ToArray()));
+
+            return true;
+        }
+
 
         public async Task<(bool IsSuccess, string ProtocolID)> QPI(CancellationToken cancellationToken = default)
         {
@@ -265,8 +280,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, object Model)> QMCHGCR(CancellationToken cancellationToken = default)
         {
-            var request = GenerateGetRequest("QMCHGCR"); // 0x00, 0x51, 0x4D, 0x43, 0x48, 0x47, 0x43, 0x52, 0xD8, 0x55, 0x0D
-            var response = await SendRequest(request, replyExpected: true, receiveTimeout: 2000, cancellationToken: cancellationToken);
+            //var request = GenerateGetRequest("QMCHGCR"); // 0x00, 0x51, 0x4D, 0x43, 0x48, 0x47, 0x43, 0x52, 0xD8, 0x55, 0x0D
+            var request = new byte[] { 0x51, 0x4D, 0x43, 0x48, 0x47, 0x43, 0x52, 0xD8, 0x55, 0x0D };
+            var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
                 Console.WriteLine($"Request: QMCHGCR \tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}\t   -   HEX: {BitConverterExtras.BytesToHexString(response.Data.ToArray())}");
@@ -587,7 +603,22 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 ClearReadWriteBuffers(cancellationToken);
                 try
                 {
-                    await _deviceStream.WriteAsync(request, cancellationToken);
+                    // The underlying system is a HID device. The structure of this is designed so that specifc side pages are sent and received. In this case it is 9 bytes.
+                    var index = 0;
+                    do
+                    {
+                        // Get the right size packet
+                        var packet = request.Slice(index, 9);
+
+                        // Send the packet and make sure to flush the buffers to the data is sent completely
+                        await _deviceStream.WriteAsync(packet, cancellationToken);
+                        await _deviceStream.FlushAsync(cancellationToken);
+
+                        // Update the starting index for the next slice.
+                        index += packet.Length;
+                    } while (index < request.Length);
+
+                    //await _deviceStream.WriteAsync(request, cancellationToken);
                     if (replyExpected == false)
                     {
                         return (true, ReadOnlyMemory<byte>.Empty);
@@ -612,7 +643,8 @@ namespace HVO.Hardware.PowerSystems.Voltronic
         {
             try
             {
-                var buffer = new byte[1024];
+                var packetSize = 8;
+                var buffer = new byte[packetSize * 32];
 
                 int bytesRead = 0;
                 do
@@ -624,7 +656,8 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                         // HACK: Because the FileStream provides no way to "cancel" the request, we use a special cancellation logic to actualy
                         //       cancel the operation. This does however still leave the FileStream in a "Read" state that cant be stopped. We
                         //       use the exception thrown to close and reopen the stream.  Is this just a LINUX thing?
-                        var b = await _deviceStream.ReadAsync(buffer, bytesRead, buffer.Length - bytesRead, cancellationToken).WithCancellation(timeout: receiveTimeout, cancellationToken);
+                        //var b = await _deviceStream.ReadAsync(buffer, bytesRead, buffer.Length - bytesRead, cancellationToken).WithCancellation(timeout: receiveTimeout, cancellationToken);
+                        var b = await _deviceStream.ReadAsync(buffer, bytesRead, packetSize, cancellationToken).WithCancellation(timeout: receiveTimeout, cancellationToken);
                         if (b == 0)
                         {
                             break;
