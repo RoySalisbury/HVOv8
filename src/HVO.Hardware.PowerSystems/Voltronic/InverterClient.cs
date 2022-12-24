@@ -59,7 +59,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
             if (_deviceStream == null)
             {
-                _deviceStream = new FileStream(_options.PortPath, FileMode.Open, FileAccess.Read | FileAccess.Write, FileShare.ReadWrite, 4096, true);
+                _deviceStream = new FileStream(_options.PortPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.Asynchronous);
                 //_deviceStream = File.Open(_options.PortPath, FileMode.Open);
             }
         }
