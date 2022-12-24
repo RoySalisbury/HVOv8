@@ -280,8 +280,8 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<(bool IsSuccess, object Model)> QMCHGCR(CancellationToken cancellationToken = default)
         {
-            //var request = GenerateGetRequest("QMCHGCR"); // 0x00, 0x51, 0x4D, 0x43, 0x48, 0x47, 0x43, 0x52, 0xD8, 0x55, 0x0D
-            var request = new byte[] { 0x51, 0x4D, 0x43, 0x48, 0x47, 0x43, 0x52, 0xD8, 0x55, 0x0D };
+            var request = GenerateGetRequest("QMCHGCR"); // 0x00, 0x51, 0x4D, 0x43, 0x48, 0x47, 0x43, 0x52, 0xD8, 0x55, 0x0D
+            //var request = new byte[] { 0x51, 0x4D, 0x43, 0x48, 0x47, 0x43, 0x52, 0xD8, 0x55, 0x0D };
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
@@ -603,12 +603,12 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 ClearReadWriteBuffers(cancellationToken);
                 try
                 {
-                    // The underlying system is a HID device. The structure of this is designed so that specifc side pages are sent and received. In this case it is 9 bytes.
+                    // The underlying system is a HID device. The structure of this is designed so that specifc side pages are 
+                    // sent and received. In this case it is 9 bytes.
                     var index = 0;
                     do
                     {
-                        // Get the right size packet
-                        var packet = request.Slice(index, 9);
+                        var packet = request.Slice(index, (request.Length - index) > 9 ? 9 : (request.Length - index));
 
                         // Send the packet and make sure to flush the buffers to the data is sent completely
                         await _deviceStream.WriteAsync(packet, cancellationToken);
@@ -652,7 +652,6 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                     // Continue trying to read bytes until we timeout (or nothing is left to read), or the termination character (0x0D) appears
                     try
                     {
-                        // NOTE: Being an HID request "behind the sceens", this is actually done in blocks of 8 bytes at a time.
                         // HACK: Because the FileStream provides no way to "cancel" the request, we use a special cancellation logic to actualy
                         //       cancel the operation. This does however still leave the FileStream in a "Read" state that cant be stopped. We
                         //       use the exception thrown to close and reopen the stream.  Is this just a LINUX thing?
