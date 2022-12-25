@@ -2,7 +2,7 @@
 {
     public sealed class InverterClientOptions
     {
-        public string PortPath { get; set; } = "/dev/hidraw3";
+        public string PortPath { get; set; } = "/dev/hidraw0";
         public ushort MaxPollingRateMs { get; set; } = 50;
     }
 }

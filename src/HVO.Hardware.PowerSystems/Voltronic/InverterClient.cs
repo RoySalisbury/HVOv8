@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
+using HVO.Hardware.PowerSystems;
 
 namespace HVO.Hardware.PowerSystems.Voltronic
 {
@@ -80,17 +81,19 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
         public async Task<bool> Test()
         {
-            await _deviceStream.WriteAsync(new byte[] { 0x00, 0x51, 0x4D, 0x43, 0x48, 0x47, 0x43, 0x52 });
-            await _deviceStream.FlushAsync();
 
-            await _deviceStream.WriteAsync(new byte[] { 0xD8, 0x55, 0x0D });
-            await _deviceStream.FlushAsync();
+            var request = GenerateGetRequest("DAT2212232206", includeCrc: false);
+            Console.WriteLine($"Request: {BitConverterExtras.BytesToHexString(request.ToArray())}");
 
-            var buffer = new byte[1024];
-            var bytesRead = await _deviceStream.ReadAsync(buffer, 0, 8);
-            Console.WriteLine(System.Text.Encoding.ASCII.GetString(buffer.Take(bytesRead).ToArray()));
+            var response = await SendRequest(request, replyExpected: true);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: DAT\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
+            }
 
-            return true;
+            await this.QT();
+
+            return false;
         }
 
 
@@ -396,39 +399,51 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             return (false, null);
         }
 
-        public async Task<(bool IsSuccess, object Model)> QEY(CancellationToken cancellationToken = default)
+        public async Task<(bool IsSuccess, object Model)> QEY(DateTime? date = null, CancellationToken cancellationToken = default)
         {
-            var request = GenerateGetRequest("QEY"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            date ??= DateTime.Now;
+
+            var command = $"QEY{date.Value.Year:0000}";
+            var request = GenerateGetRequest(command);
+
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QEY\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: {command}\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
             return (false, null);
         }
 
-        public async Task<(bool IsSuccess, object Model)> QEM(CancellationToken cancellationToken = default)
+        public async Task<(bool IsSuccess, object Model)> QEM(DateTime? date = null, CancellationToken cancellationToken = default)
         {
-            var request = GenerateGetRequest("QEM"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            date ??= DateTime.Now;
+
+            var command = $"QEM{date.Value.Year:0000}{date.Value.Month:00}";
+            var request = GenerateGetRequest(command);
+
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QEM\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: {command}\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
             return (false, null);
         }
 
-        public async Task<(bool IsSuccess, object Model)> QED(CancellationToken cancellationToken = default)
+        public async Task<(bool IsSuccess, object Model)> QED(DateTime? date = null, CancellationToken cancellationToken = default)
         {
-            var request = GenerateGetRequest("QED"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            date ??= DateTime.Now;
+
+            var command = $"QED{date.Value.Year:0000}{date.Value.Month:00}{date.Value.Day:00}";
+            var request = GenerateGetRequest(command);
+
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QED\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: {command}\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -448,39 +463,51 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             return (false, null);
         }
 
-        public async Task<(bool IsSuccess, object Model)> QLY(CancellationToken cancellationToken = default)
+        public async Task<(bool IsSuccess, object Model)> QLY(DateTime? date = null, CancellationToken cancellationToken = default)
         {
-            var request = GenerateGetRequest("QLY"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            date ??= DateTime.Now;
+
+            var command = $"QLY{date.Value.Year:0000}";
+            var request = GenerateGetRequest(command);
+
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QLY\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: {command}\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
             return (false, null);
         }
 
-        public async Task<(bool IsSuccess, object Model)> QLM(CancellationToken cancellationToken = default)
+        public async Task<(bool IsSuccess, object Model)> QLM(DateTime? date = null, CancellationToken cancellationToken = default)
         {
-            var request = GenerateGetRequest("QLM"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            date ??= DateTime.Now;
+
+            var command = $"QLM{date.Value.Year:0000}{date.Value.Month:00}";
+            var request = GenerateGetRequest(command);
+
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QLM\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: {command}\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
             return (false, null);
         }
 
-        public async Task<(bool IsSuccess, object Model)> QLD(CancellationToken cancellationToken = default)
+        public async Task<(bool IsSuccess, object Model)> QLD(DateTime? date = null, CancellationToken cancellationToken = default)
         {
-            var request = GenerateGetRequest("QLD"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            date ??= DateTime.Now;
+
+            var command = $"QLD{date.Value.Year:0000}{date.Value.Month:00}{date.Value.Day:00}";
+            var request = GenerateGetRequest(command);
+
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QLD\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: {command}\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -539,13 +566,13 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             return (false, null);
         }
 
-        public async Task<(bool IsSuccess, object Model)> QPGS(CancellationToken cancellationToken = default)
+        public async Task<(bool IsSuccess, object Model)> QPGS(byte index = 0, CancellationToken cancellationToken = default)
         {
-            var request = GenerateGetRequest("QPGS"); // 00, 0x51, 0x4D, 0x4E, 0xBB, 0x64, 0x0D
+            var request = GenerateGetRequest($"QPGS{index}"); 
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QPGS\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QPGS{index}\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -731,18 +758,22 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 
 
 
-        private static ReadOnlyMemory<byte> GenerateGetRequest(string commandCode)
+        private static ReadOnlyMemory<byte> GenerateGetRequest(string commandCode, bool includeCrc = true)
         {
             // Get the command bytes
             var commandBytes = System.Text.Encoding.ASCII.GetBytes(commandCode);
 
-            // Get the CRC for this payload
-            var crc = CalculateCrc(commandBytes, 0);
-
             // Generate the request
             List<byte> request = new List<byte>() { 0 };
             request.AddRange(commandBytes);
-            request.AddRange(crc);
+
+            if (includeCrc)
+            {
+                // Get the CRC for this payload
+                var crc = CalculateCrc(commandBytes, 0);
+                request.AddRange(crc);
+            }
+
             request.Add(0x0D);
 
             //Console.WriteLine($"Command: {commandCode}, Data: {BitConverterExtras.BytesToHexString(request.ToArray())}");
