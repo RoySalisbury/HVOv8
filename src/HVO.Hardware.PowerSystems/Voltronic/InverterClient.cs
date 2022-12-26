@@ -8,23 +8,30 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 {
     public class InverterClient : IDisposable
     {
-        private readonly ILogger<IInverterCommunications> _logger;
+        private readonly ILogger<IInverterClient> _logger;
         private readonly InverterClientOptions _options;
 
         private readonly Stopwatch _lastPoll = Stopwatch.StartNew();
-        private IInverterCommunications _deviceStream;
+        private IInverterClient _clientDevice;
 
-        public InverterClient() 
-        {
-            this._options = new InverterClientOptions();
-            this._deviceStream = new HiDrawStream(null, this._options);
-        }
-
-        public InverterClient(ILogger<IInverterCommunications> logger, IOptions<InverterClientOptions> options)
+        public InverterClient(ILogger<IInverterClient> logger, IOptions<InverterClientOptions> options)
         {
             this._logger = logger;
             this._options = options.Value;
-            this._deviceStream = new HiDrawStream(this._logger, this._options);
+            
+            switch (this._options.PortType)
+            {
+                case PortDeviceType.Hidraw :
+                  this._clientDevice = new InverterHiDrawClient(this._logger, this._options);
+                  break;
+                case PortDeviceType.Serial:
+                  this._clientDevice = new InverterSerialClient(this._logger, this._options);
+                  break;
+                case PortDeviceType.USB:
+                  throw new NotSupportedException();
+                default:
+                  throw new NotSupportedException();
+            }
         }
 
         #region IDisposable Support
@@ -36,8 +43,8 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             {
                 if (disposing)
                 {
-                    _deviceStream?.Dispose();
-                    _deviceStream = null;
+                    _clientDevice?.Dispose();
+                    _clientDevice = null;
                 }
 
                 _disposed = true;
@@ -59,7 +66,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 throw new ObjectDisposedException(GetType().FullName);
             }
 
-            this._deviceStream.Open(); 
+            this._clientDevice.Open(); 
         }
 
         public void Close()
@@ -69,13 +76,14 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 throw new ObjectDisposedException(GetType().FullName);
             }
 
-            _deviceStream?.Close();
+            _clientDevice?.Close();
         }
 
         public async Task<bool> Test()
         {
+            var date = DateTime.Now;
 
-            var request = GenerateGetRequest("DAT2212232206", includeCrc: false);
+            var request = GenerateGetRequest($"DAT{date.Year:0000}{date.Month:00}{date.Day:00}{date.Hour:00}{date.Minute:00}", includeCrc: true);
             Console.WriteLine($"Request: {BitConverterExtras.BytesToHexString(request.ToArray())}");
 
             var response = await SendRequest(request, replyExpected: true);
@@ -281,7 +289,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QMCHGCR\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QMCHGCR\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -294,7 +302,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             var response = await SendRequest(request, replyExpected: true, cancellationToken: cancellationToken);
             if (response.IsSuccess)
             {
-                Console.WriteLine($"Request: QMUCHGCR\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
+                Console.WriteLine($"Request: QMUCHGCR\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
                 return (true, null);
             }
 
@@ -585,8 +593,27 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             return (false, null);
         }
 
+        public async Task<(bool IsSuccess, object Model)> DAT(DateTime? date = null, CancellationToken cancellationToken = default)
+        {
+            date ??= DateTime.Now;
 
+            var command = $"DAT{date.Value:yy}{date.Value.Month:00}{date.Value.Day:00}{date.Value.Hour:00}{date.Value.Minute:00}{date.Value.Second:00}";
 
+            // ACK. Works for Serial [ttyUSB00] (no reportId, include CRC)
+            // NAK, but does not crash HID [hidraw1] (include reportId, NO CRC )
+            var request = GenerateGetRequest(command, includeReportId: (this._options.PortType == PortDeviceType.Serial) ? false : true,
+                                                      includeCrc: (this._options.PortType == PortDeviceType.Serial) ? true: false); 
+
+            var response = await SendRequest(request, replyExpected: true);
+            if (response.IsSuccess)
+            {
+                Console.WriteLine($"Request: {command}\t\tReply: {System.Text.Encoding.ASCII.GetString(response.Data.ToArray())}");
+                await this.QT();
+                return (true, null);
+            }
+
+            return (false, null);
+        }
 
 
 
@@ -620,7 +647,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 }
 
                 // Discard any data in the buffers from any previous read/write
-                await this._deviceStream.FlushAsync(cancellationToken);
+                await this._clientDevice.FlushAsync(cancellationToken);
                 try
                 {
                     // The underlying system is a HID device. The structure of this is designed so that specifc side pages are 
@@ -631,8 +658,8 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                         var packet = request.Slice(index, (request.Length - index) > 9 ? 9 : (request.Length - index));
 
                         // Send the packet and make sure to flush the buffers to the data is sent completely
-                        await _deviceStream.WriteAsync(packet, cancellationToken);
-                        await _deviceStream.FlushAsync(cancellationToken);
+                        await _clientDevice.WriteAsync(packet, cancellationToken);
+                        await _clientDevice.FlushAsync(cancellationToken);
 
                         // Update the starting index for the next slice.
                         index += packet.Length;
@@ -676,7 +703,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                         //       cancel the operation. This does however still leave the FileStream in a "Read" state that cant be stopped. We
                         //       use the exception thrown to close and reopen the stream.  Is this just a LINUX thing?
                         //var b = await _deviceStream.ReadAsync(buffer, bytesRead, buffer.Length - bytesRead, cancellationToken).WithCancellation(timeout: receiveTimeout, cancellationToken);
-                        var b = await _deviceStream.ReadAsync(buffer, bytesRead, packetSize, cancellationToken).WithCancellation(timeout: receiveTimeout, cancellationToken);
+                        var b = await _clientDevice.ReadAsync(buffer, bytesRead, packetSize, cancellationToken).WithCancellation(timeout: receiveTimeout, cancellationToken);
                         if (b == 0)
                         {
                             break;
@@ -738,9 +765,32 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             return (false, ReadOnlyMemory<byte>.Empty);
         }
 
-        private ReadOnlyMemory<byte> GenerateGetRequest(string commandCode, bool includeCrc = true)
+        private ReadOnlyMemory<byte> GenerateGetRequest(string commandCode, bool includeCrc = true, bool includeReportId = true)
         {
-            return this._deviceStream.GenerateGetRequest(commandCode, includeCrc);
+            // Get the command bytes
+            var commandBytes = System.Text.Encoding.ASCII.GetBytes(commandCode);
+
+            // Generate the request
+            List<byte> request = new List<byte>();
+
+            // Only HID/USB needs the reportId byte.
+            if (includeReportId == true){
+                request.Add(0);
+            }
+
+            request.AddRange(commandBytes);
+
+            if (includeCrc)
+            {
+                // Get the CRC for this payload
+                var crc = ((IInverterClient)this).CalculateCrc(commandBytes, 0);
+                request.AddRange(crc);
+            }
+
+            request.Add(0x0D);
+
+            //Console.WriteLine($"Command: {commandCode}, Data: {BitConverterExtras.BytesToHexString(request.ToArray())}");
+            return request.ToArray();
         }
 
         private static bool ValidateCrc(ReadOnlyMemory<byte> message, ReadOnlyMemory<byte> payloadCrc)
