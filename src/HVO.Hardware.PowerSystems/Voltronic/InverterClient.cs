@@ -8,22 +8,23 @@ namespace HVO.Hardware.PowerSystems.Voltronic
 {
     public class InverterClient : IDisposable
     {
-        private static readonly ushort[] CrcTable = { 0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7, 0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef };
-        private readonly ILogger<InverterClient> _logger;
+        private readonly ILogger<IInverterCommunications> _logger;
         private readonly InverterClientOptions _options;
 
         private readonly Stopwatch _lastPoll = Stopwatch.StartNew();
-        private Stream _deviceStream;
+        private IInverterCommunications _deviceStream;
 
         public InverterClient() 
         {
             this._options = new InverterClientOptions();
+            this._deviceStream = new HiDrawStream(null, this._options);
         }
 
-        public InverterClient(ILogger<InverterClient> logger, IOptions<InverterClientOptions> options)
+        public InverterClient(ILogger<IInverterCommunications> logger, IOptions<InverterClientOptions> options)
         {
             this._logger = logger;
             this._options = options.Value;
+            this._deviceStream = new HiDrawStream(this._logger, this._options);
         }
 
         #region IDisposable Support
@@ -58,11 +59,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 throw new ObjectDisposedException(GetType().FullName);
             }
 
-            if (_deviceStream == null)
-            {
-                _deviceStream = new FileStream(_options.PortPath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite, 4096, FileOptions.Asynchronous);
-                //_deviceStream = File.Open(_options.PortPath, FileMode.Open);
-            }
+            this._deviceStream.Open(); 
         }
 
         public void Close()
@@ -72,11 +69,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 throw new ObjectDisposedException(GetType().FullName);
             }
 
-            if (_deviceStream != null)
-            {
-                _deviceStream.Close();
-                _deviceStream = null;
-            }
+            _deviceStream?.Close();
         }
 
         public async Task<bool> Test()
@@ -627,7 +620,7 @@ namespace HVO.Hardware.PowerSystems.Voltronic
                 }
 
                 // Discard any data in the buffers from any previous read/write
-                ClearReadWriteBuffers(cancellationToken);
+                await this._deviceStream.FlushAsync(cancellationToken);
                 try
                 {
                     // The underlying system is a HID device. The structure of this is designed so that specifc side pages are 
@@ -745,70 +738,9 @@ namespace HVO.Hardware.PowerSystems.Voltronic
             return (false, ReadOnlyMemory<byte>.Empty);
         }
 
-        private async void ClearReadWriteBuffers(CancellationToken cancellationToken = default)
+        private ReadOnlyMemory<byte> GenerateGetRequest(string commandCode, bool includeCrc = true)
         {
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
-
-            // Discard anything in the input and output buffer that has yet be be sent
-            await _deviceStream.FlushAsync(cancellationToken);
-        }
-
-
-
-        private static ReadOnlyMemory<byte> GenerateGetRequest(string commandCode, bool includeCrc = true)
-        {
-            // Get the command bytes
-            var commandBytes = System.Text.Encoding.ASCII.GetBytes(commandCode);
-
-            // Generate the request
-            List<byte> request = new List<byte>() { 0 };
-            request.AddRange(commandBytes);
-
-            if (includeCrc)
-            {
-                // Get the CRC for this payload
-                var crc = CalculateCrc(commandBytes, 0);
-                request.AddRange(crc);
-            }
-
-            request.Add(0x0D);
-
-            //Console.WriteLine($"Command: {commandCode}, Data: {BitConverterExtras.BytesToHexString(request.ToArray())}");
-            return request.ToArray();
-        }
-
-        private static byte[] CalculateCrc(Span<byte> data, ushort seed = 0)
-        {
-            ushort crc = seed;
-            foreach (byte b in data)
-            {
-                int da = (byte)(crc >> 8) >> 4;
-                crc <<= 4;
-                crc ^= CrcTable[da ^ b >> 4];
-                da = (byte)(crc >> 8) >> 4;
-                crc <<= 4;
-                crc ^= CrcTable[da ^ b & 0x0F];
-            }
-
-            byte crcLow = (byte)crc;
-            byte crcHigh = (byte)(crc >> 8);
-            if (crcLow is 0x28 or 0x0d or 0x0a)
-            {
-                crcLow++;
-            }
-
-            if (crcHigh is 0x28 or 0x0d or 0x0a)
-            {
-                crcHigh++;
-            }
-
-            //crc = (ushort)(crcHigh << 8);
-            //crc += crcLow;
-
-            return new byte[] { crcHigh, crcLow };
+            return this._deviceStream.GenerateGetRequest(commandCode, includeCrc);
         }
 
         private static bool ValidateCrc(ReadOnlyMemory<byte> message, ReadOnlyMemory<byte> payloadCrc)
