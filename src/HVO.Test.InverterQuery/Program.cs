@@ -1,27 +1,40 @@
 ﻿using HVO.Hardware.PowerSystems.Voltronic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Hosting;
+
 
 namespace HVO.Test.InverterQuery
 {
     internal class Program
     {
-        static async Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            var services = new ServiceCollection();
-            
-            services
-                .AddSingleton<InverterClient>()
-                .
-                .BuildServiceProvider();
+            var host = CreateHostBuilder(args);
+            await host.RunConsoleAsync(o => o.SuppressStatusMessages = true);
         }
 
-     
-        public void CreateHostBuilder23()
-        {
+        public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
+             .ConfigureServices(context => 
+             {
+                context.AddOptions();
+                context.AddOptions<InverterClientOptions>();
 
-        
+                //.context.AddHostedService<InverterServiceHost>();
 
+
+
+
+             });
+    }
+}
+
+
+
+
+
+        //public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args);
+    
 
             //using var client = new InverterCommunicationsClient();
 
@@ -33,10 +46,10 @@ namespace HVO.Test.InverterQuery
             //var result1 = await client.SendRequest<InverterGetSerialNumberResponse>(request1);
             //var result2 = await client.SendRequest<InverterGetDeviceProtocolIDResponse>(request2);
 
-            using var client = new InverterClient(null, 
-            client.Open();
+            //using var client = new InverterClient(null, 
+            //client.Open();
 
-            var r1 = await client.QPI();
+            //var r1 = await client.QPI();
             // var r2 = await client.QID();
             // var r3 = await client.QSID();
             // var r4 = await client.QVFW();
@@ -75,13 +88,10 @@ namespace HVO.Test.InverterQuery
             // var r35 = await client.QBV();
 
 
-            var r18 = await client.QT();
-            var r36 = await client.DAT(DateTime.Now);
+            //var r18 = await client.QT();
+            //var r36 = await client.DAT(DateTime.Now);
 
 //            var r0 = await client.Test();
 
 
 
-        }
-    }
-}
