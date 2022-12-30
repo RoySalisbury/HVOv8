@@ -8,7 +8,7 @@ namespace HVO.PowerMonitor.V1.HostedServices.Voltronic
         private readonly InverterClientOptions _options;
         private readonly IInverterClient _inverterClient;
 
-        public VoltronicInverterHost(ILogger<VoltronicInverterHost> logger, IOptions<InverterClientOptions> options, LoggerFactory loggerFactory) 
+        public VoltronicInverterHost(ILogger<VoltronicInverterHost> logger, IOptions<InverterClientOptions> options, ILoggerFactory loggerFactory) 
         {
             this._logger = logger;
             this._options = options.Value;
@@ -35,7 +35,11 @@ namespace HVO.PowerMonitor.V1.HostedServices.Voltronic
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            throw new NotImplementedException();
+            
+
+
+
+            return Task.Delay(20000, stoppingToken);
         }
     }
 
