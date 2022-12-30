@@ -5,7 +5,7 @@
         private readonly ILogger<IInverterClient> _logger;
         private readonly InverterClientOptions _options;
 
-        private readonly FileStream _fileStream;
+        private FileStream _fileStream;
 
         public InverterHidrawClient(ILogger<IInverterClient> logger, InverterClientOptions options)
         {

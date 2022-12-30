@@ -2,7 +2,7 @@
 
 namespace HVO.PowerMonitor.V1.HostedServices.Voltronic
 {
-    public sealed class InverterSerialClient : InverterClient
+    public sealed class InverterSerialClient : InverterClientBase
     {
         private readonly ILogger<IInverterClient> _logger;
         private readonly InverterClientOptions _options;
