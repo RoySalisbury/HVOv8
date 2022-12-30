@@ -1,0 +1,56 @@
+﻿@page "/"
+@using HVO.PowerMonitor.V1.HostedServices.InverterService;
+<h3>HomeIndex</h3>
+
+<button @onclick="OnButtonClick">Test Me</button>
+
+@code {
+    [Inject]
+    private IInverterServiceProcessor _serviceProcessor { get; set; }
+
+    public async Task OnButtonClick()
+    {
+        var r1 = await _serviceProcessor.QPI();
+         var r2 = await _serviceProcessor.QID();
+         var r3 = await _serviceProcessor.QSID();
+         var r4 = await _serviceProcessor.QVFW();
+         var r5 = await _serviceProcessor.QVFW2(); //NAK
+         var r6 = await _serviceProcessor.QVFW3();
+         var r7 = await _serviceProcessor.VERFW(); // NAK
+         var r8 = await _serviceProcessor.QPIRI();
+         var r9 = await _serviceProcessor.QFLAG();
+         var r10 = await _serviceProcessor.QPIGS();
+         var r11 = await _serviceProcessor.QMOD();
+         var r12 = await _serviceProcessor.QPIWS();
+         var r13 = await _serviceProcessor.QDI();
+
+         var r14 = await _serviceProcessor.QMCHGCR();
+         var r15 = await _serviceProcessor.QMUCHGCR();
+         var r16 = await _serviceProcessor.QOPPT();
+         var r17 = await _serviceProcessor.QCHPT();
+         var r19 = await _serviceProcessor.QMN();
+         var r20 = await _serviceProcessor.QGMN();
+         var r21 = await _serviceProcessor.QBEQI();
+
+
+         var r22 = await _serviceProcessor.QET();
+         var r23 = await _serviceProcessor.QEY();
+         var r24 = await _serviceProcessor.QEM();
+         var r25 = await _serviceProcessor.QED();
+         var r26 = await _serviceProcessor.QLT();
+         var r27 = await _serviceProcessor.QLY();
+         var r28 = await _serviceProcessor.QLM();
+         var r29 = await _serviceProcessor.QLD();
+         var r30 = await _serviceProcessor.QLED();
+         var r31 = await _serviceProcessor.Q1();
+         var r32 = await _serviceProcessor.QBOOT();
+         var r33 = await _serviceProcessor.QOPM();
+         var r34 = await _serviceProcessor.QPGS();
+         var r35 = await _serviceProcessor.QBV();
+
+        var r18 = await _serviceProcessor.QT();
+        var r36 = await _serviceProcessor.DAT(DateTime.Now);
+
+        await Task.Yield();
+    }
+}
