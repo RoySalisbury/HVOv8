@@ -93,58 +93,64 @@ namespace HVO.PowerMonitor.V1.HostedServices.InverterService
             // First thing we have to do is acquire a lock on the instance so only one thread can control the communications at a time.
             using (SemaphoreSlim semiphoreLock = new SemaphoreSlim(1))
             {
-                await semiphoreLock.WaitAsync(cancellationToken);
-                if (cancellationToken.IsCancellationRequested)
+                if (await semiphoreLock.WaitAsync(5000, cancellationToken))
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return (false, ReadOnlyMemory<byte>.Empty);
+                    }
+
+                    // Before we can poll we need to make sure the minimum polling interval has elapsed. Because Task.Delay may not wait the EXACT value, we loop it until its 0 or less.
+                    while (_lastPoll.ElapsedMilliseconds < MaxPollingRate.TotalMilliseconds)
+                    {
+                        var waitTime = MaxPollingRate.TotalMilliseconds - _lastPoll.ElapsedMilliseconds;
+                        if (waitTime < 0)
+                        {
+                            break;
+                        }
+                        //_logger.LogWarning("Delaying for correct polling rate: {waitTime}", waitTime);
+                        Task.Delay(TimeSpan.FromMilliseconds(waitTime > 0 ? waitTime : 0), cancellationToken).Wait();
+                    }
+
+                    // Discard any data in the buffers from any previous read/write
+                    await this.FlushAsync(cancellationToken);
+                    try
+                    {
+                        // The underlying system is a HID device. The structure of this is designed so that specifc side pages are 
+                        // sent and received. In this case it is 9 bytes.
+                        var index = 0;
+                        do
+                        {
+                            var packet = request.Slice(index, (request.Length - index) > 9 ? 9 : (request.Length - index));
+
+                            // Send the packet and make sure to flush the buffers to the data is sent completely
+                            await WriteAsync(packet, cancellationToken);
+                            await FlushAsync(cancellationToken);
+
+                            // Update the starting index for the next slice.
+                            index += packet.Length;
+                        } while (index < request.Length);
+
+                        //await _deviceStream.WriteAsync(request, cancellationToken);
+                        if (replyExpected == false)
+                        {
+                            return (true, ReadOnlyMemory<byte>.Empty);
+                        }
+
+                        return await ReceivePacket(receiveTimeout: receiveTimeout, cancellationToken);
+                    }
+                    catch (Exception)
+                    {
+                        // TODO: We need to setup the correct error codes
+                    }
+                    finally
+                    {
+                        _lastPoll.Restart();
+                    }
+                } else
+                {
+                    // Timeout waiting for semiphore lock
                     return (false, ReadOnlyMemory<byte>.Empty);
-                }
-
-                // Before we can poll we need to make sure the minimum polling interval has elapsed. Because Task.Delay may not wait the EXACT value, we loop it until its 0 or less.
-                while (_lastPoll.ElapsedMilliseconds < MaxPollingRate.TotalMilliseconds)
-                {
-                    var waitTime = MaxPollingRate.TotalMilliseconds - _lastPoll.ElapsedMilliseconds;
-                    if (waitTime < 0)
-                    {
-                        break;
-                    }
-                    //_logger.LogWarning("Delaying for correct polling rate: {waitTime}", waitTime);
-                    Task.Delay(TimeSpan.FromMilliseconds(waitTime > 0 ? waitTime : 0), cancellationToken).Wait();
-                }
-
-                // Discard any data in the buffers from any previous read/write
-                await this.FlushAsync(cancellationToken);
-                try
-                {
-                    // The underlying system is a HID device. The structure of this is designed so that specifc side pages are 
-                    // sent and received. In this case it is 9 bytes.
-                    var index = 0;
-                    do
-                    {
-                        var packet = request.Slice(index, (request.Length - index) > 9 ? 9 : (request.Length - index));
-
-                        // Send the packet and make sure to flush the buffers to the data is sent completely
-                        await WriteAsync(packet, cancellationToken);
-                        await FlushAsync(cancellationToken);
-
-                        // Update the starting index for the next slice.
-                        index += packet.Length;
-                    } while (index < request.Length);
-
-                    //await _deviceStream.WriteAsync(request, cancellationToken);
-                    if (replyExpected == false)
-                    {
-                        return (true, ReadOnlyMemory<byte>.Empty);
-                    }
-
-                    return await ReceivePacket(receiveTimeout: receiveTimeout, cancellationToken);
-                }
-                catch (Exception)
-                {
-                    // TODO: We need to setup the correct error codes
-                }
-                finally
-                {
-                    _lastPoll.Restart();
                 }
             }
 
