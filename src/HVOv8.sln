@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_TEST", "_TEST", "{9CA3B6B8
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HVO.PowerMonitor.V1", "HVO.PowerMonitor.V1\HVO.PowerMonitor.V1.csproj", "{4BB0FD98-1E66-4E98-8055-88E1EC593AD5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HVO.Test.BMS", "HVO.Test.BMS\HVO.Test.BMS.csproj", "{071FC7B6-A126-4A7D-ABA1-331F9616398C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,12 +61,17 @@ Global
 		{4BB0FD98-1E66-4E98-8055-88E1EC593AD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BB0FD98-1E66-4E98-8055-88E1EC593AD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BB0FD98-1E66-4E98-8055-88E1EC593AD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{071FC7B6-A126-4A7D-ABA1-331F9616398C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{071FC7B6-A126-4A7D-ABA1-331F9616398C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{071FC7B6-A126-4A7D-ABA1-331F9616398C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{071FC7B6-A126-4A7D-ABA1-331F9616398C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7AF234CD-A4D3-4C1E-B29B-92F4DFD955D4} = {9CA3B6B8-4753-47F3-B6A0-4F840B044289}
+		{071FC7B6-A126-4A7D-ABA1-331F9616398C} = {9CA3B6B8-4753-47F3-B6A0-4F840B044289}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FFF358D1-3DAE-4571-B9FB-7818C2D1F4E3}

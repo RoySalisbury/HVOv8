@@ -84,11 +84,7 @@ namespace HVO.PowerMonitor.V1.HostedServices.InverterService
 
         public virtual async Task<(bool IsSuccess, ReadOnlyMemory<byte> Data)> SendRequest(ReadOnlyMemory<byte> request, bool replyExpected = true, int receiveTimeout = 750, CancellationToken cancellationToken = default)
         {
-            // Make sure we are not disposed of 
-            if (_disposed)
-            {
-                throw new ObjectDisposedException(GetType().FullName);
-            }
+            this.ThrowIfDisposed(GetType().FullName);
 
             // First thing we have to do is acquire a lock on the instance so only one thread can control the communications at a time.
             using (SemaphoreSlim semiphoreLock = new SemaphoreSlim(1))
