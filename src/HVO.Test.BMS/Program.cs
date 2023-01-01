@@ -1,5 +1,6 @@
 ﻿using System.Buffers.Binary;
 using System.Globalization;
+using System.IO.Ports;
 using System.Text;
 
 namespace HVO.Test.BMS
@@ -10,7 +11,7 @@ namespace HVO.Test.BMS
         {
             using (BMS.JDBClient _client = new BMS.JDBClient())
             {
-                _client.Open("/tmp/devtty01");
+                _client.Open("/tmp/ttyBLE");
 
                 //Console.BufferHeight = 50;
                 //Console.BufferWidth = 120;
