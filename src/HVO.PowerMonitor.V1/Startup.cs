@@ -1,4 +1,5 @@
-﻿using HVO.PowerMonitor.V1.HostedServices.InverterService;
+﻿using HVO.PowerMonitor.V1.HostedServices.BatteryService;
+using HVO.PowerMonitor.V1.HostedServices.InverterService;
 using Microsoft.Extensions.Options;
 
 namespace HVO.PowerMonitor.V1
@@ -31,6 +32,10 @@ namespace HVO.PowerMonitor.V1
 
             services.AddSingleton<IInverterServiceProcessor, InverterServiceProcessor>();
             services.AddHostedService<InverterServiceHost>();
+
+            services.AddSingleton<IBatteryManagerController, BatteryManagerController>();
+            services.AddHostedService<BatteryManagerControllerHost>();
+
 
             // Add services to the container.
             services.AddRazorPages();
