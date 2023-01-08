@@ -62,10 +62,16 @@ namespace HVO.Test.BLE
             var characteristicRX = await service.GetCharacteristicAsync("0000ff01-0000-1000-8000-00805f9b34fb");
             var characteristicTX = await service.GetCharacteristicAsync("0000ff02-0000-1000-8000-00805f9b34fb");
 
+
+            
+            var cs = await service.GetCharacteristicsAsync();
+
             if (characteristicRX != null)
             {
-                var properties = await characteristicRX.GetAllAsync();
-                Console.WriteLine($"UUID: {properties.UUID}, \tFlags: {string.Join(", ", properties.Flags)}");
+                var flags = await characteristicRX.GetFlagsAsync();
+                var uuid = await characteristicRX.GetUUIDAsync();
+
+                Console.WriteLine($"UUID: {uuid}, \tFlags: {string.Join(", ", flags)}");
             }
 
             if (characteristicTX != null)
