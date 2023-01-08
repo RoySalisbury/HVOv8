@@ -72,6 +72,13 @@ namespace HVO.Test.BLE
                     {
                         var uuid = await characteristic.GetUUIDAsync();
                         Console.WriteLine($"\tCharacteristicUUID: {uuid}");
+
+                        var flags = await characteristic.GetFlagsAsync();
+                        foreach (var flag in flags)
+                        {
+                            Console.WriteLine($"\t\tFlag: {flag}");
+                        }
+
                     }
                 }
             }
