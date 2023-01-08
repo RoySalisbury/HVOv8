@@ -67,47 +67,46 @@ namespace HVO.Test.BLE
                 var service1 = await device.GetServiceAsync(s);
                 if (service1 != null)
                 {
-                    
+                    var characteristicUUIDS = await service1.GetUUIDAsync();
+                    foreach (var characteristic in characteristicUUIDS)
+                    {
+                        Console.WriteLine($"\tServiceUUID: {characteristic}");
+                    }
                 }
-
-
-
-
-
             }
 
-            var deviceInfoServiceFound = servicesUUID.Any(uuid =>
-                String.Equals(uuid, GattConstants.DeviceInformationServiceUUID, StringComparison.OrdinalIgnoreCase));
-            if (!deviceInfoServiceFound)
-            {
-                Console.WriteLine("Device doesn't have the Device Information Service. Try pairing first?");
-                return;
-            }
+            //var deviceInfoServiceFound = servicesUUID.Any(uuid =>
+            //    String.Equals(uuid, GattConstants.DeviceInformationServiceUUID, StringComparison.OrdinalIgnoreCase));
+            //if (!deviceInfoServiceFound)
+            //{
+            //    Console.WriteLine("Device doesn't have the Device Information Service. Try pairing first?");
+            //    return;
+            //}
 
-            // Console.WriteLine("Retrieving Device Information service...");
-            var service = await device.GetServiceAsync(GattConstants.DeviceInformationServiceUUID);
-            var modelNameCharacteristic = await service.GetCharacteristicAsync(GattConstants.ModelNameCharacteristicUUID);
-            var manufacturerCharacteristic =
-                await service.GetCharacteristicAsync(GattConstants.ManufacturerNameCharacteristicUUID);
+            //// Console.WriteLine("Retrieving Device Information service...");
+            //var service = await device.GetServiceAsync(GattConstants.DeviceInformationServiceUUID);
+            //var modelNameCharacteristic = await service.GetCharacteristicAsync(GattConstants.ModelNameCharacteristicUUID);
+            //var manufacturerCharacteristic =
+            //    await service.GetCharacteristicAsync(GattConstants.ManufacturerNameCharacteristicUUID);
 
-            int characteristicsFound = 0;
-            if (modelNameCharacteristic != null)
-            {
-                characteristicsFound++;
-                Console.WriteLine("Reading model name characteristic...");
-                var modelNameBytes = await modelNameCharacteristic.ReadValueAsync(timeout);
-                Console.WriteLine($"Model name: {Encoding.UTF8.GetString(modelNameBytes)}");
-            }
+            //int characteristicsFound = 0;
+            //if (modelNameCharacteristic != null)
+            //{
+            //    characteristicsFound++;
+            //    Console.WriteLine("Reading model name characteristic...");
+            //    var modelNameBytes = await modelNameCharacteristic.ReadValueAsync(timeout);
+            //    Console.WriteLine($"Model name: {Encoding.UTF8.GetString(modelNameBytes)}");
+            //}
 
-            if (manufacturerCharacteristic != null)
-            {
-                characteristicsFound++;
-                Console.WriteLine("Reading manufacturer characteristic...");
-                var manufacturerBytes = await manufacturerCharacteristic.ReadValueAsync(timeout);
-                Console.WriteLine($"Manufacturer: {Encoding.UTF8.GetString(manufacturerBytes)}");
-            }
+            //if (manufacturerCharacteristic != null)
+            //{
+            //    characteristicsFound++;
+            //    Console.WriteLine("Reading manufacturer characteristic...");
+            //    var manufacturerBytes = await manufacturerCharacteristic.ReadValueAsync(timeout);
+            //    Console.WriteLine($"Manufacturer: {Encoding.UTF8.GetString(manufacturerBytes)}");
+            //}
 
-            if (characteristicsFound == 0) Console.WriteLine("Model name and manufacturer characteristics not found.");
+            //if (characteristicsFound == 0) Console.WriteLine("Model name and manufacturer characteristics not found.");
 
             await device.DisconnectAsync();
             Console.WriteLine("Disconnected.");
