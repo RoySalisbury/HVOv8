@@ -67,10 +67,11 @@ namespace HVO.Test.BLE
                 var service1 = await device.GetServiceAsync(s);
                 if (service1 != null)
                 {
-                    var characteristicUUIDS = await service1.GetUUIDAsync();
-                    foreach (var characteristic in characteristicUUIDS)
+                    var characteristics = await service1.GetCharacteristicsAsync();
+                    foreach (var characteristic in characteristics)
                     {
-                        Console.WriteLine($"\tServiceUUID: {characteristic}");
+                        var uuid = await characteristic.GetUUIDAsync();
+                        Console.WriteLine($"\tCharacteristicUUID: {uuid}");
                     }
                 }
             }
