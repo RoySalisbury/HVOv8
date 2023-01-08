@@ -6,6 +6,7 @@
         private BatteryManagerCommunicationDevice _communicationsDevice;
 
         protected readonly CancellationTokenSource _internalCancellationTokenSource;
+        private Task _internalBackgroundTask;
 
         protected BatteryManagerService() 
         {
@@ -20,11 +21,17 @@
             this._internalCancellationTokenSource.TryReset();
         }
 
-        public async Task Start(CancellationToken cancellationToken)
+        public void Start(CancellationToken cancellationToken)
         {
-            var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, this._internalCancellationTokenSource.Token);
+            if (this._internalBackgroundTask == null)
+            {
+                var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, this._internalCancellationTokenSource.Token);
 
-            await Task.Delay(-1, linkedTokenSource.Token);
+                this._internalBackgroundTask = Task.Run(async () =>
+                {
+                    await Task.Delay(-1, linkedTokenSource.Token);
+                }, linkedTokenSource.Token);
+            }
         }
 
         public void Stop()
