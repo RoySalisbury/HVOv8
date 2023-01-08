@@ -58,30 +58,57 @@ namespace HVO.Test.BLE
             Console.WriteLine("Waiting for services to resolve...");
             await device.WaitForPropertyValueAsync("ServicesResolved", value: true, timeout);
 
-            var servicesUUID = await device.GetUUIDsAsync();
-            Console.WriteLine($"Device offers {servicesUUID.Length} service(s).");
-            foreach (var s in servicesUUID)
+            var service = await device.GetServiceAsync("0000ff00-0000-1000-8000-00805f9b34fb");
+            var characteristicRX = await service.GetCharacteristicAsync("0000ff01-0000-1000-8000-00805f9b34fb");
+            var characteristicTX = await service.GetCharacteristicAsync("0000ff02-0000-1000-8000-00805f9b34fb");
+
+            if (characteristicRX != null)
             {
-                Console.WriteLine($"ServiceUUID: {s}");
-
-                var service1 = await device.GetServiceAsync(s);
-                if (service1 != null)
-                {
-                    var characteristics = await service1.GetCharacteristicsAsync();
-                    foreach (var characteristic in characteristics)
-                    {
-                        var uuid = await characteristic.GetUUIDAsync();
-                        Console.WriteLine($"\tCharacteristicUUID: {uuid}");
-
-                        var flags = await characteristic.GetFlagsAsync();
-                        foreach (var flag in flags)
-                        {
-                            Console.WriteLine($"\t\tFlag: {flag}");
-                        }
-
-                    }
-                }
+                var properties = await characteristicRX.GetAllAsync();
+                Console.WriteLine($"UUID: {properties.UUID}, \tFlags: {string.Join(", ", properties.Flags)}");
             }
+
+            if (characteristicTX != null)
+            {
+                var properties = await characteristicTX.GetAllAsync();
+                Console.WriteLine($"UUID: {properties.UUID}, \tFlags: {string.Join(", ", properties.Flags)}");
+            }
+
+
+            //var servicesUUID = await device.GetUUIDsAsync();
+            //Console.WriteLine($"Device offers {servicesUUID.Length} service(s).");
+            //foreach (var s in servicesUUID)
+            //{
+            //    Console.WriteLine($"ServiceUUID: {s}");
+
+            //    var service1 = await device.GetServiceAsync(s);
+            //    if (service1 != null)
+            //    {
+            //        var serviceProperties = await service1.GetAllAsync();
+
+            //        var characteristics = await service1.GetCharacteristicsAsync();
+            //        foreach (var characteristic in characteristics)
+            //        {
+            //            var properties = await characteristic.GetAllAsync();
+            //            Console.WriteLine($"UUID: {properties.UUID}");
+            //            Console.WriteLine($"UUID: {properties.UUID}");
+
+            //            var uuid = await characteristic.GetUUIDAsync();
+            //            Console.WriteLine($"\tCharacteristicUUID: {uuid}");
+
+            //            var flags = await characteristic.GetFlagsAsync();
+            //            foreach (var flag in flags)
+            //            {
+            //                Console.WriteLine($"\t\tFlag: {flag}");
+            //            }
+
+            //        }
+            //    }
+            //}
+
+
+
+
 
             //var deviceInfoServiceFound = servicesUUID.Any(uuid =>
             //    String.Equals(uuid, GattConstants.DeviceInformationServiceUUID, StringComparison.OrdinalIgnoreCase));
