@@ -1,0 +1,19 @@
+﻿@page "/"
+@implements IDisposable
+
+@inject NavigationManager _navigationManager
+
+<div>Test Page</div>
+
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+    }
+}

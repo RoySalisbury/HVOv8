@@ -1,0 +1,52 @@
+﻿@page "/"
+@implements IDisposable
+@using HVO.ObservatoryAgent.DavisVantageProAgent.NotificationServices;
+@using HVO.Weather.DavisVantagePro;
+
+@inject NavigationManager _navigationManager
+@inject IWeatherUpdateNotificationService _weatherUpdateNotificationService;
+
+<div>Test Page</div>
+
+@if (Model == null)
+{
+    <span>No Weather Records Received</span>
+} else
+{
+    <div class="row">
+        <div class="col-4 text-nowrap">
+            <span>@Model.RecordDateTime.ToString("O")</span>
+        </div>
+        <div class="col-4 text-nowrap">
+            <span>@Model.InsideTemperature.Fahrenheit.ToString("N2") &#8457</span>
+        </div>
+        <div class="col-4 text-nowrap">
+            <span>@Model.WindSpeed mph</span>
+        </div>
+    </div>
+}
+
+
+@code {
+    private DavisVantageProConsoleRecord Model { get; set; } = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        this._weatherUpdateNotificationService.OnWeatherRecordReceived += OnWeatherRecordReceived;
+
+        await base.OnInitializedAsync();
+    }
+
+    public void Dispose()
+    {
+        this._weatherUpdateNotificationService.OnWeatherRecordReceived -= OnWeatherRecordReceived;
+    }
+
+    private void OnWeatherRecordReceived(object sender, DavisVantageProConsoleRecord weatherRecord)
+    {
+        this.Model = weatherRecord;
+        this.InvokeAsync(StateHasChanged);
+
+        //Console.WriteLine("DT: {0}\tOT: {1}\tWS: {2}\tBV: {3}", weatherRecord.RecordDateTime.ToString("O"), weatherRecord.OutsideTemperature?.Fahrenheit, weatherRecord.WindSpeed, weatherRecord.ConsoleBatteryVoltage);
+    }
+}

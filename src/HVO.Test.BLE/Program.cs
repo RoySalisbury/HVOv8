@@ -64,13 +64,6 @@ namespace HVO.Test.BLE
             {
                 Console.WriteLine($"ServiceUUID: {serviceUUID}");
                 var service = await device.GetServiceAsync(serviceUUID);
-                service.WaitForPropertyValueAsync();
-
-                if (serviceUUID == "0000ffe0-0000-1000-8000-00805f9b34fb")
-                {
-                    var characteristicRX = await service.GetCharacteristicAsync("0000ffe1-0000-1000-8000-00805f9b34fb");
-                }
-
 
                 var characteristics = await service.GetCharacteristicsAsync();
                 foreach (var characteristic in characteristics)

@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using HVO.Hardware.RoofControllerV3;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Device.I2c;
+using Iot.Device.Mlx90614;
 
 namespace HVO.WebSite.RoofControlV3.Controllers.Api
 {
@@ -59,6 +61,25 @@ namespace HVO.WebSite.RoofControlV3.Controllers.Api
             this._roofController.Stop();
             return Ok(this._roofController.Status);
         }
+
+        [HttpGet, Route("Test", Name = "Test")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> Test(CancellationToken cancellationToken = default)
+        {
+            I2cConnectionSettings settings = new(1, 0x27 /*Mlx90614.DefaultI2cAddress*/);
+            using I2cDevice i2cDevice = I2cDevice.Create(settings);
+
+            using Mlx90614 sensor = new(i2cDevice);
+            {
+                Console.WriteLine($"Ambient: {sensor.ReadAmbientTemperature().DegreesFahrenheit} F");
+                Console.WriteLine($"Object: {sensor.ReadObjectTemperature().DegreesFahrenheit} F");
+            }
+
+
+            return Ok(sensor.ReadAmbientTemperature().DegreesFahrenheit);
+        }
+
 
     }
 }

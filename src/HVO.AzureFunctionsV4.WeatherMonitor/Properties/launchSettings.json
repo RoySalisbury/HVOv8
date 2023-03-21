@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "HVO.AzureFunctionsV4.WeatherMonitor": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7020"
+    }
+  }
+}

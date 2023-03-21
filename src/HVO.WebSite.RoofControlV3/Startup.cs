@@ -12,33 +12,44 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
+using Radzen;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace HVO.WebSite.RoofControlV3
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment environment)
         {
             Configuration = configuration;
+            Environment = environment;
         }
 
         public IConfiguration Configuration { get; }
+
+        public IWebHostEnvironment Environment { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddOptions();
-            services.Configure<RoofControllerOptions>(Configuration.GetSection(nameof(RoofControllerOptions)));
-            services.Configure<RoofControllerHostOptions>(Configuration.GetSection(nameof(RoofControllerHostOptions)));
+            services.AddOptions<RoofControllerOptions>(nameof(RoofControllerOptions));
+            services.AddOptions<RoofControllerHostOptions>(nameof(RoofControllerHostOptions));
 
             services.AddSingleton<IRoofController, RoofController>();
             services.AddHostedService<RoofControlServiceHost>();
+
+            // Some specifc blazor services.
+            services.AddScoped<DialogService>();
+            services.AddScoped<NotificationService>();
+            services.AddScoped<TooltipService>();
+            services.AddScoped<ContextMenuService>();
 
             services.AddApiVersioning(setup =>
             {
@@ -48,58 +59,63 @@ namespace HVO.WebSite.RoofControlV3
                 setup.ApiVersionReader = new UrlSegmentApiVersionReader(); // ApiVersionReader.Combine(new QueryStringApiVersionReader("version"), new HeaderApiVersionReader("api-version"), new MediaTypeApiVersionReader("version")); 
             });
 
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            services.AddVersionedApiExplorer(options =>
+            services.AddProblemDetails(configure =>
             {
-                // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
-                // note: the specified format code will format the version as "'v'major[.minor][-status]"
-                options.GroupNameFormat = "'v'VVV";
-
-                // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
-                // can also be used to control the format of the API version in route templates
-                options.SubstituteApiVersionInUrl = true;
             });
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-            services.AddSwaggerGen(options => options.OperationFilter<SwaggerDefaultValues>());
 
-            services.AddProblemDetails();
-            services.AddServerSideBlazor();
-            services.AddControllersWithViews();
+            services.AddOutputCache(options =>
+            {
+                // Bsic output caching for general lists of data that will rarely ever change
+                //options.AddPolicy(nameof(Controllers.Api.GeneralValuesController.GetGenderList), policy => { policy.Tag(nameof(Controllers.Api.GeneralValuesController.GetGenderList)).Expire(TimeSpan.FromMinutes(5)); });
+                //options.AddPolicy(nameof(Controllers.Api.GeneralValuesController.GetEthnicityList), policy => { policy.Tag(nameof(Controllers.Api.GeneralValuesController.GetEthnicityList)).Expire(TimeSpan.FromMinutes(5)); });
+            });
+
+
+            services.AddControllers()
+                .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+            services.AddRazorPages();
+            services.AddServerSideBlazor(options => {
+                options.DetailedErrors = true;
+            });
+
+            services.AddEndpointsApiExplorer();
+            services.AddVersionedApiExplorer(setup =>
+            {
+                setup.GroupNameFormat = "'v'VVV";
+                setup.SubstituteApiVersionInUrl = true;
+            });
+
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+            services.AddSwaggerGen(options =>
+            {
+                options.OperationFilter<SwaggerDefaultValues>();
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider apiVersionDescriptionProvider)
         {
             // Configure the HTTP request pipeline.
-            if (env.IsDevelopment())
+            if (Environment.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
             else
             {
-                app.UseExceptionHandler();
-                //app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
+                app.UseExceptionHandler("/Home/Error");
             }
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseCookiePolicy();
-
-            app.UseRouting();
-
-            app.UseAuthorization();
-
-            app.UseSwagger(options => 
+            app.UseSwagger(options =>
             {
-                options.PreSerializeFilters.Add((swagger, request) => 
+                options.PreSerializeFilters.Add((swagger, request) =>
                 {
-                    swagger.Servers = new List<OpenApiServer>() 
-                    { 
+                    swagger.Servers = new List<OpenApiServer>()
+                    {
                         new OpenApiServer() { Url = $"http://{request.Host}", Description = "Local Development Instance" },
                     };
                 });
             });
+
             app.UseSwaggerUI(options =>
             {
                 // build a swagger endpoint for each discovered API version
@@ -109,14 +125,23 @@ namespace HVO.WebSite.RoofControlV3
                 }
             });
 
+
+            app.UseStaticFiles();
+            app.UseCookiePolicy();
+
+            app.UseRouting();
+
+            app.UseExceptionHandler();
+            app.UseStatusCodePages();
+            app.UseOutputCache();
+
             app.UseEndpoints(endpoints =>
             {
-                //endpoints.MapControllers();
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
-
+                endpoints.MapControllers();
                 endpoints.MapBlazorHub();
+                endpoints.MapFallbackToPage("/_Host");
+
+                endpoints.MapGet("/ping", () => { return Results.Ok($"PONG: {DateTimeOffset.Now}"); });
             });
         }
     }

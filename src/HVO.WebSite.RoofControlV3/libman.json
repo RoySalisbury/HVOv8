@@ -3,7 +3,7 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "library": "font-awesome@6.2.0",
+      "library": "font-awesome@6.3.0",
       "destination": "wwwroot/lib/fontawesome",
       "files": [
         "css/all.css",
@@ -24,7 +24,7 @@
       ]
     },
     {
-      "library": "twitter-bootstrap@5.2.2",
+      "library": "twitter-bootstrap@5.2.3",
       "destination": "wwwroot/lib/bootstrap",
       "files": [
         "css/bootstrap.css",
