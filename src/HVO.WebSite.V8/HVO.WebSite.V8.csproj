@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+    <ApplicationInsightsResourceId>/subscriptions/beec1afc-268f-424a-aa60-34812bef200b/resourceGroups/HVOWebSiteV8/providers/microsoft.insights/components/HVOWebSiteV8</ApplicationInsightsResourceId>
+    <UserSecretsId>1ea005e4-baeb-41cc-9cac-0f81ebbb9820</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

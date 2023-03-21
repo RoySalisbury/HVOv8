@@ -3,6 +3,8 @@
 @namespace HVO.WebSite.V8.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
+@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,6 +31,8 @@
 
     @*This adds the <Title> </Title> to the page if defined in the razor file*@
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+
+    @Html.Raw(JavaScriptSnippet.FullScript)
 </head>
 <body>
     <component type="typeof(App)" render-mode="Server" />

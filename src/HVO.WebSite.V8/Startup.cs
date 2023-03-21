@@ -17,6 +17,9 @@ namespace HVO.WebSite.V8
         {
             services.AddOptions();
 
+            // The following line enables Application Insights telemetry collection.
+            services.AddApplicationInsightsTelemetry();
+
             services.AddControllers();
             services.AddRazorPages();
             services.AddServerSideBlazor();
