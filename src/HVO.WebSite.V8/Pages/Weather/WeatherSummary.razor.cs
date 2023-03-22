@@ -1,4 +1,4 @@
-﻿using HVO.WebSite.V8.DataContracts.Weather;
+﻿using HVO.DataContracts.Weather;
 using HVO.WebSite.V8.Repository;
 using Microsoft.AspNetCore.Components;
 using System.Threading;
@@ -8,7 +8,7 @@ namespace HVO.WebSite.V8.Pages.Weather
     public partial class WeatherSummary 
     {
         [Inject]
-        private WeatherRespository _weatherRespository { get; set; }
+        private WeatherApiRespository _weatherRespository { get; set; }
 
         [Parameter]
         public LatestWeatherRecord Model { get; set; } = new LatestWeatherRecord();
@@ -30,7 +30,9 @@ namespace HVO.WebSite.V8.Pages.Weather
             {
                 try
                 {
-                    Model = await this._weatherRespository.GetLatestWeatherRecordHighLow();
+                    this.Model = await this._weatherRespository.GetLatestWeatherRecordHighLow();
+                    this.Model ??= new LatestWeatherRecord();
+
                     await InvokeAsync(() => StateHasChanged());
                 }
                 catch { }

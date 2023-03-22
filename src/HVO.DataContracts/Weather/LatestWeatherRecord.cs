@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace HVO.WebSite.V8.DataContracts.Weather
+namespace HVO.DataContracts.Weather
 {
     public sealed class LatestWeatherRecord
     {

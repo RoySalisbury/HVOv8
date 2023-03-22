@@ -1,18 +1,24 @@
 using HVO.DataModels.HualapaiValleyObservatory;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Transactions;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
-    .ConfigureServices((context, configure) => 
+    .ConfigureAppConfiguration(o => 
     {
-        configure.AddDbContext<HualapaiValleyObservatoryDbContext>(options =>
+        o.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+    })
+    .ConfigureServices((context, services) => 
+    {
+        services.AddDbContext<HualapaiValleyObservatoryDbContext>((s, options) =>
         {
-            options.UseSqlServer("Server=hvo.database.windows.net;Database=HualapaiValleyObservatory;User Id=roys;Password=1qaz!qaz", a =>
+            options.UseSqlServer(context.Configuration.GetConnectionString("hvo"), sql =>
             {
-                a.EnableRetryOnFailure();
+                sql.MigrationsAssembly(typeof(HualapaiValleyObservatoryDbContext).Assembly.GetName().Name);
+                sql.EnableRetryOnFailure();
             });
         });
     })

@@ -4,7 +4,6 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
     <ApplicationInsightsResourceId>/subscriptions/beec1afc-268f-424a-aa60-34812bef200b/resourceGroups/HVOWebSiteV8/providers/microsoft.insights/components/HVOWebSiteV8</ApplicationInsightsResourceId>
     <UserSecretsId>1ea005e4-baeb-41cc-9cac-0f81ebbb9820</UserSecretsId>
   </PropertyGroup>
@@ -14,20 +13,12 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
 	  <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
-	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.4" />
-	  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.4">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="Radzen.Blazor" Version="4.7.13" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HVO.DataModels\HVO.DataModels.csproj" />
+    <ProjectReference Include="..\HVO.DataContracts\HVO.DataContracts.csproj" />
     <ProjectReference Include="..\HVO\HVO.csproj" />
   </ItemGroup>
 

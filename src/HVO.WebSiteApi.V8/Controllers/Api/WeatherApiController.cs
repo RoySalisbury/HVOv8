@@ -1,21 +1,28 @@
-﻿using HVO.DataModels.HualapaiValleyObservatory;
-using HVO.WebSite.V8.DataContracts.Weather;
-using System.Transactions;
+﻿using HVO.DataContracts.Weather;
+using HVO.DataModels.HualapaiValleyObservatory;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Transactions;
 
-namespace HVO.WebSite.V8.Repository
+namespace HVO.WebSiteApi.V8.Controllers.Api
 {
-    public sealed class WeatherRespository
+    [ApiController]
+    [Route("api/v{version:apiVersion}/weather")]
+    public class WeatherApiController : ControllerBase
     {
         private readonly HualapaiValleyObservatoryDbContext _dbContext;
 
-        public WeatherRespository(HualapaiValleyObservatoryDbContext dbContext)
+        public WeatherApiController(HualapaiValleyObservatoryDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
+        [HttpGet("GetLatestWeatherRecordHighLow")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LatestWeatherRecord))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task", Justification = "<Pending>")]
-        public async Task<LatestWeatherRecord> GetLatestWeatherRecordHighLow()
+        public async Task<IActionResult> GetLatestWeatherRecordHighLow()
         {
             using (var transactionScope = new TransactionScope(TransactionScopeOption.Suppress, new TransactionOptions() { IsolationLevel = IsolationLevel.ReadUncommitted }, TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -55,7 +62,7 @@ namespace HVO.WebSite.V8.Repository
                 if (latestRecord == null)
                 {
                     // This should never happen unless the DB is empty.
-                    return null;
+                    return NotFound();
                 }
 
                 // Get the High / Low for the full day of the latest weather record.
@@ -63,7 +70,7 @@ namespace HVO.WebSite.V8.Repository
                 if (highLowSummary == null)
                 {
                     // This shoud never happen
-                    return null;
+                    return NotFound();
                 }
 
                 var result = new LatestWeatherRecord()
@@ -150,15 +157,18 @@ namespace HVO.WebSite.V8.Repository
                 };
 
                 transactionScope.Complete();
-                return result;
+                return Ok(result);
             }
         }
 
+        [HttpGet("GetLatestWeatherRecord")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task", Justification = "<Pending>")]
-        public async Task<dynamic> GetLatestWeatherRecord()
+        public async Task<IActionResult> GetLatestWeatherRecord()
         {
             var latestRecord = await _dbContext.DavisVantageProConsoleRecords
-                                .Select(x => new 
+                                .Select(x => new
                                 {
                                     x.RecordDateTime,
                                     x.Barometer,
@@ -192,20 +202,29 @@ namespace HVO.WebSite.V8.Repository
             if (latestRecord == null)
             {
                 // This should never happen unless the DB is empty.
-                return null;
+                return NotFound();
             }
 
-            return latestRecord;
+            return Ok(latestRecord);
         }
 
+        [HttpGet("GetDavisVantageProOneMinuteAverage")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task", Justification = "<Pending>")]
-        public async Task<dynamic> GetDavisVantageProOneMinuteAverage(DateTimeOffset startDateTime, DateTimeOffset endDateTime)
+        public async Task<IActionResult> GetDavisVantageProOneMinuteAverage(DateTimeOffset startDateTime, DateTimeOffset endDateTime)
         {
             // All times need to be in AZ time (-420) .. so we need to crate a new DateTimeOffset for each one. 
             startDateTime = new DateTimeOffset(startDateTime.Year, startDateTime.Month, startDateTime.Day, startDateTime.Hour, startDateTime.Minute, 0, Program.ObservatoryTimeZone.BaseUtcOffset);
             endDateTime = new DateTimeOffset(endDateTime.Year, endDateTime.Month, endDateTime.Day, endDateTime.Hour, endDateTime.Minute, 59, 999, Program.ObservatoryTimeZone.BaseUtcOffset);
 
-            return await _dbContext.GetDavisVantageProOneMinuteAverage(startDateTime, endDateTime);
+            var result = await _dbContext.GetDavisVantageProOneMinuteAverage(startDateTime, endDateTime);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
         }
     }
 }
