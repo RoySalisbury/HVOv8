@@ -7,15 +7,16 @@
     <div class="col-12 w-100">
         <img src="images/M33_LRGB_Final2.jpg" width="275" class="ms-3 float-md-end"/>
         <p class="fs-5">
-            The observatory gets it primary power from the sun. There are six 210 watt, six 320 watt, and twelve 330 watt solar panels that 
-            can generate, if required, approx 44 kW per day (on a good sunny day). The collected power is stored in a 24 volt, 1640 ah DC battery bank
-            that is converted to AC power by a 3.5 kW inverter. There is also a 6 kW LP generator that can be used for larger loads and
-            provides backup power when solar power is not enough.
+            The observatory uses a Davis Vantage Pro2 weather station to monitor the current conditions. Sensors include barometric
+            pressure, inside and outside temperature and humidity, dew point, rainfall and rate, heat index, wind chill, wind speed
+            and direction, solar radiation and evapotranspiration.  All data is collected and recorded every 2 seconds.
         </p>
         <p class="fs-5">
-            Listed below are the power generation and utilization details for the system. Data is collected from the system every second
-            and stored in a database for later access. The default chart view is for the prior day plus the data for the current day but
-            longer or shorter periods can be selected.
+            A weather camera is also setup that takes a photo every 10 minutes from different directions and a time lapse video is
+            created for each day. The most recent images obtained are shown on the right.
+        </p>
+        <p class="fs-5">
+            The meteorological day used at this station ends at midnight and all times are local to the observatory.
         </p>
     </div>
 </div>
@@ -23,7 +24,7 @@
 <div class="row pb-3">
     <div class="d-flex">
         <div class="flex-grow-1 pe-2">
-            <WeatherSummary />
+            <WeatherSummary Model="Model"  />
         </div>
         <div class="flex ps-2">
             <AstronomicalInformationSummary />
