@@ -24,10 +24,10 @@
 <div class="row pb-3">
     <div class="d-flex">
         <div class="flex-grow-1 pe-2">
-            <WeatherSummary Model="Model"  />
+            <WeatherSummary Model="Model" DisplayInitialLoader="@DisplaySummaryLoader" />
         </div>
         <div class="flex ps-2">
-            <AstronomicalInformationSummary />
+            <AstronomicalInformationSummary DisplayInitialLoader="@DisplayAstroInformationLoader" />
         </div>
     </div>
 </div>

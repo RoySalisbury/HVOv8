@@ -10,6 +10,7 @@ using HVO.Hardware.RoofControllerV3;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Device.I2c;
 using Iot.Device.Mlx90614;
+using Iot.Device.Mcp9808;
 
 namespace HVO.WebSite.RoofControlV3.Controllers.Api
 {
@@ -27,59 +28,55 @@ namespace HVO.WebSite.RoofControlV3.Controllers.Api
             this._roofController = roofController;
         }
 
-        [HttpGet, Route("Status", Name = "GetRoofStatus")]
+        [HttpGet, Route("Status", Name = nameof(GetRoofStatus))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<RoofControllerStatus>> GetRoofStatus(CancellationToken cancellationToken = default)
+        public ActionResult<RoofControllerStatus> GetRoofStatus()
         {
             return Ok(this._roofController.Status);
         }
 
-        [HttpGet, Route("Open", Name = "DoRoofOpen")]
+        [HttpGet, Route("Open", Name = nameof(DoRoofOpen))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<RoofControllerStatus>> DoRoofOpen(CancellationToken cancellationToken = default)
+        public ActionResult<RoofControllerStatus> DoRoofOpen()
         {
             this._roofController.Open();
             return Ok(this._roofController.Status);
         }
 
-        [HttpGet, Route("Close", Name = "DoRoofClose")]
+        [HttpGet, Route("Close", Name = nameof(DoRoofClose))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<RoofControllerStatus>> DoRoofClose(CancellationToken cancellationToken = default)
+        public ActionResult<RoofControllerStatus> DoRoofClose()
         {
             this._roofController.Close();
             return Ok(this._roofController.Status);
         }
 
-        [HttpGet, Route("Stop", Name = "DoRoofStop")]
+        [HttpGet, Route("Stop", Name = nameof(DoRoofStop))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<RoofControllerStatus>> DoRoofStop(CancellationToken cancellationToken = default)
+        public ActionResult<RoofControllerStatus> DoRoofStop()
         {
             this._roofController.Stop();
             return Ok(this._roofController.Status);
         }
 
-        [HttpGet, Route("Test", Name = "Test")]
+        [HttpGet, Route("AmbientTemperature", Name = nameof(GetAmbientTemperature))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> Test(CancellationToken cancellationToken = default)
+        public ActionResult GetAmbientTemperature()
         {
-            I2cConnectionSettings settings = new(1, 0x27 /*Mlx90614.DefaultI2cAddress*/);
+            I2cConnectionSettings settings = new(1, 0x18 /*Mcp9808.DefaultI2cAddress*/);
             using I2cDevice i2cDevice = I2cDevice.Create(settings);
 
-            using Mlx90614 sensor = new(i2cDevice);
+            using Mcp9808 sensor = new(i2cDevice);
             {
-                Console.WriteLine($"Ambient: {sensor.ReadAmbientTemperature().DegreesFahrenheit} F");
-                Console.WriteLine($"Object: {sensor.ReadObjectTemperature().DegreesFahrenheit} F");
+                Console.WriteLine($"Ambient: {sensor.Temperature.DegreesFahrenheit} F");
             }
 
-
-            return Ok(sensor.ReadAmbientTemperature().DegreesFahrenheit);
+            return Ok(sensor.Temperature.DegreesFahrenheit);
         }
-
-
     }
 }

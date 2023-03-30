@@ -35,7 +35,7 @@
     @Html.Raw(JavaScriptSnippet.FullScript)
 </head>
 <body>
-    <component type="typeof(App)" render-mode="Server" />
+    <component type="typeof(App)" render-mode="ServerPrerendered" />
 
     <div id="blazor-error-ui">
         <environment include="Staging,Production">
@@ -48,6 +48,7 @@
         <a class="dismiss">🗙</a>
     </div>
 
+    <script src="_framework/blazor.server.js"></script>
     <environment include="Development">
         <script type="text/javascript" src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
@@ -56,7 +57,5 @@
         <script type="text/javascript" src="_content/Radzen.Blazor/Radzen.Blazor.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
     </environment>
-
-    <script src="_framework/blazor.server.js"></script>
 </body>
 </html>

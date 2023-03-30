@@ -983,7 +983,7 @@ public partial class HualapaiValleyObservatoryDbContext : DbContext
             .ToListAsync()
             .ConfigureAwait(false);
 
-        return r.SingleOrDefault();
+        return r.FirstOrDefault();
     }
 
     public virtual async Task<IEnumerable<RawModels.DavisVantageProAverage>> GetDavisVantageProOneMinuteAverage(DateTimeOffset startRecordDateTime, DateTimeOffset endRecordDateTime)

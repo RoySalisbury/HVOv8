@@ -31,30 +31,33 @@ namespace HVO.WebSite.RoofControlV3.HostedServices
                 // Loop this until the service is requested to stop
                 while (stoppingToken.IsCancellationRequested == false)
                 {
-                    var roofController = this._roofController as RoofController;
-                    try
+                    if (this._roofController is RoofController roofController)
                     {
-                        roofController.Initialize(stoppingToken);
                         try
                         {
-                            await Task.Delay(-1, stoppingToken);
+                            roofController.Initialize(stoppingToken);
+                            try
+                            {
+                                await Task.Delay(-1, stoppingToken);
+                            }
+                            finally
+                            {
+                                // We ALWAYS want to error on the side of caution and STOP the motors.  This will call dispose, which will in turn call shutdown.
+                                ((IDisposable)roofController).Dispose();
+                                this._logger.LogDebug("RoofController instance disposed.");
+                            }
                         }
-                        finally
+                        catch (TaskCanceledException)
                         {
-                            // We ALWAYS want to error on the side of caution and STOP the motors.  This will call dispose, which will inturn call shutdown.
-                            ((IDisposable)roofController).Dispose();
-                            this._logger.LogDebug("RoofController instance disposed.");
+                            this._logger.LogDebug($"{nameof(RoofControlServiceHost)} TaskCanceledException.");
+                            break;
                         }
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        this._logger.LogDebug($"{nameof(RoofControlServiceHost)} TaskCanceledException.");
-                        break;
-                    }
-                    catch (Exception ex)
-                    {
-                        this._logger.LogError($"{nameof(RoofControlServiceHost)} initialization error: {ex.Message}. Restarting in {this._roofControllerHostOptions.RestartOnFailureWaitTime} seconds unless cancelled.");
-                        await Task.Delay(TimeSpan.FromSeconds(this._roofControllerHostOptions.RestartOnFailureWaitTime), stoppingToken);
+                        catch (Exception ex)
+                        {
+                            this._logger.LogError($"{nameof(RoofControlServiceHost)} initialization error: {ex.Message}. Restarting in {this._roofControllerHostOptions.RestartOnFailureWaitTime} seconds unless cancelled.");
+                            this._logger.LogError($"{nameof(RoofControlServiceHost)} initialization error: {ex.StackTrace}");
+                            await Task.Delay(TimeSpan.FromSeconds(this._roofControllerHostOptions.RestartOnFailureWaitTime), stoppingToken);
+                        }
                     }
                 }
             }

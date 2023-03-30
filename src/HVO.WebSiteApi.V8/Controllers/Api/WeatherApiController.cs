@@ -65,8 +65,11 @@ namespace HVO.WebSiteApi.V8.Controllers.Api
                     return NotFound();
                 }
 
+                // Adjust for timezone differences.... 
+                var adjustedDatetimeOffset = TimeZoneInfo.ConvertTime(latestRecord.RecordDateTime, Program.ObservatoryTimeZone);
+
                 // Get the High / Low for the full day of the latest weather record.
-                var highLowSummary = await _dbContext.GetWeatherRecordHighLowSummary(latestRecord.RecordDateTime.Date, latestRecord.RecordDateTime);
+                var highLowSummary = await _dbContext.GetWeatherRecordHighLowSummary(adjustedDatetimeOffset.Date, adjustedDatetimeOffset);
                 if (highLowSummary == null)
                 {
                     // This shoud never happen
@@ -212,13 +215,17 @@ namespace HVO.WebSiteApi.V8.Controllers.Api
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task", Justification = "<Pending>")]
-        public async Task<IActionResult> GetDavisVantageProOneMinuteAverage(DateTimeOffset startDateTime, DateTimeOffset endDateTime)
+        public async Task<IActionResult> GetDavisVantageProOneMinuteAverage(DateTime startDateTime, DateTime endDateTime)
         {
             // All times need to be in AZ time (-420) .. so we need to crate a new DateTimeOffset for each one. 
-            startDateTime = new DateTimeOffset(startDateTime.Year, startDateTime.Month, startDateTime.Day, startDateTime.Hour, startDateTime.Minute, 0, Program.ObservatoryTimeZone.BaseUtcOffset);
-            endDateTime = new DateTimeOffset(endDateTime.Year, endDateTime.Month, endDateTime.Day, endDateTime.Hour, endDateTime.Minute, 59, 999, Program.ObservatoryTimeZone.BaseUtcOffset);
+            // Adjust for timezone differences.... 
+            //startDateTime = TimeZoneInfo.ConvertTime(startDateTime, Program.ObservatoryTimeZone);
+            //endDateTime = TimeZoneInfo.ConvertTime(startDateTime, Program.ObservatoryTimeZone);
 
-            var result = await _dbContext.GetDavisVantageProOneMinuteAverage(startDateTime, endDateTime);
+            var  startDateTimeOffset = new DateTimeOffset(startDateTime.Year, startDateTime.Month, startDateTime.Day, startDateTime.Hour, startDateTime.Minute, startDateTime.Second, Program.ObservatoryTimeZone.BaseUtcOffset);
+            var endDateTimeOffset = new DateTimeOffset(endDateTime.Year, endDateTime.Month, endDateTime.Day, endDateTime.Hour, endDateTime.Minute, endDateTime.Second, 999, Program.ObservatoryTimeZone.BaseUtcOffset);
+
+            var result = await _dbContext.GetDavisVantageProOneMinuteAverage(startDateTimeOffset, endDateTimeOffset);
             if (result == null)
             {
                 return NotFound();

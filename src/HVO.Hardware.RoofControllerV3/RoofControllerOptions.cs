@@ -8,14 +8,17 @@ namespace HVO.Hardware.RoofControllerV3
 {
     public class RoofControllerOptions
     {
-        public uint CloseRoofRelayPin { get; set; } = 6; // FORWARD
-        public uint OpenRoofRelayPin { get; set; } = 13; // REVERSE
-        public uint StopRoofRelayPin { get; set; } = 19;
-        public uint KeypadEnableRelayPin { get; set; } = 26;
-        public uint RoofClosedLimitSwitchPin { get; set; } = 23;
-        public uint RoofOpenedLimitSwitchPin { get; set; } = 24;
-        public uint StopRoofButtonPin { get; set; } = 16;
-        public uint OpenRoofButtonPin { get; set; } = 20;
-        public uint CloseRoofButtonPin { get; set; } = 21;
+        public int CloseRoofRelayPin { get; set; } = 23; // FORWARD
+        public int OpenRoofRelayPin { get; set; } = 24; // REVERSE
+        public int StopRoofRelayPin { get; set; } = 25;
+        public int KeypadEnableRelayPin { get; set; } = 26;
+
+        public int RoofClosedLimitSwitchPin { get; set; } = 4;
+        public int RoofOpenedLimitSwitchPin { get; set; } = 5;
+        public int LimitSwitch3 { get; set; } = 6;
+
+        public int CloseRoofButtonPin { get; set; } = 7;
+        public int OpenRoofButtonPin { get; set; } = 8;
+        public int StopRoofButtonPin { get; set; } = 9;
     }
 }
