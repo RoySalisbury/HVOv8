@@ -54,7 +54,7 @@ namespace HVO.WebSite.V8.Pages.Weather
             if (degrees.HasValue)
             {
                 string[] directions = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW", "N" };
-                return directions[(int)Math.Round(((double)degrees * 10 % 3600) / 225)];
+                return directions[(int)Math.Round(((double)degrees.Value * 10 % 3600) / 225)];
             }
             return "?";
         }
