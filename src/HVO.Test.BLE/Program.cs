@@ -1,38 +1,57 @@
-﻿using ProrepubliQ.DotNetBlueZ;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Linux.Bluetooth;
+using Linux.Bluetooth.Extensions;
 
 namespace HVO.Test.BLE
 {
     internal class Program
     {
-        private static TimeSpan timeout = TimeSpan.FromSeconds(180);
+        static TimeSpan timeout = TimeSpan.FromSeconds(15);
 
-        private static async Task Main(string[] args)
+        static async Task Main(string[] args)
         {
-            //if (args.Length < 1)
+            if (args.Length < 1)
             {
-                // 24:0A:C4:0E:87:F2
-                // C8:47:8C:E4:54:B1
-                // 70:3E:97:08:17:37
-                //Console.WriteLine("Usage: PrintDeviceInfo <deviceAddress> [adapterName]");
-                //Console.WriteLine("Example: PrintDeviceInfo AA:BB:CC:11:22:33 hci1");
-                //return;
+                Console.WriteLine("Usage: PrintDeviceInfo <deviceAddress> [adapterName]");
+                Console.WriteLine("Example: PrintDeviceInfo AA:BB:CC:11:22:33 hci0");
+                Console.WriteLine("Adapters:");
+
+                var tmp = await BlueZManager.GetAdaptersAsync();
+                foreach (var a in tmp)
+                {
+                    Console.WriteLine($"- {a.Name}");
+                }
+
+                return;
             }
 
-            var deviceAddress = "C8:47:8C:E4:54:B1"; //args[0];
+            var deviceAddress = args[0];
 
             IAdapter1 adapter;
             if (args.Length > 1)
             {
-                adapter = await BlueZManager.GetAdapterAsync(args[1]);
+                // FALSE: 'hci0', TRUE: '/org/bluez/hci0'
+                var fullName = args[1].Contains("/org/bluez/");
+                adapter = await BlueZManager.GetAdapterAsync(args[1], fullName);
             }
             else
             {
                 var adapters = await BlueZManager.GetAdaptersAsync();
-                if (adapters.Count == 0) throw new Exception("No Bluetooth adapters found.");
+                if (adapters.Count == 0)
+                {
+                    throw new Exception("No Bluetooth adapters found.");
+                }
+                else
+                {
+                    foreach (var a in adapters)
+                    {
+                        var name = a.GetNameAsync();
+                        Console.WriteLine($"  - Adapter: '{name}' - '{a.ObjectPath.ToString()}'");
+                    }
+                }
 
                 adapter = adapters.First();
             }
@@ -45,36 +64,61 @@ namespace HVO.Test.BLE
             var device = await adapter.GetDeviceAsync(deviceAddress);
             if (device == null)
             {
-                Console.WriteLine(
-                    $"Bluetooth peripheral with address '{deviceAddress}' not found. Use `bluetoothctl` or Bluetooth Manager to scan and possibly pair first.");
+                Console.WriteLine($"Bluetooth peripheral with address '{deviceAddress}' not found. Use `bluetoothctl` or Bluetooth Manager to scan and possibly pair first.");
                 return;
             }
 
             Console.WriteLine("Connecting...");
             await device.ConnectAsync();
             await device.WaitForPropertyValueAsync("Connected", value: true, timeout);
-            Console.WriteLine("Connected.");
+            var deviceObjPath = device.ObjectPath.ToString();
+            Console.WriteLine($"Connected ({deviceObjPath}).");
 
             Console.WriteLine("Waiting for services to resolve...");
             await device.WaitForPropertyValueAsync("ServicesResolved", value: true, timeout);
 
             var servicesUUID = await device.GetUUIDsAsync();
             Console.WriteLine($"Device offers {servicesUUID.Length} service(s).");
-            foreach (var serviceUUID in servicesUUID)
+            if (servicesUUID is not null)
             {
-                Console.WriteLine($"ServiceUUID: {serviceUUID}");
-                var service = await device.GetServiceAsync(serviceUUID);
-
-                var characteristics = await service.GetCharacteristicsAsync();
-                foreach (var characteristic in characteristics)
+                foreach (var svc in servicesUUID)
                 {
-                    var flags = await characteristic.GetFlagsAsync();
-                    var uuid = await characteristic.GetUUIDAsync();
-
-                    Console.WriteLine($"\tUUID: {uuid}, \tFlags: {string.Join(", ", flags)}");
+                    Console.WriteLine($"- Uuid: {svc}");
                 }
-                Console.WriteLine();
+            }
 
+            var deviceInfoServiceFound = servicesUUID.Any(uuid => String.Equals(uuid, GattConstants.DeviceInformationServiceUUID, StringComparison.OrdinalIgnoreCase));
+            if (!deviceInfoServiceFound)
+            {
+                Console.WriteLine("Device doesn't have the Device Information Service. Try pairing first?");
+                return;
+            }
+
+            // Console.WriteLine("Retrieving Device Information service...");
+            var service = await device.GetServiceAsync(GattConstants.DeviceInformationServiceUUID);
+            var modelNameCharacteristic = await service.GetCharacteristicAsync(GattConstants.ModelNameCharacteristicUUID);
+            var manufacturerCharacteristic = await service.GetCharacteristicAsync(GattConstants.ManufacturerNameCharacteristicUUID);
+
+            int characteristicsFound = 0;
+            if (modelNameCharacteristic != null)
+            {
+                characteristicsFound++;
+                Console.WriteLine("Reading model name characteristic...");
+                var modelNameBytes = await modelNameCharacteristic.ReadValueAsync(timeout);
+                Console.WriteLine($"Model name: {Encoding.UTF8.GetString(modelNameBytes)}");
+            }
+
+            if (manufacturerCharacteristic != null)
+            {
+                characteristicsFound++;
+                Console.WriteLine("Reading manufacturer characteristic...");
+                var manufacturerBytes = await manufacturerCharacteristic.ReadValueAsync(timeout);
+                Console.WriteLine($"Manufacturer: {Encoding.UTF8.GetString(manufacturerBytes)}");
+            }
+
+            if (characteristicsFound == 0)
+            {
+                Console.WriteLine("Model name and manufacturer characteristics not found.");
             }
 
             await device.DisconnectAsync();
