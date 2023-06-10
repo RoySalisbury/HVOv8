@@ -37,7 +37,7 @@ namespace HVO.JKBmsMonitor
                         try
                         {
                             Console.WriteLine($"Initializing {nameof(JkBmsMonitorClient)} instance...");
-                            client.Initialize(stoppingToken);
+                            await client.Initialize(stoppingToken);
                             try
                             {
                                 var result = await client.ScanAndConnect();

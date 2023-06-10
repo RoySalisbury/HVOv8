@@ -26,7 +26,7 @@ namespace HVO.JKBmsMonitor
             this._jkBmsMonitorClientOptions = jkBmsMonitorClientOptions.Value;
         }
 
-        public async void Initialize(CancellationToken cancellationToken)
+        public async Task Initialize(CancellationToken cancellationToken)
         {
             if (this._disposed)
             {
@@ -102,9 +102,9 @@ namespace HVO.JKBmsMonitor
         private async Task<bool> SetupDevice(Device device)
         {
             Console.WriteLine($"Connecting to {await device.GetAddressAsync()}...");
-            device.ConnectAsync().Wait(); ;
+            await device.ConnectAsync();
 
-            device.GetServicesAsync().Wait();
+            await device.GetServicesAsync();
             var servicesUUIDs = await device.GetUUIDsAsync();
 
             var service = await device.GetServiceAsync(_serviceUUID);
@@ -140,7 +140,7 @@ namespace HVO.JKBmsMonitor
                 }
             }
 
-            if ((writeCharacteristic != null) || (notifyCharacteristic != null))
+            if ((writeCharacteristic == null) || (notifyCharacteristic == null))
             {
                 return false;
             }
