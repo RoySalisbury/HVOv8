@@ -20,7 +20,7 @@ namespace HVO.Test.InverterQuery
                 context.AddOptions();
                 context.AddOptions<InverterClientOptions>();
 
-                //.context.AddHostedService<InverterServiceHost>();
+                //.context.AddHostedService<JkBmsMonitorHost>();
 
 
 
