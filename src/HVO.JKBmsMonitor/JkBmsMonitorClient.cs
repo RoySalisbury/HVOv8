@@ -132,7 +132,7 @@ namespace HVO.JKBmsMonitor
 
         }
 
-        private async Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
+        private Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
         {
             var header = new byte[] { 0x55, 0xAA, 0xEB, 0x90 };
             if (header.SequenceEqual(eventArgs.Value[0..4])) 
@@ -152,6 +152,7 @@ namespace HVO.JKBmsMonitor
                 this._notificationBuffer.Clear();
             }
 
+            return Task.CompletedTask;
 
             //try
             //{
@@ -163,16 +164,6 @@ namespace HVO.JKBmsMonitor
             //    Console.Error.WriteLine(ex);
             //}
         }
-
-        private async void CheckForCompletePacket()
-        {
-            var header = new byte[] { 0x55, 0xAA, 0xEB, 0x90 };
-
-
-
-        }
-
-
 
         public async Task RequestDeviceInfo()
         {
@@ -225,8 +216,12 @@ namespace HVO.JKBmsMonitor
             {
                 if (disposing)
                 {
-                    this._notifyCharacteristic?.Dispose();
-                    this._notifyCharacteristic = null;
+                    if (this._notifyCharacteristic is not null)
+                    {
+                        this._notifyCharacteristic.Value -= DeviceNotifyCharacteristic_Value;
+                        this._notifyCharacteristic?.Dispose();
+                        this._notifyCharacteristic = null;
+                    }
 
                     this._writeCharacteristic?.Dispose();
                     this._writeCharacteristic = null;
