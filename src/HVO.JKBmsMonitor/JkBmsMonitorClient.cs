@@ -14,12 +14,12 @@ namespace HVO.JKBmsMonitor
         private bool _disposed;
 
         private const string JkBmsServiceUUID = "0000ffe0-0000-1000-8000-00805f9b34fb";
-          
-
 
         private Adapter _bluetoothAdapter;
         private GattCharacteristic _writeCharacteristic = null;
         private GattCharacteristic _notifyCharacteristic = null;
+
+        private readonly List<byte> _notificationBuffer = new List<byte>();
 
         public JkBmsMonitorClient(ILogger<JkBmsMonitorClient> logger, IOptions<JkBmsMonitorClientOptions> jkBmsMonitorClientOptions)
         {
@@ -29,7 +29,7 @@ namespace HVO.JKBmsMonitor
 
         public bool AdaptorInitialized { get; private set; } = false;
 
-        public async Task<bool> InitializeAdaptorAsync(string adaptorName, bool fullName = false)
+        public async Task<bool> InitializeAdaptorAsync(string adaptorName, bool fullName = false, CancellationToken stoppingToken = default)
         {
             if (this.AdaptorInitialized == true)
             {
@@ -73,7 +73,7 @@ namespace HVO.JKBmsMonitor
                 }
 
             }
-            
+
             return device;
         }
 
@@ -134,16 +134,44 @@ namespace HVO.JKBmsMonitor
 
         private async Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
         {
-            try
+            var header = new byte[] { 0x55, 0xAA, 0xEB, 0x90 };
+            if (header.SequenceEqual(eventArgs.Value[0..4])) 
             {
-                var uuid = await sender.GetUUIDAsync();
-                Console.WriteLine($"Notify Sender: {uuid}, \tLength: {eventArgs.Value.Length} \tValue: {BitConverter.ToString(eventArgs.Value)}");
+                this._notificationBuffer.Clear();
             }
-            catch (Exception ex)
+
+            this._notificationBuffer.AddRange(eventArgs.Value);
+            if (this._notificationBuffer.Count >= 300)
             {
-                Console.Error.WriteLine(ex);
+                if (this._notificationBuffer.Count > 320)
+                {
+                    Console.WriteLine("Buffer longer than expected");
+                }
+
+                Console.WriteLine($"Notify: {BitConverter.ToString(this._notificationBuffer.ToArray())}");
+                this._notificationBuffer.Clear();
             }
+
+
+            //try
+            //{
+            //    var uuid = await sender.GetUUIDAsync();
+            //    Console.WriteLine($"Notify Sender: {uuid}, \tLength: {eventArgs.Value.Length} \tValue: {BitConverter.ToString(eventArgs.Value)}");
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.Error.WriteLine(ex);
+            //}
         }
+
+        private async void CheckForCompletePacket()
+        {
+            var header = new byte[] { 0x55, 0xAA, 0xEB, 0x90 };
+
+
+
+        }
+
 
 
         public async Task RequestDeviceInfo()

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -12,14 +13,15 @@ namespace HVO.JKBmsMonitor
     public class JkBmsMonitorHost : BackgroundService
     {
         private readonly ILogger<JkBmsMonitorHost> _logger;
-        private readonly JkBmsMonitorClient _jkBmsMonitorClient;
+        private JkBmsMonitorClient _jkBmsMonitorClient;
+        private readonly IServiceProvider _serviceProvider;
         private readonly JkBmsMonitorHostOptions _jkBmsMonitorHostOptions;
 
-        public JkBmsMonitorHost(ILogger<JkBmsMonitorHost> logger, JkBmsMonitorClient jkBmsMonitorClient, IOptions<JkBmsMonitorHostOptions> jkBmsMonitorHostOptions)
+        public JkBmsMonitorHost(ILogger<JkBmsMonitorHost> logger, IServiceProvider serviceProvider, IOptions<JkBmsMonitorHostOptions> jkBmsMonitorHostOptions)
         {
             _logger = logger;
-            _jkBmsMonitorClient = jkBmsMonitorClient;
-            _jkBmsMonitorHostOptions = jkBmsMonitorHostOptions.Value;
+            _serviceProvider = serviceProvider;
+            _jkBmsMonitorHostOptions = jkBmsMonitorHostOptions.Value; // hci0 and deviceAddress should come from here
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -32,27 +34,19 @@ namespace HVO.JKBmsMonitor
                 // Loop this until the service is requested to stop
                 while (stoppingToken.IsCancellationRequested == false)
                 {
-                    if (this._jkBmsMonitorClient is JkBmsMonitorClient client)
+                    using (this._jkBmsMonitorClient = this._serviceProvider.GetRequiredService<JkBmsMonitorClient>())
                     {
                         try
                         {
                             Console.WriteLine($"Initializing {nameof(JkBmsMonitorClient)} instance...");
-                            await client.InitializeAdaptorAsync("hci0", false);
-                            try
-                            {
-                                await client.ConnectToDeviceAsync("C8:47:8C:E4:54:B1", true, 20);
-                                await client.RequestDeviceInfo();
-                                await client.RequestCellInfo();
+                            await this._jkBmsMonitorClient.InitializeAdaptorAsync("hci0", false, stoppingToken);
 
-                                Console.WriteLine($"Press Ctrl-C to stop instance...");
-                                await Task.Delay(-1, stoppingToken);
-                            }
-                            finally
-                            {
-                                // We ALWAYS want to error on the side of caution and STOP the motors.  This will call dispose, which will in turn call shutdown.
-                                ((IDisposable)client).Dispose();
-                                this._logger.LogDebug($"{nameof(JkBmsMonitorClient)} instance disposed.");
-                            }
+                            await this._jkBmsMonitorClient.ConnectToDeviceAsync("C8:47:8C:E4:54:B1", true, 20);
+                            await this._jkBmsMonitorClient.RequestDeviceInfo();
+                            await this._jkBmsMonitorClient.RequestCellInfo();
+
+                            Console.WriteLine($"Press Ctrl-C to stop instance...");
+                            await Task.Delay(-1, stoppingToken);
                         }
                         catch (TaskCanceledException)
                         {
