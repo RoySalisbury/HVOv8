@@ -225,6 +225,12 @@ namespace HVO.JKBmsMonitor
             {
                 if (disposing)
                 {
+                    this._notifyCharacteristic?.Dispose();
+                    this._notifyCharacteristic = null;
+
+                    this._writeCharacteristic?.Dispose();
+                    this._writeCharacteristic = null;
+
                     this._bluetoothAdapter?.Dispose();
                     this._bluetoothAdapter = null;
 
