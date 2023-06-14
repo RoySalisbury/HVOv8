@@ -170,21 +170,18 @@ namespace HVO.JKBmsMonitor
                     {
                         break;
                     }
-                case 0x02:
+                case 0x02: // JK02 uses 2 byte cell values
                     {
-                        var t1 = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(6, 4));
-                        var t2 = BinaryPrimitives.ReadUInt32LittleEndian(data.Slice(6, 4));
+                        var cellVoltage01a = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(6, 2));
+                        var cellVoltage01b = BitConverter.ToInt16(data.Slice(6, 2));
 
-
-
-                        var cellVoltage01 = BitConverter.ToInt32(data.Slice(6, 4));
-                        var cellVoltage02 = BitConverter.ToInt32(data.Slice(10, 4));
-                        var cellVoltage03 = BitConverter.ToInt32(data.Slice(14, 4));
-                        var cellVoltage04 = BitConverter.ToInt32(data.Slice(18, 4));
-                        var cellVoltage05 = BitConverter.ToInt32(data.Slice(22, 4));
-                        var cellVoltage06 = BitConverter.ToInt32(data.Slice(26, 4));
-                        var cellVoltage07 = BitConverter.ToInt32(data.Slice(30, 4));
-                        var cellVoltage08 = BitConverter.ToInt32(data.Slice(34, 4));
+                        var cellVoltage02 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(8, 2));
+                        var cellVoltage03 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(10, 2));
+                        var cellVoltage04 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(12, 2));
+                        var cellVoltage05 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(14, 2));
+                        var cellVoltage06 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(16, 2));
+                        var cellVoltage07 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(18, 2));
+                        var cellVoltage08 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(20, 2));
 
 
 
