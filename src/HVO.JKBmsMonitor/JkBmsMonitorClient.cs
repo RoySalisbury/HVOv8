@@ -5,6 +5,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using System.Reflection;
 using System.Text;
+using System.Linq;
+using System.Buffers.Binary;
 
 namespace HVO.JKBmsMonitor
 {
@@ -170,6 +172,11 @@ namespace HVO.JKBmsMonitor
                     }
                 case 0x02:
                     {
+                        var t1 = BinaryPrimitives.ReadUInt32BigEndian(data.Slice(6, 4));
+                        var t2 = BinaryPrimitives.ReadUInt32LittleEndian(data.Slice(6, 4));
+
+
+
                         var cellVoltage01 = BitConverter.ToInt32(data.Slice(6, 4));
                         var cellVoltage02 = BitConverter.ToInt32(data.Slice(10, 4));
                         var cellVoltage03 = BitConverter.ToInt32(data.Slice(14, 4));
