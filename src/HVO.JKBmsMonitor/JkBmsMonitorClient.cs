@@ -172,16 +172,22 @@ namespace HVO.JKBmsMonitor
                     }
                 case 0x02: // JK02 uses 2 byte cell values
                     {
-                        var cellVoltage01 = BitConverter.ToInt16(data.Slice(6, 2)) / 1000.0;
-                        var cellVoltage02 = BitConverter.ToInt16(data.Slice(8, 2));
-                        var cellVoltage03 = BitConverter.ToInt16(data.Slice(10, 2));
-                        var cellVoltage04 = BitConverter.ToInt16(data.Slice(12, 2));
-                        var cellVoltage05 = BitConverter.ToInt16(data.Slice(14, 2));
-                        var cellVoltage06 = BitConverter.ToInt16(data.Slice(16, 2));
-                        var cellVoltage07 = BitConverter.ToInt16(data.Slice(18, 2));
-                        var cellVoltage08 = BitConverter.ToInt16(data.Slice(20, 2));
+                        int offset = 0;
+                        int numberOfCells = 24 + (offset / 2);
 
+                        var cellVoltages = new short[numberOfCells];
+                        var cellResistance = new short[numberOfCells];
 
+                        for (int i = 0; i < numberOfCells; i++)
+                        {
+                            cellVoltages[i] = BitConverter.ToInt16(data.Slice((i * 2) + 6, 2));
+                            cellResistance[i] = BitConverter.ToInt16(data.Slice((i * 2) + 64 + offset, 2));
+                        }
+
+                        var averageCellVoltage = BitConverter.ToInt16(data.Slice((58 + offset), 2));
+                        var deltaCellVoltge = BitConverter.ToInt16(data.Slice((60 + offset), 2));
+                        var maxCellVolageIndex = data[62];
+                        var minCellVolageIndex = data[63];
 
 
                         break;
