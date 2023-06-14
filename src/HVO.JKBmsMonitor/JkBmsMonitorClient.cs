@@ -35,51 +35,45 @@ namespace HVO.JKBmsMonitor
                 return true;
             }
 
-            this._bluetoothAdapter = await BlueZManager.GetAdapterAsync("hci0", false);
-            return true;
+            this._bluetoothAdapter = await BlueZManager.GetAdapterAsync(adaptorName, fullName);
+            this.AdaptorInitialized = true;
+
+            return this.AdaptorInitialized;
         }
 
         private async Task<Device> FindDeviceAsync(string deviceAddress, bool scanIfNecessary, int timeout = 20)
         {
             // First try to direct connect to the device (short cut the scan delay).
-            try
+            Device device = await this._bluetoothAdapter.GetDeviceAsync(deviceAddress);
+            if ((device is null) && (scanIfNecessary == true))
             {
-                return await this._bluetoothAdapter.GetDeviceAsync(deviceAddress);
-            }
-            catch (Exception)
-            {
-                if (scanIfNecessary)
+                using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+                using (await this._bluetoothAdapter.WatchDevicesAddedAsync(async foundDevice =>
                 {
-                    Device device = null;
-                    using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-
-                    using (await this._bluetoothAdapter.WatchDevicesAddedAsync(async foundDevice =>
+                    if (cancellationTokenSource.IsCancellationRequested == false)
                     {
-                        if (cancellationTokenSource.IsCancellationRequested == false)
+                        var a = await foundDevice.GetAddressAsync();
+                        var deviceName = await foundDevice.GetAliasAsync();
+
+                        if (a.Equals(deviceAddress, StringComparison.OrdinalIgnoreCase) || deviceName.Contains(deviceAddress, StringComparison.OrdinalIgnoreCase))
                         {
-                            var a = await foundDevice.GetAddressAsync();
-                            var deviceName = await foundDevice.GetAliasAsync();
-
-                            if (a.Equals(deviceAddress, StringComparison.OrdinalIgnoreCase) || deviceName.Contains(deviceAddress, StringComparison.OrdinalIgnoreCase))
-                            {
-                                device = foundDevice;
-                                cancellationTokenSource.Cancel();
-                            }
+                            device = foundDevice;
+                            cancellationTokenSource.Cancel();
                         }
-                    }))
-                    {
-                        await this._bluetoothAdapter.StartDiscoveryAsync();
-                        await Task.Delay(timeout, cancellationTokenSource.Token).ContinueWith(async t => 
-                        { 
-                            await this._bluetoothAdapter.StopDiscoveryAsync();
-                        });
                     }
-
-                    return device;
+                }))
+                {
+                    await this._bluetoothAdapter.StartDiscoveryAsync();
+                    await Task.Delay(TimeSpan.FromSeconds(timeout), cancellationTokenSource.Token).ContinueWith(async t =>
+                    {
+                        await this._bluetoothAdapter.StopDiscoveryAsync();
+                    });
                 }
-            }
 
-            return null;
+            }
+            
+            return device;
         }
 
 
@@ -142,7 +136,7 @@ namespace HVO.JKBmsMonitor
                     this._notifyCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
                     Console.WriteLine($"Notify Characteristic: {await item.GetUUIDAsync()}");
 
-                    await this._notifyCharacteristic.StopNotifyAsync();
+                    //await this._notifyCharacteristic.StopNotifyAsync();
                     this._notifyCharacteristic.Value += DeviceNotifyCharacteristic_Value;
                 }
 
@@ -169,11 +163,18 @@ namespace HVO.JKBmsMonitor
 
         public async Task RequestDeviceInfo()
         {
-            if (this._writeCharacteristic != null)
+            if (this._writeCharacteristic is not null)
             {
                 var getInfo = new byte[] { 0xAA, 0x55, 0x90, 0xEB, 0x97, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11 };
                 var options = new Dictionary<string, object>();
-                await this._writeCharacteristic.WriteValueAsync(getInfo, options);
+                try 
+                {
+                    await this._writeCharacteristic.WriteValueAsync(getInfo, options);
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
             }
         }
 
