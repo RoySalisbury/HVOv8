@@ -42,8 +42,12 @@ namespace HVO.JKBmsMonitor
                             {
                                 await client.ConnectToDeviceAsync("C8:47:8C:E4:54:B1", true, 20);
                                 await client.RequestDeviceInfo();
-                                await client.RequestCellInfo();
 
+                                // RequestCellInfo will continue to return cell data forever (unless StopNotify is called)
+                                // Might be able to stop this by removing the NotificationHandler, clear all internal buffers
+                                // and re-adding it.
+                                await client.RequestCellInfo();
+                                
                                 Console.WriteLine($"Press Ctrl-C to stop instance...");
                                 await Task.Delay(-1, stoppingToken);
                             }
