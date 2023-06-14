@@ -3,6 +3,7 @@ using Linux.Bluetooth.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using System.Reflection;
 
 namespace HVO.JKBmsMonitor
 {
@@ -97,6 +98,7 @@ namespace HVO.JKBmsMonitor
             }
 
             device.Connected += Device_Connected;
+
             device.Disconnected += Device_Disconnected;
             await device.ConnectAsync();
         }
@@ -104,22 +106,6 @@ namespace HVO.JKBmsMonitor
         private async Task Device_Connected(Device sender, BlueZEventArgs eventArgs)
         {
             sender.Connected -= Device_Connected;
-            sender.ServicesResolved += Device_ServicesResolved;
-
-            await sender.GetServicesAsync();
-        }
-
-        private Task Device_Disconnected(Device sender, BlueZEventArgs eventArgs)
-        {
-            sender.Disconnected -= Device_Disconnected;
-            return Task.CompletedTask; 
-        }
-
-
-        private async Task Device_ServicesResolved(Device sender, BlueZEventArgs eventArgs)
-        {
-            // The device is connected and the services are resolved for this device.  We can now setup the write/notify hanlders.
-            sender.ServicesResolved -= Device_ServicesResolved;
 
             var service = await sender.GetServiceAsync(JkBmsServiceUUID);
             if (service == null)
@@ -131,13 +117,13 @@ namespace HVO.JKBmsMonitor
             foreach (var item in characteristics)
             {
                 var flags = await item.GetFlagsAsync();
-                if ((this._writeCharacteristic == null) && flags.Intersect(new[] { "write", "write-without-response" }).Any())
+                if ((this._writeCharacteristic is null) && flags.Intersect(new[] { "write", "write-without-response" }).Any())
                 {
                     this._writeCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
                     Console.WriteLine($"Write Characteristic: {await item.GetUUIDAsync()}");
                 }
 
-                if ((this._notifyCharacteristic == null) && flags.Intersect(new[] { "notify" }).Any())
+                if ((this._notifyCharacteristic is null) && flags.Intersect(new[] { "notify" }).Any())
                 {
                     this._notifyCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
                     Console.WriteLine($"Notify Characteristic: {await item.GetUUIDAsync()}");
@@ -146,12 +132,26 @@ namespace HVO.JKBmsMonitor
                     this._notifyCharacteristic.Value += DeviceNotifyCharacteristic_Value;
                 }
 
-                if ((this._writeCharacteristic != null) && (this._notifyCharacteristic != null))
+                if ((this._writeCharacteristic is not null) && (this._notifyCharacteristic is not null))
                 {
                     break;
                 }
             }
         }
+
+        private Task Device_Disconnected(Device sender, BlueZEventArgs eventArgs)
+        {
+            sender.Disconnected -= Device_Disconnected;
+            return Task.CompletedTask; 
+        }
+
+
+        //private async Task Device_ServicesResolved(Device sender, BlueZEventArgs eventArgs)
+        //{
+        //    // The device is connected and the services are resolved for this device.  We can now setup the write/notify hanlders.
+        //    sender.ServicesResolved -= Device_ServicesResolved;
+
+        //}
 
         private async Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
         {
