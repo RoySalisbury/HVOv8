@@ -2,23 +2,23 @@
 using Linux.Bluetooth.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualBasic;
-using System;
-using System.Reflection;
+using Microsoft.Extensions.Primitives;
 
 namespace HVO.JKBmsMonitor
 {
-    public class JkBmsMonitorClient : IDisposable
+    public sealed class JkBmsMonitorClient : IDisposable
     {
         private readonly ILogger<JkBmsMonitorClient> _logger;
         private readonly JkBmsMonitorClientOptions _jkBmsMonitorClientOptions;
         private bool _disposed;
 
+        private const string JkBmsServiceUUID = "0000ffe0-0000-1000-8000-00805f9b34fb";
+          
+
+
         private Adapter _bluetoothAdapter;
-
-        public const string deviceFilter = "C8:47:8C:E4:54:B1";
-        public const string _serviceUUID = "0000ffe0-0000-1000-8000-00805f9b34fb";
-
+        private GattCharacteristic _writeCharacteristic = null;
+        private GattCharacteristic _notifyCharacteristic = null;
 
         public JkBmsMonitorClient(ILogger<JkBmsMonitorClient> logger, IOptions<JkBmsMonitorClientOptions> jkBmsMonitorClientOptions)
         {
@@ -26,129 +26,134 @@ namespace HVO.JKBmsMonitor
             this._jkBmsMonitorClientOptions = jkBmsMonitorClientOptions.Value;
         }
 
-        public async Task Initialize(CancellationToken cancellationToken)
+        public bool AdaptorInitialized { get; private set; } = false;
+
+        public async Task<bool> InitializeAdaptorAsync(string adaptorName, bool fullName = false)
         {
-            if (this._disposed)
+            if (this.AdaptorInitialized == true)
             {
-                throw new ObjectDisposedException(nameof(JkBmsMonitorClient));
+                return true;
             }
 
-            if (this.IsInitialized)
-            {
-                throw new Exception("Already Initialized");
-            }
-            
             this._bluetoothAdapter = await BlueZManager.GetAdapterAsync("hci0", false);
-
-            var adapterPath = _bluetoothAdapter.ObjectPath.ToString();
-            var adapterName = adapterPath[(adapterPath.LastIndexOf("/") + 1)..];
-            Console.WriteLine($"Using Bluetooth adapter {adapterName}");
-
-            this.IsInitialized = true;
+            return true;
         }
 
-        public bool IsInitialized { get; private set; } = false;
-
-
-        public async Task<bool> ScanAndConnect()
+        private async Task<Device> FindDeviceAsync(string deviceAddress, bool scanIfNecessary, int timeout = 20)
         {
-            if (this._disposed)
-            {
-                throw new ObjectDisposedException(nameof(JkBmsMonitorClient));
-            }
-
-            // Make sure the adapter is powered up
-            var powerState = await this._bluetoothAdapter.GetPoweredAsync();
-            if (powerState == false)
-            {
-                await this._bluetoothAdapter.SetPoweredAsync(true);
-            }
-
             // First try to direct connect to the device (short cut the scan delay).
-            Device device = null;
             try
             {
-                device = await this._bluetoothAdapter.GetDeviceAsync(deviceFilter);
+                return await this._bluetoothAdapter.GetDeviceAsync(deviceAddress);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                using (await this._bluetoothAdapter.WatchDevicesAddedAsync(async d =>
+                if (scanIfNecessary)
                 {
-                    var deviceAddress = await d.GetAddressAsync();
-                    var deviceName = await d.GetAliasAsync();
-                    if (deviceAddress.Equals(deviceFilter, StringComparison.OrdinalIgnoreCase) || deviceName.Contains(deviceFilter, StringComparison.OrdinalIgnoreCase))
+                    Device device = null;
+                    using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+                    using (await this._bluetoothAdapter.WatchDevicesAddedAsync(async foundDevice =>
                     {
-                        await this._bluetoothAdapter.StopDiscoveryAsync();
-                        device = d;
+                        if (cancellationTokenSource.IsCancellationRequested == false)
+                        {
+                            var a = await foundDevice.GetAddressAsync();
+                            var deviceName = await foundDevice.GetAliasAsync();
+
+                            if (a.Equals(deviceAddress, StringComparison.OrdinalIgnoreCase) || deviceName.Contains(deviceAddress, StringComparison.OrdinalIgnoreCase))
+                            {
+                                device = foundDevice;
+                                cancellationTokenSource.Cancel();
+                            }
+                        }
+                    }))
+                    {
+                        await this._bluetoothAdapter.StartDiscoveryAsync();
+                        await Task.Delay(timeout, cancellationTokenSource.Token).ContinueWith(async t => 
+                        { 
+                            await this._bluetoothAdapter.StopDiscoveryAsync();
+                        });
                     }
-                })) 
-                {
-                    await this._bluetoothAdapter.StartDiscoveryAsync();
-                    await Task.Delay(TimeSpan.FromSeconds(10));
-                    await this._bluetoothAdapter.StopDiscoveryAsync();
+
+                    return device;
                 }
             }
 
-            if (device == null)
-            {
-                return false;
-            }
-            return await SetupDevice(device);
+            return null;
         }
 
-        GattCharacteristic writeCharacteristic = null;
-        GattCharacteristic notifyCharacteristic = null;
 
-        private async Task<bool> SetupDevice(Device device)
+        public async Task ConnectToDeviceAsync(string deviceAddress, bool scanIfNecessary, int timeout = 20)
         {
-            Console.WriteLine($"Connecting to {await device.GetAddressAsync()}...");
-            await device.ConnectAsync();
-
-            await device.GetServicesAsync();
-            var servicesUUIDs = await device.GetUUIDsAsync();
-
-            var service = await device.GetServiceAsync(_serviceUUID);
-            if (service == null)
+            if (AdaptorInitialized == false)
             {
-                Console.WriteLine($"Service UUID {_serviceUUID} not found. Do you need to pair first?");
-                return false;
+                throw new Exception("Adaptor not initialized");
             }
 
+            var device = await FindDeviceAsync(deviceAddress, scanIfNecessary, timeout);
+            if (device is null)
+            {
+                throw new Exception("Device not found");
+            }
+
+            device.Connected += Device_Connected;
+            device.Disconnected += Device_Disconnected;
+            await device.ConnectAsync();
+        }
+
+        private async Task Device_Connected(Device sender, BlueZEventArgs eventArgs)
+        {
+            sender.Connected -= Device_Connected;
+            sender.ServicesResolved += Device_ServicesResolved;
+
+            await sender.GetServicesAsync();
+        }
+
+        private Task Device_Disconnected(Device sender, BlueZEventArgs eventArgs)
+        {
+            sender.Disconnected -= Device_Disconnected;
+            return Task.CompletedTask; 
+        }
+
+
+        private async Task Device_ServicesResolved(Device sender, BlueZEventArgs eventArgs)
+        {
+            // The device is connected and the services are resolved for this device.  We can now setup the write/notify hanlders.
+            sender.ServicesResolved -= Device_ServicesResolved;
+
+            var service = await sender.GetServiceAsync(JkBmsServiceUUID);
+            if (service == null)
+            {
+                Console.WriteLine($"Service UUID {JkBmsServiceUUID} not found. Do you need to pair first?");
+            }
 
             var characteristics = await service.GetCharacteristicsAsync();
-            Console.WriteLine($"Service offers {characteristics.Count} characteristics(s).");
             foreach (var item in characteristics)
             {
                 var flags = await item.GetFlagsAsync();
-                if ((writeCharacteristic == null) && flags.Intersect(new[] { "write", "write-without-response" }).Any())
+                if ((this._writeCharacteristic == null) && flags.Intersect(new[] { "write", "write-without-response" }).Any())
                 {
-                    writeCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
+                    this._writeCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
                     Console.WriteLine($"Write Characteristic: {await item.GetUUIDAsync()}");
                 }
 
-                if ((notifyCharacteristic == null) && flags.Intersect(new[] { "notify" }).Any())
+                if ((this._notifyCharacteristic == null) && flags.Intersect(new[] { "notify" }).Any())
                 {
-                    notifyCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
+                    this._notifyCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
                     Console.WriteLine($"Notify Characteristic: {await item.GetUUIDAsync()}");
 
-                    notifyCharacteristic.Value += NotifyCharacteristic_Value;
+                    await this._notifyCharacteristic.StopNotifyAsync();
+                    this._notifyCharacteristic.Value += DeviceNotifyCharacteristic_Value;
                 }
 
-                if ((writeCharacteristic != null) && (notifyCharacteristic != null))
+                if ((this._writeCharacteristic != null) && (this._notifyCharacteristic != null))
                 {
                     break;
                 }
             }
-
-            if ((writeCharacteristic == null) || (notifyCharacteristic == null))
-            {
-                return false;
-            }
-
-            return true;
         }
 
-        private async Task NotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
+        private async Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
         {
             try
             {
@@ -161,18 +166,18 @@ namespace HVO.JKBmsMonitor
             }
         }
 
-        public async Task Test()
+
+        public async Task RequestDeviceInfo()
         {
-            if (writeCharacteristic != null)
+            if (this._writeCharacteristic != null)
             {
                 var getInfo = new byte[] { 0xAA, 0x55, 0x90, 0xEB, 0x97, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11 };
                 var options = new Dictionary<string, object>();
-                await writeCharacteristic.WriteValueAsync(getInfo, options);
+                await this._writeCharacteristic.WriteValueAsync(getInfo, options);
             }
         }
 
-
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (!_disposed)
             {
@@ -180,6 +185,8 @@ namespace HVO.JKBmsMonitor
                 {
                     this._bluetoothAdapter?.Dispose();
                     this._bluetoothAdapter = null;
+
+                    this.AdaptorInitialized = false;
                 }
 
                 _disposed = true;
@@ -188,11 +195,8 @@ namespace HVO.JKBmsMonitor
 
         void IDisposable.Dispose()
         {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-
-
     }
 }

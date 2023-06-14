@@ -219,10 +219,10 @@ namespace ConsoleApp1
 
             try
             {
-                var buffer = new byte[1024];
+                var buffer = new byte[320*10];
                 int bytesRead = 0;
 
-                this._networkStream.ReadTimeout = 5000;
+                this._networkStream.ReadTimeout = 1000;
                 while ((bytesRead < buffer.Length)/* && (this._networkStream.DataAvailable)*/)
                 {
                     try

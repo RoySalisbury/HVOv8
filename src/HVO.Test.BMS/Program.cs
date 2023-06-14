@@ -16,7 +16,7 @@ namespace HVO.Test.BMS
         {
             using (BMS.JbdBmsSocketClient _client = new BMS.JbdBmsSocketClient())
             {
-                _client.Open(new IPEndPoint(IPAddress.Parse("192.168.0.117"), 4002));
+                _client.Open(new IPEndPoint(IPAddress.Parse("192.168.0.8"), 4002));
 
                 //Console.BufferHeight = 50;
                 //Console.BufferWidth = 120;
