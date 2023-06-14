@@ -120,7 +120,7 @@ namespace HVO.JKBmsMonitor
                     this._notifyCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
                     Console.WriteLine($"Notify Characteristic: {await item.GetUUIDAsync()}");
 
-                    await this._notifyCharacteristic.StopNotifyAsync();
+                    //await this._notifyCharacteristic.StopNotifyAsync();
                     this._notifyCharacteristic.Value += DeviceNotifyCharacteristic_Value;
                 }
 
