@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using System.Reflection;
+using System.Text;
 
 namespace HVO.JKBmsMonitor
 {
@@ -144,8 +145,63 @@ namespace HVO.JKBmsMonitor
                     Console.WriteLine("Buffer longer than expected");
                 }
 
+                DecodeResponse(this._notificationBuffer.ToArray());
+
                 Console.WriteLine($"Notify: {BitConverter.ToString(this._notificationBuffer.ToArray())}");
                 this._notificationBuffer.Clear();
+            }
+        }
+
+        private void DecodeResponse(ReadOnlySpan<byte> data)
+        {
+            // The first 4 bytes are the header
+
+            // Byte 5 is the command code (0x96, 0x97)
+
+            // byte 6 is the record type (0x01, 0x02, 0x03)
+
+            // The CRC is at byte 300, even if the packet is larger (e.g., 320)
+
+            switch (data[4])
+            {
+                case 0x01: // settings
+                    {
+                        break;
+                    }
+                case 0x02:
+                    {
+                        var cellVoltage01 = BitConverter.ToInt32(data.Slice(6, 4));
+                        var cellVoltage02 = BitConverter.ToInt32(data.Slice(10, 4));
+                        var cellVoltage03 = BitConverter.ToInt32(data.Slice(14, 4));
+                        var cellVoltage04 = BitConverter.ToInt32(data.Slice(18, 4));
+                        var cellVoltage05 = BitConverter.ToInt32(data.Slice(22, 4));
+                        var cellVoltage06 = BitConverter.ToInt32(data.Slice(26, 4));
+                        var cellVoltage07 = BitConverter.ToInt32(data.Slice(30, 4));
+                        var cellVoltage08 = BitConverter.ToInt32(data.Slice(34, 4));
+
+
+
+                        break;
+                    }
+                case 0x03:
+                    {
+                        var vendorId = ASCIIEncoding.ASCII.GetString(data.Slice(6, 16));
+                        var hardwareVersion = ASCIIEncoding.ASCII.GetString(data.Slice(22, 8));
+                        var softwareVersion = ASCIIEncoding.ASCII.GetString(data.Slice(30, 8));
+                        var uptime = BitConverter.ToInt32(data.Slice(38, 4));
+                        var powerOnCount = BitConverter.ToInt32(data.Slice(42, 4));
+                        var deviceName = ASCIIEncoding.ASCII.GetString(data.Slice(46, 16));
+                        var devicePasscode = ASCIIEncoding.ASCII.GetString(data.Slice(62, 16));
+                        var manufactureDate = ASCIIEncoding.ASCII.GetString(data.Slice(78, 8));
+                        var serialNumber = ASCIIEncoding.ASCII.GetString(data.Slice(86, 11));
+                        var passcode = ASCIIEncoding.ASCII.GetString(data.Slice(97, 5));
+                        var userData = ASCIIEncoding.ASCII.GetString(data.Slice(102, 16));
+                        var setupPasscode = ASCIIEncoding.ASCII.GetString(data.Slice(118, 16));
+
+                        break;
+                    }
+                default:
+                    break;
             }
         }
 
