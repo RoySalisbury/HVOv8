@@ -172,16 +172,15 @@ namespace HVO.JKBmsMonitor
                     }
                 case 0x02: // JK02 uses 2 byte cell values
                     {
-                        var cellVoltage01a = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(6, 2));
-                        var cellVoltage01b = BitConverter.ToInt16(data.Slice(6, 2));
+                        var cellVoltage01 = BitConverter.ToInt16(data.Slice(6, 2)) / 1000.0;
+                        var cellVoltage02 = BitConverter.ToInt16(data.Slice(8, 2));
+                        var cellVoltage03 = BitConverter.ToInt16(data.Slice(10, 2));
+                        var cellVoltage04 = BitConverter.ToInt16(data.Slice(12, 2));
+                        var cellVoltage05 = BitConverter.ToInt16(data.Slice(14, 2));
+                        var cellVoltage06 = BitConverter.ToInt16(data.Slice(16, 2));
+                        var cellVoltage07 = BitConverter.ToInt16(data.Slice(18, 2));
+                        var cellVoltage08 = BitConverter.ToInt16(data.Slice(20, 2));
 
-                        var cellVoltage02 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(8, 2));
-                        var cellVoltage03 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(10, 2));
-                        var cellVoltage04 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(12, 2));
-                        var cellVoltage05 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(14, 2));
-                        var cellVoltage06 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(16, 2));
-                        var cellVoltage07 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(18, 2));
-                        var cellVoltage08 = BinaryPrimitives.ReadUInt16BigEndian(data.Slice(20, 2));
 
 
 
