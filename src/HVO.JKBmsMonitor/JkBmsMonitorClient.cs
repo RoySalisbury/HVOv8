@@ -150,7 +150,9 @@ namespace HVO.JKBmsMonitor
         {
             if (this._writeCharacteristic is not null)
             {
-                var getInfo = new byte[] { 0xAA, 0x55, 0x90, 0xEB, 0x97, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11 };
+                var getInfo = new byte[] { 0xAA, 0x55, 0x90, 0xEB, 0x97, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF };
+                getInfo[getInfo.Length - 1] = JKCRC(getInfo[0..19]);
+
                 var options = new Dictionary<string, object>();
                 try 
                 {
@@ -162,6 +164,32 @@ namespace HVO.JKBmsMonitor
                 }
             }
         }
+
+        public async Task RequestCellInfo()
+        {
+            if (this._writeCharacteristic is not null)
+            {
+                var getCellInfo = new byte[] { 0xAA, 0x55, 0x90, 0xEB, 0x96, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF };
+                getCellInfo[getCellInfo.Length - 1] = JKCRC(getCellInfo[0..19]);
+
+                var options = new Dictionary<string, object>();
+                try
+                {
+                    await this._writeCharacteristic.WriteValueAsync(getCellInfo, options);
+                }
+                catch (Exception ex)
+                {
+                    throw;
+                }
+            }
+        }
+
+        static byte JKCRC(byte[] data)
+        {
+            return (byte)(data.Sum(x => x) & 0xFF);
+        }
+
+
 
         private void Dispose(bool disposing)
         {
