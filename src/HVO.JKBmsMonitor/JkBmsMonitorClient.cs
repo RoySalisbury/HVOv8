@@ -91,18 +91,16 @@ namespace HVO.JKBmsMonitor
                 throw new Exception("Device not found");
             }
 
-            device.Connected += Device_Connected;
-
-            device.Disconnected += Device_Disconnected;
             await device.ConnectAsync();
-        }
+            // TODO: Wait for the connect property to be set
 
-        private async Task Device_Connected(Device sender, BlueZEventArgs eventArgs)
-        {
-            sender.Connected -= Device_Connected;
+            //await device.GetServicesAsync();
+            // TODO: Wait for the ServicesResolved property to be set
 
-            var service = await sender.GetServiceAsync(JkBmsServiceUUID);
-            if (service == null)
+            //var servicesUUIDs = await device.GetUUIDsAsync();
+
+            var service = await device.GetServiceAsync(JkBmsServiceUUID);
+            if (service is null)
             {
                 Console.WriteLine($"Service UUID {JkBmsServiceUUID} not found. Do you need to pair first?");
             }
@@ -122,7 +120,7 @@ namespace HVO.JKBmsMonitor
                     this._notifyCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
                     Console.WriteLine($"Notify Characteristic: {await item.GetUUIDAsync()}");
 
-                    //await this._notifyCharacteristic.StopNotifyAsync();
+                    await this._notifyCharacteristic.StopNotifyAsync();
                     this._notifyCharacteristic.Value += DeviceNotifyCharacteristic_Value;
                 }
 
@@ -131,21 +129,8 @@ namespace HVO.JKBmsMonitor
                     break;
                 }
             }
+
         }
-
-        private Task Device_Disconnected(Device sender, BlueZEventArgs eventArgs)
-        {
-            sender.Disconnected -= Device_Disconnected;
-            return Task.CompletedTask; 
-        }
-
-
-        //private async Task Device_ServicesResolved(Device sender, BlueZEventArgs eventArgs)
-        //{
-        //    // The device is connected and the services are resolved for this device.  We can now setup the write/notify hanlders.
-        //    sender.ServicesResolved -= Device_ServicesResolved;
-
-        //}
 
         private async Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
         {
