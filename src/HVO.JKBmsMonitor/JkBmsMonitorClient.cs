@@ -120,7 +120,7 @@ namespace HVO.JKBmsMonitor
                     this._notifyCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
                     Console.WriteLine($"Notify Characteristic: {await item.GetUUIDAsync()}");
 
-                    await this._notifyCharacteristic.StopNotifyAsync();
+                    //await this._notifyCharacteristic.StopNotifyAsync();
                     this._notifyCharacteristic.Value += DeviceNotifyCharacteristic_Value;
                 }
 
@@ -136,8 +136,11 @@ namespace HVO.JKBmsMonitor
         {
             try
             {
-                var uuid = await sender.GetUUIDAsync();
-                Console.WriteLine($"Notify Sender: {uuid}, \tLength: {eventArgs.Value.Length} \tValue: {BitConverter.ToString(eventArgs.Value)}");
+                if ((eventArgs.Value[0] == 0x55) && (eventArgs.Value[1] == 0xAA) && (eventArgs.Value[2] == 0xEB) && (eventArgs.Value[3] == 0x90))
+                {
+                    var uuid = await sender.GetUUIDAsync();
+                    Console.WriteLine($"Notify Sender: {uuid}, \tLength: {eventArgs.Value.Length} \tValue: {BitConverter.ToString(eventArgs.Value)}");
+                }
             }
             catch (Exception ex)
             {
