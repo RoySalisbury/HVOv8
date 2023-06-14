@@ -189,6 +189,22 @@ namespace HVO.JKBmsMonitor
                         var maxCellVolageIndex = data[62];
                         var minCellVolageIndex = data[63];
 
+                        offset = offset * 2;
+
+                        var powerTubeTemperature = BitConverter.ToInt16(data.Slice(112 + offset, 2));
+                        var wireResistatnceWarning01 = data[114 + offset];
+                        var wireResistatnceWarning02 = data[115 + offset];
+                        var wireResistatnceWarning03 = data[116 + offset];
+                        var wireResistatnceWarning04 = data[117 + offset];
+
+                        var batteryVoltage = BitConverter.ToInt32(data.Slice(118 + offset, 4));
+                        var batteryPower = BitConverter.ToInt32(data.Slice(122 + offset, 4)); // WARNING: Unsigned. Calculate manually (v*c)
+                        var chargeCurrent = BitConverter.ToInt32(data.Slice(126 + offset, 4));
+
+                        
+
+
+
 
                         break;
                     }
