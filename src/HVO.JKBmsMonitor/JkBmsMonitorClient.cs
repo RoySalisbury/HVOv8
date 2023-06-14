@@ -109,18 +109,14 @@ namespace HVO.JKBmsMonitor
             foreach (var item in characteristics)
             {
                 var flags = await item.GetFlagsAsync();
-                if ((this._writeCharacteristic is null) && flags.Intersect(new[] { "write", "write-without-response" }).Any())
+                if ((this._writeCharacteristic is null) && flags.Intersect(new[] { "write" }).Any())
                 {
                     this._writeCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
-                    Console.WriteLine($"Write Characteristic: {await item.GetUUIDAsync()}");
                 }
 
                 if ((this._notifyCharacteristic is null) && flags.Intersect(new[] { "notify" }).Any())
                 {
                     this._notifyCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
-                    Console.WriteLine($"Notify Characteristic: {await item.GetUUIDAsync()}");
-
-                    //await this._notifyCharacteristic.StopNotifyAsync();
                     this._notifyCharacteristic.Value += DeviceNotifyCharacteristic_Value;
                 }
 
@@ -132,7 +128,7 @@ namespace HVO.JKBmsMonitor
 
         }
 
-        private Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
+        private async Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
         {
             var header = new byte[] { 0x55, 0xAA, 0xEB, 0x90 };
             if (header.SequenceEqual(eventArgs.Value[0..4])) 
@@ -151,18 +147,6 @@ namespace HVO.JKBmsMonitor
                 Console.WriteLine($"Notify: {BitConverter.ToString(this._notificationBuffer.ToArray())}");
                 this._notificationBuffer.Clear();
             }
-
-            return Task.CompletedTask;
-
-            //try
-            //{
-            //    var uuid = await sender.GetUUIDAsync();
-            //    Console.WriteLine($"Notify Sender: {uuid}, \tLength: {eventArgs.Value.Length} \tValue: {BitConverter.ToString(eventArgs.Value)}");
-            //}
-            //catch (Exception ex)
-            //{
-            //    Console.Error.WriteLine(ex);
-            //}
         }
 
         public async Task RequestDeviceInfo()
@@ -170,17 +154,10 @@ namespace HVO.JKBmsMonitor
             if (this._writeCharacteristic is not null)
             {
                 var getInfo = new byte[] { 0xAA, 0x55, 0x90, 0xEB, 0x97, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF };
-                getInfo[getInfo.Length - 1] = JKCRC(getInfo[0..19]);
+                getInfo[^1] = JKCRC(getInfo[0..^1]);
 
                 var options = new Dictionary<string, object>();
-                try 
-                {
-                    await this._writeCharacteristic.WriteValueAsync(getInfo, options);
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
+                await this._writeCharacteristic.WriteValueAsync(getInfo, options);
             }
         }
 
@@ -189,17 +166,10 @@ namespace HVO.JKBmsMonitor
             if (this._writeCharacteristic is not null)
             {
                 var getCellInfo = new byte[] { 0xAA, 0x55, 0x90, 0xEB, 0x96, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF };
-                getCellInfo[getCellInfo.Length - 1] = JKCRC(getCellInfo[0..19]);
+                getCellInfo[^1] = JKCRC(getCellInfo[0..^1]);
 
                 var options = new Dictionary<string, object>();
-                try
-                {
-                    await this._writeCharacteristic.WriteValueAsync(getCellInfo, options);
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
+                await this._writeCharacteristic.WriteValueAsync(getCellInfo, options);
             }
         }
 
