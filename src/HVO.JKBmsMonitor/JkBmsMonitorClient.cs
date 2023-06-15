@@ -152,7 +152,8 @@ namespace HVO.JKBmsMonitor
                 var buffer = this._notificationBuffer.ToArray();
                 this._notificationBuffer.Clear();
 
-                var response = JkBmsResponse.CreateInstance(buffer);
+                var protocolVersion = 2;
+                var response = JkBmsResponse.CreateInstance(buffer, protocolVersion);
                 if (response is not null)
                 {
                     if (response is JkBmsGetCellInfoResponse cellInfoResponse)
