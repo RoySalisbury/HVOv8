@@ -174,7 +174,10 @@ namespace HVO.JKBmsMonitor
                 var getInfo = new byte[] { 0xAA, 0x55, 0x90, 0xEB, 0x97, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF };
                 getInfo[^1] = JKCRC(getInfo[0..^1]);
 
-                var options = new Dictionary<string, object>();
+                var options = new Dictionary<string, object>
+                {
+                    { "type", "request" }
+                };
                 await this._writeCharacteristic.WriteValueAsync(getInfo, options);
             }
         }
@@ -186,7 +189,10 @@ namespace HVO.JKBmsMonitor
                 var getCellInfo = new byte[] { 0xAA, 0x55, 0x90, 0xEB, 0x96, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF };
                 getCellInfo[^1] = JKCRC(getCellInfo[0..^1]);
 
-                var options = new Dictionary<string, object>();
+                var options = new Dictionary<string, object>
+                {
+                    { "type", "request" }
+                };
                 await this._writeCharacteristic.WriteValueAsync(getCellInfo, options);
             }
         }
@@ -198,11 +204,12 @@ namespace HVO.JKBmsMonitor
                 var getCellInfo = new byte[] { 0xAA, 0x55, 0x90, 0xEB, 0x96, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF };
                 getCellInfo[^1] = JKCRC(getCellInfo[0..^1]);
 
-                var options = new Dictionary<string, object>();
+                var options = new Dictionary<string, object>
+                {
+                    { "type", "request" }
+                };
 
-                await this._notifyCharacteristic.StopNotifyAsync();
                 await this._writeCharacteristic.WriteValueAsync(getCellInfo, options);
-//                await this._notifyCharacteristic.StartNotifyAsync();
             }
         }
 
