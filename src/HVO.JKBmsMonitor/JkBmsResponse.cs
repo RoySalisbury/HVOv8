@@ -2,7 +2,12 @@
 {
     public abstract class JkBmsResponse
     {
-        protected JkBmsResponse() { }
+        protected JkBmsResponse(int protocolVersion) 
+        {
+            this.ProtocolVersion = protocolVersion;
+        }
+
+        protected int ProtocolVersion { get; set; }
 
         public ReadOnlyMemory<byte> Payload { get; private set; }
 
@@ -11,7 +16,7 @@
             this.Payload = payload.ToArray();
         }
 
-        public static JkBmsResponse CreateInstance(ReadOnlySpan<byte> data)
+        public static JkBmsResponse CreateInstance(ReadOnlySpan<byte> data, int protocolVersion = 2)
         {
             if (data.IsEmpty)
             {
@@ -40,17 +45,21 @@
             // All responses are of this type
             JkBmsResponse result = null;
 
-            switch (data[4]) // FrameType
+            switch (data[6])
             {
                 case 0x01:
+                    Console.WriteLine("JK02 - Response Type 1");
                     break;
                 case 0x02:
-                    result = new JkBmsGetDeviceCellInfoResponse();
+                    Console.WriteLine("JK02 - Response Type 2");
+                    result = new JkBmsGetCellInfoResponse(protocolVersion);
                     break;
                 case 0x03:
-                    result = new JkBmsGetDeviceInfoResponse();
+                    Console.WriteLine("JK02 - Response Type 3");
+                    result = new JkBmsGetDeviceInfoResponse(protocolVersion);
                     break;
                 default:
+                    Console.WriteLine("JK02 - Response Type ?");
                     break;
             }
 

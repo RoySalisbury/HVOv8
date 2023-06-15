@@ -2,9 +2,9 @@
 
 namespace HVO.JKBmsMonitor
 {
-    public class JkBmsGetDeviceCellInfoResponse : JkBmsResponse
+    public class JkBmsGetCellInfoResponse : JkBmsResponse
     {
-        public JkBmsGetDeviceCellInfoResponse() : base() { }
+        public JkBmsGetCellInfoResponse(int protocolVersion) : base(protocolVersion) { }
 
         protected override void InitializeFromPayload(ReadOnlySpan<byte> payload)
         {
