@@ -38,7 +38,6 @@ namespace HVO.JKBmsMonitor
                     {
                         this._jkBmsMonitorClient.PacketReceived += JKBmsMonitorClient_PacketReceived;
 
-
                         try
                         {
                             Console.WriteLine($"Initializing {nameof(JkBmsMonitorClient)} instance...");
@@ -63,6 +62,10 @@ namespace HVO.JKBmsMonitor
                             //this._logger.LogError($"{nameof(JkBmsMonitorHost)} initialization error: {ex.StackTrace}");
                             await Task.Delay(TimeSpan.FromSeconds(this._jkBmsMonitorHostOptions.RestartOnFailureWaitTime), stoppingToken);
                         }
+                        finally
+                        {
+                            this._jkBmsMonitorClient.PacketReceived -= JKBmsMonitorClient_PacketReceived;
+                        }
                     }
                 }
             }
@@ -74,7 +77,18 @@ namespace HVO.JKBmsMonitor
 
         private void JKBmsMonitorClient_PacketReceived(object sender, PacketReceivedEventArgs e)
         {
-            throw new NotImplementedException();
+            var protocolVersion = 2;
+            var response = JkBmsResponse.CreateInstance(e.Packet, protocolVersion);
+            if (response is not null)
+            {
+                if (response is JkBmsGetCellInfoResponse cellInfoResponse)
+                {
+                    Console.WriteLine($"CellInfo  -  Count: {cellInfoResponse.CellVoltages.Length}, Battery Voltage: {cellInfoResponse.BatteryVoltage} mV, Temp #1: {cellInfoResponse.TemperatureProbe01}, Temp #2: {cellInfoResponse.TemperatureProbe02}, Mosfet Temp: {cellInfoResponse.PowerTubeTemperature}");
+                }
+                // Fire new EventHandler with completed packet response
+            }
+
+            Console.WriteLine($"Notify: {BitConverter.ToString(e.Packet)}");
         }
     }
 }
