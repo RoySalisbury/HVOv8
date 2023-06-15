@@ -131,14 +131,30 @@ namespace HVO.JKBmsMonitor
             var t1 = await device.GetManufacturerDataAsync();
             var t2 = await device.GetAliasAsync();
             var t3 = await device.GetAllAsync();
-            var t4 = await device.GetIconAsync();
-            var t5 = await device.GetAppearanceAsync();
             var t6 = await device.GetModaliasAsync();
             var t7 = await device.GetNameAsync();
             var t8 = await device.GetPropertiesAsync();
-            var t9 = await device.GetRSSIAsync();
-            var t10 = await device.GetServiceDataAsync();
-            var t11 = await device.GetTxPowerAsync();
+
+            var service1 = await device.GetServiceAsync("0000180a-0000-1000-8000-00805f9b34fb");
+            if (service1 is not null)
+            {
+                var characteristics1 = await service1.GetCharacteristicAsync("00002a26-0000-1000-8000-00805f9b34fb");
+                var characteristics2 = await service1.GetCharacteristicAsync("00002a28-0000-1000-8000-00805f9b34fb");
+                var characteristics3 = await service1.GetCharacteristicAsync("00002a27-0000-1000-8000-00805f9b34fb");
+                var characteristics4 = await service1.GetCharacteristicAsync("00002a24-0000-1000-8000-00805f9b34fb");
+                var characteristics5 = await service1.GetCharacteristicAsync("00002a25-0000-1000-8000-00805f9b34fb");
+                var characteristics6 = await service1.GetCharacteristicAsync("00002a29-0000-1000-8000-00805f9b34fb");
+
+                var v1 = await characteristics1?.GetValueAsync();
+                var v2 = await characteristics2?.GetValueAsync();
+                var v3 = await characteristics3?.GetValueAsync();
+                var v4 = await characteristics4?.GetValueAsync();
+                var v5 = await characteristics5?.GetValueAsync();
+                var v6 = await characteristics6?.GetValueAsync();
+
+
+            }
+
 
 
 
