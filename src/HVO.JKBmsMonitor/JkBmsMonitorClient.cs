@@ -199,7 +199,10 @@ namespace HVO.JKBmsMonitor
                 getCellInfo[^1] = JKCRC(getCellInfo[0..^1]);
 
                 var options = new Dictionary<string, object>();
+
+                await this._notifyCharacteristic.StopNotifyAsync();
                 await this._writeCharacteristic.WriteValueAsync(getCellInfo, options);
+                await this._notifyCharacteristic.StartNotifyAsync();
             }
         }
 
