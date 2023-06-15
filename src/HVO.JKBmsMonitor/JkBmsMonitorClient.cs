@@ -96,34 +96,25 @@ namespace HVO.JKBmsMonitor
                 throw new Exception("Device not found");
             }
 
-            device.ServicesResolved += Device_ServicesResolved;
-
-
-
-
             await device.ConnectAsync();
             // TODO: Wait for the connect property to be set
 
-            await device.GetServicesAsync();
+            //await device.GetServicesAsync();
 
-
-
-            var count = 0;
-            while (count < 10)
+            // Wait for the ServicesResolved property to be set
+            var retryResolveCheckCount = 0;
+            while (retryResolveCheckCount < 20)
             {
                 if (await device.GetServicesResolvedAsync())
                 {
                     break;
                 }
-                await Task.Delay(500);
-                count++;
+                Console.WriteLine("Resolving Services");
+                await Task.Delay(250);
+                retryResolveCheckCount++;
             }
 
-
-
-            // TODO: Wait for the ServicesResolved property to be set
-
-            var servicesUUIDs = await device.GetUUIDsAsync();
+            //var servicesUUIDs = await device.GetUUIDsAsync();
 
 
             var service = await device.GetServiceAsync(JkBmsServiceUUID);
