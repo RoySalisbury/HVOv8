@@ -42,8 +42,8 @@ namespace HVO.JKBmsMonitor
                             await this._jkBmsMonitorClient.InitializeAdaptorAsync("hci0", false, stoppingToken);
 
                             await this._jkBmsMonitorClient.ConnectToDeviceAsync("C8:47:8C:E4:54:B1", true, 20);
-                            await this._jkBmsMonitorClient.RequestDeviceInfo();
-                            await this._jkBmsMonitorClient.RequestCellInfo();
+                            //await this._jkBmsMonitorClient.RequestDeviceInfo();
+                            await this._jkBmsMonitorClient.RequestCellInfo01();
 
                             Console.WriteLine($"Press Ctrl-C to stop instance...");
                             await Task.Delay(-1, stoppingToken);

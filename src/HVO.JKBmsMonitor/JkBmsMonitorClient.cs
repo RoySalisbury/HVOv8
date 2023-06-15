@@ -162,7 +162,7 @@ namespace HVO.JKBmsMonitor
                     // Fire new EventHandler with completed packet response
                 }
 
-                //Console.WriteLine($"Notify: {BitConverter.ToString(buffer)}");
+                Console.WriteLine($"Notify: {BitConverter.ToString(buffer)}");
             }
         }
 
@@ -189,6 +189,19 @@ namespace HVO.JKBmsMonitor
                 await this._writeCharacteristic.WriteValueAsync(getCellInfo, options);
             }
         }
+
+        public async Task RequestCellInfo01()
+        {
+            if (this._writeCharacteristic is not null)
+            {
+                var getCellInfo = new byte[] { 0xAA, 0x55, 0x90, 0xEB, 0x96, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF };
+                getCellInfo[^1] = JKCRC(getCellInfo[0..^1]);
+
+                var options = new Dictionary<string, object>();
+                await this._writeCharacteristic.WriteValueAsync(getCellInfo, options);
+            }
+        }
+
 
         static byte JKCRC(byte[] data)
         {
