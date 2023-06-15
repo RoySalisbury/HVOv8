@@ -119,7 +119,6 @@ namespace HVO.JKBmsMonitor
                     Console.WriteLine($"Exception: {ex}");
                 }
             });
-            this._devicePropertyWatcherTask.Start();
 
             await device.ConnectAsync();
 
