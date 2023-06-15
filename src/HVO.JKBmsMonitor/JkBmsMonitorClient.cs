@@ -145,12 +145,24 @@ namespace HVO.JKBmsMonitor
                 var characteristics5 = await service1.GetCharacteristicAsync("00002a25-0000-1000-8000-00805f9b34fb");
                 var characteristics6 = await service1.GetCharacteristicAsync("00002a29-0000-1000-8000-00805f9b34fb");
 
-                var v1 = await characteristics1?.GetValueAsync();
-                var v2 = await characteristics2?.GetValueAsync();
-                var v3 = await characteristics3?.GetValueAsync();
-                var v4 = await characteristics4?.GetValueAsync();
-                var v5 = await characteristics5?.GetValueAsync();
-                var v6 = await characteristics6?.GetValueAsync();
+                var v1 = await characteristics1.ReadValueAsync(TimeSpan.FromSeconds(5));
+                Console.WriteLine($"Firmware Revision: {Encoding.UTF8.GetString(v1)}");
+                
+                var v2 = await characteristics2.ReadValueAsync(TimeSpan.FromSeconds(5));
+                Console.WriteLine($"Software Revision: {Encoding.UTF8.GetString(v2)}");
+                
+                var v3 = await characteristics3.ReadValueAsync(TimeSpan.FromSeconds(5));
+                Console.WriteLine($"Hardware Revision: {Encoding.UTF8.GetString(v3)}");
+                
+                var v4 = await characteristics4.ReadValueAsync(TimeSpan.FromSeconds(5));
+                Console.WriteLine($"Model Number: {Encoding.UTF8.GetString(v4)}");
+                
+                var v5 = await characteristics5.ReadValueAsync(TimeSpan.FromSeconds(5));
+                Console.WriteLine($"Serial Number: {Encoding.UTF8.GetString(v5)}");
+                
+                var v6 = await characteristics6.ReadValueAsync(TimeSpan.FromSeconds(5)); 
+                Console.WriteLine($"Manufacture Name: {Encoding.UTF8.GetString(v6)}");
+
 
 
             }
