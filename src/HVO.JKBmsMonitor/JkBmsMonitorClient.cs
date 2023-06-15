@@ -202,7 +202,7 @@ namespace HVO.JKBmsMonitor
 
                 await this._notifyCharacteristic.StopNotifyAsync();
                 await this._writeCharacteristic.WriteValueAsync(getCellInfo, options);
-                await this._notifyCharacteristic.StartNotifyAsync();
+//                await this._notifyCharacteristic.StartNotifyAsync();
             }
         }
 
