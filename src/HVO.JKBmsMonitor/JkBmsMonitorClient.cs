@@ -86,8 +86,6 @@ namespace HVO.JKBmsMonitor
             return device;
         }
 
-        private Task _devicePropertyWatcherTask;
-
         public async Task ConnectToDeviceAsync(string deviceAddress, bool scanIfNecessary, int timeout = 20)
         {
             if (AdaptorInitialized == false)
@@ -100,25 +98,6 @@ namespace HVO.JKBmsMonitor
             {
                 throw new Exception("Device not found");
             }
-
-            this._devicePropertyWatcherTask = device.WatchPropertiesAsync(delegate (PropertyChanges propertyChanges)
-            {
-                try
-                {
-                    foreach (var kvp in propertyChanges.Changed)
-                    {
-                        Console.WriteLine($"Property Changed: {kvp.Key}, Value: {kvp.Value}");
-                    }
-                    foreach (var s in propertyChanges.Invalidated)
-                    {
-                        Console.WriteLine($"Property Invalidated: {s}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Exception: {ex}");
-                }
-            });
 
             await device.ConnectAsync();
 
@@ -148,28 +127,29 @@ namespace HVO.JKBmsMonitor
                 }
             }
 
-            //// Wait for the ServicesResolved property to be set
-            //var retryResolveCheckCount = 0;
-            //while (retryResolveCheckCount < 20)
-            //{
-            //    if (await device.GetServicesResolvedAsync())
-            //    {
-            //        break;
-            //    }
-            //    Console.WriteLine("Resolving Services");
-            //    await Task.Delay(250);
-            //    retryResolveCheckCount++;
-            //}
 
-            //var servicesUUIDs = await device.GetUUIDsAsync();
+            var t1 = await device.GetManufacturerDataAsync();
+            var t2 = await device.GetAliasAsync();
+            var t3 = await device.GetAllAsync();
+            var t4 = await device.GetIconAsync();
+            var t5 = await device.GetAppearanceAsync();
+            var t6 = await device.GetModaliasAsync();
+            var t7 = await device.GetNameAsync();
+            var t8 = await device.GetPropertiesAsync();
+            var t9 = await device.GetRSSIAsync();
+            var t10 = await device.GetServiceDataAsync();
+            var t11 = await device.GetTxPowerAsync();
 
 
+
+            // Get the device serviuce UUID that we need
             var service = await device.GetServiceAsync(JkBmsServiceUUID);
             if (service is null)
             {
                 Console.WriteLine($"Service UUID {JkBmsServiceUUID} not found. Do you need to pair first?");
             }
 
+            // Get the characteristics that we need to communicate with the device
             var characteristics = await service.GetCharacteristicsAsync();
             foreach (var item in characteristics)
             {
@@ -191,6 +171,15 @@ namespace HVO.JKBmsMonitor
                 }
             }
 
+            if ((this._writeCharacteristic is null) && (this._notifyCharacteristic is null))
+            {
+                try
+                {
+                    await device.DisconnectAsync();
+                }
+                catch { }
+                throw new Exception("The necessary 'write' aand 'notify' characteristics we not found for the device.");
+            }
         }
 
         private async Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
