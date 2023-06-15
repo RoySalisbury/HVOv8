@@ -40,7 +40,7 @@
             // All responses are of this type
             JkBmsResponse result = null;
 
-            switch (data[6])
+            switch (data[4]) // FrameType
             {
                 case 0x01:
                     break;

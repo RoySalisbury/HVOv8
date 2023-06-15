@@ -155,10 +155,14 @@ namespace HVO.JKBmsMonitor
                 var response = JkBmsResponse.CreateInstance(buffer);
                 if (response is not null)
                 {
+                    if (response is JkBmsGetDeviceCellInfoResponse cellInfoResponse)
+                    {
+                        Console.WriteLine($"CellInfo  -  Count: {cellInfoResponse.CellVoltages.Length}, Battery Voltage: {cellInfoResponse.BatteryVoltage} mV, Temp #1: {cellInfoResponse.TemperatureProbe01}, Temp #2: {cellInfoResponse.TemperatureProbe02}, Mosfet Temp: {cellInfoResponse.PowerTubeTemperature}");
+                    }
                     // Fire new EventHandler with completed packet response
                 }
 
-                Console.WriteLine($"Notify: {BitConverter.ToString(buffer)}");
+                //Console.WriteLine($"Notify: {BitConverter.ToString(buffer)}");
             }
         }
 

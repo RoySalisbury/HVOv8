@@ -137,6 +137,8 @@ namespace HVO.JKBmsMonitor
                 this.CellResistance[i] = BitConverter.ToUInt16(payload.Slice((i * 2) + 64 + offset, 2));
             }
 
+            this.EnabledCellsBitmask = new BitArray(payload.Slice(54 + offset, 4).ToArray());
+
             this.AverageCellVoltage = BitConverter.ToUInt16(payload.Slice((58 + offset), 2));
             this.DeltaCellVoltage = BitConverter.ToUInt16(payload.Slice((60 + offset), 2));
 
@@ -149,9 +151,13 @@ namespace HVO.JKBmsMonitor
 
             this.WireResistanceWarnings = new BitArray(payload.Slice(114 + offset, 4).ToArray());
 
-            this.BatteryVoltage = BitConverter.ToUInt32(payload.Slice(118 + offset, 4));
-            this.BatteryPower = BitConverter.ToUInt32(payload.Slice(122 + offset, 4)); // WARNING: Unsigned. Calculate manually (v*c)
-            this.ChargeCurrent = BitConverter.ToUInt32(payload.Slice(126 + offset, 4));
+            this.BatteryVoltage = BitConverter.ToInt32(payload.Slice(118 + offset, 4));
+            this.BatteryPower = BitConverter.ToInt32(payload.Slice(122 + offset, 4)); // WARNING: Unsigned. Calculate manually (v*c)
+            this.ChargeCurrent = BitConverter.ToInt32(payload.Slice(126 + offset, 4));
+
+            this.TemperatureProbe01 = BitConverter.ToInt16(payload.Slice(130 + offset, 2));
+            this.TemperatureProbe02 = BitConverter.ToInt16(payload.Slice(132 + offset, 2));
+            this.PowerTubeTemperature = BitConverter.ToInt16(payload.Slice(134 + offset, 2));
         }
 
         public ushort[] CellVoltages { get; private set; }
@@ -162,9 +168,15 @@ namespace HVO.JKBmsMonitor
         public byte MinCellVoltageIndex { get; private set; }
 
         public BitArray WireResistanceWarnings {  get; private set; }
-        public uint BatteryVoltage { get; private set; }
-        public uint BatteryPower { get; private set; }
-        public uint ChargeCurrent { get; private set; }
+        public int BatteryVoltage { get; private set; }
+        public int BatteryPower { get; private set; }
+        public int ChargeCurrent { get; private set; }
+
+        public BitArray EnabledCellsBitmask { get; private set; }
+
+        public short TemperatureProbe01 { get; private set; }
+        public short TemperatureProbe02 { get; private set; }
+        public short PowerTubeTemperature { get; private set; }
     }
 
 
