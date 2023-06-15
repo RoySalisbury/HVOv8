@@ -9,6 +9,8 @@ using System.Linq;
 using System.Buffers.Binary;
 using System;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.Extensions.FileSystemGlobbing;
+using Tmds.DBus;
 
 namespace HVO.JKBmsMonitor
 {
@@ -55,7 +57,7 @@ namespace HVO.JKBmsMonitor
             {
                 using CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
-                using (await this._bluetoothAdapter.WatchDevicesAddedAsync(async foundDevice =>
+                Action<Device> watchForDeviceHandler = async (foundDevice) =>
                 {
                     if (cancellationTokenSource.IsCancellationRequested == false)
                     {
@@ -68,7 +70,9 @@ namespace HVO.JKBmsMonitor
                             cancellationTokenSource.Cancel();
                         }
                     }
-                }))
+                };
+
+                using (await this._bluetoothAdapter.WatchDevicesAddedAsync(watchForDeviceHandler))
                 {
                     await this._bluetoothAdapter.StartDiscoveryAsync();
                     await Task.Delay(TimeSpan.FromSeconds(timeout), cancellationTokenSource.Token).ContinueWith(async t =>
@@ -82,6 +86,7 @@ namespace HVO.JKBmsMonitor
             return device;
         }
 
+        private Task _devicePropertyWatcherTask;
 
         public async Task ConnectToDeviceAsync(string deviceAddress, bool scanIfNecessary, int timeout = 20)
         {
@@ -96,23 +101,66 @@ namespace HVO.JKBmsMonitor
                 throw new Exception("Device not found");
             }
 
-            await device.ConnectAsync();
-            // TODO: Wait for the connect property to be set
-
-            //await device.GetServicesAsync();
-
-            // Wait for the ServicesResolved property to be set
-            var retryResolveCheckCount = 0;
-            while (retryResolveCheckCount < 20)
+            this._devicePropertyWatcherTask = device.WatchPropertiesAsync(delegate (PropertyChanges propertyChanges)
             {
-                if (await device.GetServicesResolvedAsync())
+                try
                 {
-                    break;
+                    foreach (var kvp in propertyChanges.Changed)
+                    {
+                        Console.WriteLine($"Property Changed: {kvp.Key}, Value: {kvp.Value}");
+                    }
+                    foreach (var s in propertyChanges.Invalidated)
+                    {
+                        Console.WriteLine($"Property Invalidated: {s}");
+                    }
                 }
-                Console.WriteLine("Resolving Services");
-                await Task.Delay(250);
-                retryResolveCheckCount++;
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Exception: {ex}");
+                }
+            });
+            this._devicePropertyWatcherTask.Start();
+
+            await device.ConnectAsync();
+
+            // Are we connected?
+            if (await device.GetConnectedAsync() == false)
+            {
+                try
+                {
+                    await device.WaitForPropertyValueAsync("Connected", value: true, timeout: TimeSpan.FromSeconds(timeout));
+                }
+                catch (TimeoutException)
+                {
+                    throw;
+                }
             }
+
+            // Are the services resolved?
+            if (await device.GetServicesResolvedAsync() == false)
+            {
+                try
+                {
+                    await device.WaitForPropertyValueAsync("ServicesResolved", value: true, timeout: TimeSpan.FromSeconds(timeout));
+                }
+                catch (TimeoutException)
+                {
+                    throw;
+                }
+            }
+
+            //// Wait for the ServicesResolved property to be set
+            //var retryResolveCheckCount = 0;
+            //while (retryResolveCheckCount < 20)
+            //{
+            //    if (await device.GetServicesResolvedAsync())
+            //    {
+            //        break;
+            //    }
+            //    Console.WriteLine("Resolving Services");
+            //    await Task.Delay(250);
+            //    retryResolveCheckCount++;
+            //}
 
             //var servicesUUIDs = await device.GetUUIDsAsync();
 
@@ -135,7 +183,7 @@ namespace HVO.JKBmsMonitor
                 if ((this._notifyCharacteristic is null) && flags.Intersect(new[] { "notify" }).Any())
                 {
                     this._notifyCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
-                    this._notifyCharacteristic.Value += DeviceNotifyCharacteristic_Value;
+                    //this._notifyCharacteristic.Value += DeviceNotifyCharacteristic_Value;
                 }
 
                 if ((this._writeCharacteristic is not null) && (this._notifyCharacteristic is not null))
@@ -144,11 +192,6 @@ namespace HVO.JKBmsMonitor
                 }
             }
 
-        }
-
-        private async Task Device_ServicesResolved(Device sender, BlueZEventArgs eventArgs)
-        {
-            Console.WriteLine("Services Resolved");
         }
 
         private async Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
