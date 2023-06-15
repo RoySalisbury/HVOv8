@@ -36,6 +36,9 @@ namespace HVO.JKBmsMonitor
                 {
                     using (this._jkBmsMonitorClient = this._serviceProvider.GetRequiredService<JkBmsMonitorClient>())
                     {
+                        this._jkBmsMonitorClient.PacketReceived += JKBmsMonitorClient_PacketReceived;
+
+
                         try
                         {
                             Console.WriteLine($"Initializing {nameof(JkBmsMonitorClient)} instance...");
@@ -67,6 +70,11 @@ namespace HVO.JKBmsMonitor
             {
                 this._logger.LogDebug($"{nameof(JkBmsMonitorHost)} background task has stopped.");
             }
+        }
+
+        private void JKBmsMonitorClient_PacketReceived(object sender, PacketReceivedEventArgs e)
+        {
+            throw new NotImplementedException();
         }
     }
 }

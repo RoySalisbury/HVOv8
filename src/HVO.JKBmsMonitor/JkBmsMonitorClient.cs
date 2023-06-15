@@ -14,6 +14,17 @@ using Tmds.DBus;
 
 namespace HVO.JKBmsMonitor
 {
+    public class PacketReceivedEventArgs : EventArgs
+    {
+        public PacketReceivedEventArgs(byte[] packet) 
+        {
+            this.Packet = packet;
+        }
+
+        public byte[] Packet { get; private set; } = new byte[0];
+    }
+    
+
     public sealed class JkBmsMonitorClient : IDisposable
     {
         private readonly ILogger<JkBmsMonitorClient> _logger;
@@ -32,6 +43,12 @@ namespace HVO.JKBmsMonitor
         {
             this._logger = logger;
             this._jkBmsMonitorClientOptions = jkBmsMonitorClientOptions.Value;
+        }
+
+        public event EventHandler<PacketReceivedEventArgs> PacketReceived;
+        private void OnPacketReceived(object sender, PacketReceivedEventArgs e)
+        {
+            PacketReceived?.Invoke(sender, e);
         }
 
         public bool AdaptorInitialized { get; private set; } = false;
@@ -127,49 +144,6 @@ namespace HVO.JKBmsMonitor
                 }
             }
 
-
-            var t1 = await device.GetManufacturerDataAsync();
-            var t2 = await device.GetAliasAsync();
-            var t3 = await device.GetAllAsync();
-            var t6 = await device.GetModaliasAsync();
-            var t7 = await device.GetNameAsync();
-            var t8 = await device.GetPropertiesAsync();
-
-            var service1 = await device.GetServiceAsync("0000180a-0000-1000-8000-00805f9b34fb");
-            if (service1 is not null)
-            {
-                var characteristics1 = await service1.GetCharacteristicAsync("00002a26-0000-1000-8000-00805f9b34fb");
-                var characteristics2 = await service1.GetCharacteristicAsync("00002a28-0000-1000-8000-00805f9b34fb");
-                var characteristics3 = await service1.GetCharacteristicAsync("00002a27-0000-1000-8000-00805f9b34fb");
-                var characteristics4 = await service1.GetCharacteristicAsync("00002a24-0000-1000-8000-00805f9b34fb");
-                var characteristics5 = await service1.GetCharacteristicAsync("00002a25-0000-1000-8000-00805f9b34fb");
-                var characteristics6 = await service1.GetCharacteristicAsync("00002a29-0000-1000-8000-00805f9b34fb");
-
-                var v1 = await characteristics1.ReadValueAsync(TimeSpan.FromSeconds(5));
-                Console.WriteLine($"Firmware Revision: {Encoding.UTF8.GetString(v1)}");
-                
-                var v2 = await characteristics2.ReadValueAsync(TimeSpan.FromSeconds(5));
-                Console.WriteLine($"Software Revision: {Encoding.UTF8.GetString(v2)}");
-                
-                var v3 = await characteristics3.ReadValueAsync(TimeSpan.FromSeconds(5));
-                Console.WriteLine($"Hardware Revision: {Encoding.UTF8.GetString(v3)}");
-                
-                var v4 = await characteristics4.ReadValueAsync(TimeSpan.FromSeconds(5));
-                Console.WriteLine($"Model Number: {Encoding.UTF8.GetString(v4)}");
-                
-                var v5 = await characteristics5.ReadValueAsync(TimeSpan.FromSeconds(5));
-                Console.WriteLine($"Serial Number: {Encoding.UTF8.GetString(v5)}");
-                
-                var v6 = await characteristics6.ReadValueAsync(TimeSpan.FromSeconds(5)); 
-                Console.WriteLine($"Manufacture Name: {Encoding.UTF8.GetString(v6)}");
-
-
-
-            }
-
-
-
-
             // Get the device serviuce UUID that we need
             var service = await device.GetServiceAsync(JkBmsServiceUUID);
             if (service is null)
@@ -190,7 +164,7 @@ namespace HVO.JKBmsMonitor
                 if ((this._notifyCharacteristic is null) && flags.Intersect(new[] { "notify" }).Any())
                 {
                     this._notifyCharacteristic = await service.GetCharacteristicAsync(await item.GetUUIDAsync());
-                    //this._notifyCharacteristic.Value += DeviceNotifyCharacteristic_Value;
+                    this._notifyCharacteristic.Value += DeviceNotifyCharacteristic_Value;
                 }
 
                 if ((this._writeCharacteristic is not null) && (this._notifyCharacteristic is not null))
@@ -229,18 +203,7 @@ namespace HVO.JKBmsMonitor
                 var buffer = this._notificationBuffer.ToArray();
                 this._notificationBuffer.Clear();
 
-                var protocolVersion = 2;
-                var response = JkBmsResponse.CreateInstance(buffer, protocolVersion);
-                if (response is not null)
-                {
-                    if (response is JkBmsGetCellInfoResponse cellInfoResponse)
-                    {
-                        Console.WriteLine($"CellInfo  -  Count: {cellInfoResponse.CellVoltages.Length}, Battery Voltage: {cellInfoResponse.BatteryVoltage} mV, Temp #1: {cellInfoResponse.TemperatureProbe01}, Temp #2: {cellInfoResponse.TemperatureProbe02}, Mosfet Temp: {cellInfoResponse.PowerTubeTemperature}");
-                    }
-                    // Fire new EventHandler with completed packet response
-                }
-
-                Console.WriteLine($"Notify: {BitConverter.ToString(buffer)}");
+                this.OnPacketReceived(sender, new PacketReceivedEventArgs(buffer));
             }
         }
 
