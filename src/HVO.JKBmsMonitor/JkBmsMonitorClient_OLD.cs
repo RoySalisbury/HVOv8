@@ -73,6 +73,9 @@ namespace HVO.JKBmsMonitor
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
+                Console.WriteLine("Device not found ... running scan to detect.");
+
                 using (await this._bluetoothAdapter.WatchDevicesAddedAsync(async d =>
                 {
                     var deviceAddress = await d.GetAddressAsync();

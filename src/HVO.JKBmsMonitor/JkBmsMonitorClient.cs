@@ -184,7 +184,7 @@ namespace HVO.JKBmsMonitor
             }
         }
 
-        private async Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
+        private Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
         {
             var header = new byte[] { 0x55, 0xAA, 0xEB, 0x90 };
             if (header.SequenceEqual(eventArgs.Value[0..4])) 
@@ -193,19 +193,36 @@ namespace HVO.JKBmsMonitor
             }
 
             this._notificationBuffer.AddRange(eventArgs.Value);
-            if (this._notificationBuffer.Count >= 300)
+            if (this._notificationBuffer.Count < 300)
             {
-                if (this._notificationBuffer.Count > 320)
-                {
-                    Console.WriteLine("Buffer longer than expected");
-                }
-
-                var buffer = this._notificationBuffer.ToArray();
-                this._notificationBuffer.Clear();
-
-                this.OnPacketReceived(sender, new PacketReceivedEventArgs(buffer));
+                return Task.CompletedTask;
             }
+
+            var buffer = this._notificationBuffer.ToArray();
+            this._notificationBuffer.Clear();
+
+            // Validate the CRC. 
+            if (ValidateCrc(buffer[0..299], buffer[299]) == false)
+            {
+                //throw new ArgumentException("CRC validation of the repsonse does not match expected calculation.");
+                return Task.CompletedTask;
+            }
+
+            this.OnPacketReceived(sender, new PacketReceivedEventArgs(buffer));
+            return Task.CompletedTask;
         }
+
+        private static bool ValidateCrc(ReadOnlySpan<byte> data, byte originalCrc)
+        {
+            int calculatedCrc = 0;
+            for (int i = 0; i < data.Length; i++)
+            {
+                calculatedCrc += data[i];
+            }
+
+            return (calculatedCrc & 0xFF) == originalCrc;
+        }
+
 
         public async Task RequestDeviceInfo()
         {
@@ -222,7 +239,7 @@ namespace HVO.JKBmsMonitor
             }
         }
 
-        public async Task RequestCellInfo02()
+        public async Task RequestCellInfo()
         {
             if (this._writeCharacteristic is not null)
             {
@@ -237,7 +254,7 @@ namespace HVO.JKBmsMonitor
             }
         }
 
-        public async Task RequestCellInfo01()
+        public async Task RequestDeviceSettings()
         {
             if (this._writeCharacteristic is not null)
             {

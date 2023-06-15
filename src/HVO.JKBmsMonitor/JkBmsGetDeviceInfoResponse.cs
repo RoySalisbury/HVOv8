@@ -5,11 +5,14 @@ namespace HVO.JKBmsMonitor
 {
     public class JkBmsGetDeviceInfoResponse : JkBmsResponse
     {
-        public JkBmsGetDeviceInfoResponse(int protocolVersion) : base(protocolVersion) { }
-
-        protected override void InitializeFromPayload(ReadOnlySpan<byte> payload)
+        public JkBmsGetDeviceInfoResponse(int protocolVersion, ReadOnlyMemory<byte> data) : base(protocolVersion, data) 
         {
-            base.InitializeFromPayload(payload);
+            this.InitializeFromPayload();
+        }
+
+        protected override void InitializeFromPayload()
+        {
+            var payload = this.Payload.Span;
 
             var vendorId = ASCIIEncoding.ASCII.GetString(payload.Slice(6, 16));
             var hardwareVersion = ASCIIEncoding.ASCII.GetString(payload.Slice(22, 8));
@@ -25,7 +28,4 @@ namespace HVO.JKBmsMonitor
             var setupPasscode = ASCIIEncoding.ASCII.GetString(payload.Slice(118, 16));
         }
     }
-
-
-
 }

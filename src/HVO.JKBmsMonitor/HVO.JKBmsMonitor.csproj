@@ -8,6 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="JkBmsMonitorClient_OLD.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="JkBmsMonitorClient_OLD.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Linux.Bluetooth" Version="5.64.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
   </ItemGroup>

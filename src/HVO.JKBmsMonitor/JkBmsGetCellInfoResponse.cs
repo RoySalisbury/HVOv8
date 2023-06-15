@@ -4,11 +4,11 @@ namespace HVO.JKBmsMonitor
 {
     public class JkBmsGetCellInfoResponse : JkBmsResponse
     {
-        public JkBmsGetCellInfoResponse(int protocolVersion) : base(protocolVersion) { }
+        public JkBmsGetCellInfoResponse(int protocolVersion, ReadOnlyMemory<byte> data) : base(protocolVersion, data) { }
 
-        protected override void InitializeFromPayload(ReadOnlySpan<byte> payload)
+        protected override void InitializeFromPayload()
         {
-            base.InitializeFromPayload(payload);
+            var payload = this.Payload.Span;
 
             #region Packet Specs
             // (0) 55-AA-EB-90  Header
