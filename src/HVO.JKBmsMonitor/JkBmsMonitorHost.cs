@@ -42,6 +42,7 @@ namespace HVO.JKBmsMonitor
                             await this._jkBmsMonitorClient.InitializeAdaptorAsync("hci0", false, stoppingToken);
 
                             await this._jkBmsMonitorClient.ConnectToDeviceAsync("C8:47:8C:E4:54:B1", true, 20);
+                            //await this._jkBmsMonitorClient.ConnectToDeviceAsync("C8:47:8C:EC:1E:B5", true, 20);
                             await this._jkBmsMonitorClient.RequestDeviceInfo();
                             //await this._jkBmsMonitorClient.RequestCellInfo01();
 
