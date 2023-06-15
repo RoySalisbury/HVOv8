@@ -96,13 +96,35 @@ namespace HVO.JKBmsMonitor
                 throw new Exception("Device not found");
             }
 
+            device.ServicesResolved += Device_ServicesResolved;
+
+
+
+
             await device.ConnectAsync();
             // TODO: Wait for the connect property to be set
 
-            //await device.GetServicesAsync();
+            await device.GetServicesAsync();
+
+
+
+            var count = 0;
+            while (count < 10)
+            {
+                if (await device.GetServicesResolvedAsync())
+                {
+                    break;
+                }
+                await Task.Delay(500);
+                count++;
+            }
+
+
+
             // TODO: Wait for the ServicesResolved property to be set
 
-            //var servicesUUIDs = await device.GetUUIDsAsync();
+            var servicesUUIDs = await device.GetUUIDsAsync();
+
 
             var service = await device.GetServiceAsync(JkBmsServiceUUID);
             if (service is null)
@@ -131,6 +153,11 @@ namespace HVO.JKBmsMonitor
                 }
             }
 
+        }
+
+        private async Task Device_ServicesResolved(Device sender, BlueZEventArgs eventArgs)
+        {
+            Console.WriteLine("Services Resolved");
         }
 
         private async Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
@@ -182,11 +209,11 @@ namespace HVO.JKBmsMonitor
             }
         }
 
-        public async Task RequestCellInfo()
+        public async Task RequestCellInfo02()
         {
             if (this._writeCharacteristic is not null)
             {
-                var getCellInfo = new byte[] { 0xAA, 0x55, 0x90, 0xEB, 0x96, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF };
+                var getCellInfo = new byte[] { 0xAA, 0x55, 0x90, 0xEB, 0x96, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF };
                 getCellInfo[^1] = JKCRC(getCellInfo[0..^1]);
 
                 var options = new Dictionary<string, object>
