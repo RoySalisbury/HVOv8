@@ -10,8 +10,8 @@ namespace HVO.JKBmsMonitor
         public virtual ushort[] CellResistance { get; protected set; }
         public virtual ushort AverageCellVoltage { get; protected set; }
         public virtual ushort DeltaCellVoltage { get; protected set; }
-        public virtual byte MaxCellVoltageIndex { get; protected set; }
-        public virtual byte MinCellVoltageIndex { get; protected set; }
+        //public virtual byte MaxCellVoltageIndex { get; protected set; }
+        //public virtual byte MinCellVoltageIndex { get; protected set; }
 
         public virtual BitArray WireResistanceWarnings { get; protected set; }
         public virtual int BatteryVoltage { get; protected set; }
@@ -177,15 +177,18 @@ namespace HVO.JKBmsMonitor
             this.AverageCellVoltage = BitConverter.ToUInt16(payload.Slice((58), 2));
             this.DeltaCellVoltage = BitConverter.ToUInt16(payload.Slice((60), 2));
 
-            this.MaxCellVoltageIndex = payload[62];
-            this.MinCellVoltageIndex = payload[63];
+            //this.MaxCellVoltageIndex = payload[62];
+            //this.MinCellVoltageIndex = payload[63];
 
             // 112:2 - ???
             this.WireResistanceWarnings = new BitArray(payload.Slice(114, 4).ToArray());
 
             this.BatteryVoltage = BitConverter.ToInt32(payload.Slice(118, 4));
-            this.BatteryPower = BitConverter.ToInt32(payload.Slice(122, 4)); // WARNING: Unsigned. Calculate manually (v*c)
             this.ChargeCurrent = BitConverter.ToInt32(payload.Slice(126, 4));
+
+            //this.BatteryPower = BitConverter.ToInt32(payload.Slice(122, 4)); // WARNING: Unsigned. Calculate manually (v*c)
+            var batteryPower = ((this.BatteryVoltage) * (this.ChargeCurrent));
+            this.BatteryPower = (int)(batteryPower * 0.001f);
 
             this.TemperatureProbe01 = BitConverter.ToInt16(payload.Slice(130, 2));
             this.TemperatureProbe02 = BitConverter.ToInt16(payload.Slice(132, 2));
@@ -348,8 +351,8 @@ namespace HVO.JKBmsMonitor
             this.AverageCellVoltage = BitConverter.ToUInt16(payload.Slice((58 + offset), 2));
             this.DeltaCellVoltage = BitConverter.ToUInt16(payload.Slice((60 + offset), 2));
 
-            this.MaxCellVoltageIndex = payload[62];
-            this.MinCellVoltageIndex = payload[63];
+            // this.MaxCellVoltageIndex = payload[62];
+            // this.MinCellVoltageIndex = payload[63];
 
             offset = offset * 2;
 
@@ -358,8 +361,11 @@ namespace HVO.JKBmsMonitor
             this.WireResistanceWarnings = new BitArray(payload.Slice(114 + offset, 4).ToArray());
 
             this.BatteryVoltage = BitConverter.ToInt32(payload.Slice(118 + offset, 4));
-            this.BatteryPower = BitConverter.ToInt32(payload.Slice(122 + offset, 4)); // WARNING: Unsigned. Calculate manually (v*c)
             this.ChargeCurrent = BitConverter.ToInt32(payload.Slice(126 + offset, 4));
+
+            //this.BatteryPower = BitConverter.ToInt32(payload.Slice(122 + offset, 4)); // WARNING: Unsigned. Calculate manually (v*c)
+            var batteryPower = ((this.BatteryVoltage) * (this.ChargeCurrent));
+            this.BatteryPower = (int)(batteryPower * 0.001f);
 
             this.TemperatureProbe01 = BitConverter.ToInt16(payload.Slice(130 + offset, 2));
             this.TemperatureProbe02 = BitConverter.ToInt16(payload.Slice(132 + offset, 2));

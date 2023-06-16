@@ -114,7 +114,7 @@ namespace HVO.JKBmsMonitor
                         }
 
                         var info = this._jkBmsMonitorClient.LatestCellInfoInfo;
-                        Console.WriteLine($"Cell Info   - AVG: {info.AverageCellVoltage} mV, MIN: {info.CellVoltages[info.MinCellVoltageIndex]} mV, MAX: {info.CellVoltages[info.MaxCellVoltageIndex]} mV");
+                        Console.WriteLine($"Cell Info   - AVG: {info.AverageCellVoltage} mV, MIN: {info.CellVoltages.Where(x => x > 0).Min()} mV, MAX: {info.CellVoltages.Max()} mV, SOC: {info.StateOfCharge}%, Power: {info.BatteryPower} mW");
 
                         break;
                     }
