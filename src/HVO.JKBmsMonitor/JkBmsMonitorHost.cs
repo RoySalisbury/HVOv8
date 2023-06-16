@@ -49,8 +49,6 @@ namespace HVO.JKBmsMonitor
 
                             // Make this call to get the hardway/firmware versions so we can decode the CellInfo packets correctly.
                             await this._jkBmsMonitorClient.RequestDeviceInfo();
-                            await this._jkBmsMonitorClient.RequestDeviceSettings();
-                            await this._jkBmsMonitorClient.RequestCellInfo();
 
                             Console.WriteLine($"Press Ctrl-C to stop instance...");
                             await Task.Delay(-1, stoppingToken);
@@ -79,7 +77,7 @@ namespace HVO.JKBmsMonitor
             }
         }
 
-        private void JKBmsMonitorClient_PacketReceived(object sender, PacketReceivedEventArgs e)
+        private async void JKBmsMonitorClient_PacketReceived(object sender, PacketReceivedEventArgs e)
         {
             //JkBmsResponse response = null;
             switch (e.Packet[4])
@@ -95,12 +93,14 @@ namespace HVO.JKBmsMonitor
                     break;
                 case 0x03:
                     Console.WriteLine("JK02 - Response Type 3");
+                    await this._jkBmsMonitorClient.RequestDeviceSettings();
                     //response = new JkBmsGetDeviceInfoResponse(2, e.Packet);
                     break;
                 default:
                     Console.WriteLine("JK02 - Response Type ?");
                     break;
             }
+
 
             //Console.WriteLine($"PacketReceived: {BitConverter.ToString(e.Packet)}");
         }
