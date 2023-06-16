@@ -46,6 +46,12 @@ namespace HVO.JKBmsMonitor
         }
 
         public event EventHandler<PacketReceivedEventArgs> PacketReceived;
+
+        public JkBmsGetDeviceInfoResponse LatestDeviceInfo { get; set; } = null;
+        public JkBmsGetCellInfoResponse LatestCellInfoInfo { get; set; } = null;
+        public JkBmsGetDeviceSettingsResponse LatestDeviceSettings { get; set; } = null;
+
+
         private void OnPacketReceived(object sender, PacketReceivedEventArgs e)
         {
             PacketReceived?.Invoke(sender, e);
