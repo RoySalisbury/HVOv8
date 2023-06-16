@@ -9,6 +9,7 @@ namespace HVO.JKBmsMonitor
             this.InitializeFromPayload();
         }
 
+        public int Unknown6 { get; private set; }
         public int CellUnderVoltageProtection { get; private set; }
         public int CellUnderVoltageProtectionRecovery { get; private set; }
         public int CellOverVoltageProtection { get; private set; }
@@ -36,13 +37,15 @@ namespace HVO.JKBmsMonitor
         public int DischargeSwitch { get; private set; }
         public int BalancerSwitch { get; private set; }
         public int NominalBatteryCapacity { get; private set; }
-        public int StaartBalanceVoltage { get; private set; }
+        public int Unknown134 { get; private set; }
+        public int StartBalanceVoltage { get; private set; }
 
         protected override void InitializeFromPayload()
         {
             var payload = this.Payload.Span;
 
             // 6     4   0x58 0x02 0x00 0x00    Unknown6
+            this.Unknown6 = BitConverter.ToInt32(payload.Slice(6, 4));
 
             // 10    4   0x54 0x0B 0x00 0x00    Cell UVP
             this.CellUnderVoltageProtection = BitConverter.ToInt32(payload.Slice(10, 4));
@@ -131,9 +134,10 @@ namespace HVO.JKBmsMonitor
             this.NominalBatteryCapacity = BitConverter.ToInt32(payload.Slice(130, 4));
 
             // 134   4   0xDC 0x05 0x00 0x00    Unknown134
+            this.Unknown134 = BitConverter.ToInt32(payload.Slice(134, 4));
 
             // 138   4   0xE4 0x0C 0x00 0x00    Start balance voltage
-            this.StaartBalanceVoltage = BitConverter.ToInt32(payload.Slice(138, 4));
+            this.StartBalanceVoltage = BitConverter.ToInt32(payload.Slice(138, 4));
         }
     }
 }
