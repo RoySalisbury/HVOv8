@@ -86,9 +86,11 @@ namespace HVO.JKBmsMonitor
             {
                 case 0x01:
                     {
-                        Console.WriteLine("JK02 - Response Type 1");
-
                         this._jkBmsMonitorClient.LatestDeviceSettings = new JkBmsGetDeviceSettingsResponse(e.Packet);
+
+                        var info = this._jkBmsMonitorClient.LatestDeviceSettings;
+                        Console.WriteLine($"Device Settings - Cell Count: {info.CellCount}, Nominal Capacity: {info.NominalBatteryCapacity} mA");
+
                         break;
                     }
                 case 0x02:
@@ -114,7 +116,7 @@ namespace HVO.JKBmsMonitor
                         }
 
                         var info = this._jkBmsMonitorClient.LatestCellInfoInfo;
-                        Console.WriteLine($"Cell Info   - AVG: {info.AverageCellVoltage} mV, MIN: {info.CellVoltages.Where(x => x > 0).Min()} mV, MAX: {info.CellVoltages.Max()} mV, SOC: {info.StateOfCharge}%, Power: {info.BatteryPower} mW");
+                        Console.WriteLine($"Cell Info   - AVG: {info.AverageCellVoltage} mV, MIN: {info.CellVoltages.Where(x => x > 0).Min()} mV, MAX: {info.CellVoltages.Max()} mV, SOC: {info.StateOfCharge}%, Power: {info.BatteryPower} mW, Total Runtime: {info.TotalRuntime}");
 
                         break;
                     }
@@ -127,6 +129,10 @@ namespace HVO.JKBmsMonitor
                         Console.WriteLine($"Device Info - Name: {info.DeviceName}, Uptime: {info.Uptime}, HV Version: {info.HardwareVersion}, SW Version: {info.SoftwareVersion}");
 
                         // Once we have the Type 3 packet, we can start requesting the type 1 and type 2 packets
+                        await this._jkBmsMonitorClient.RequestDeviceSettings();
+
+                        // This seems to get lost sometimes
+                        await Task.Delay(500);
                         await this._jkBmsMonitorClient.RequestDeviceSettings();
 
                         break;
