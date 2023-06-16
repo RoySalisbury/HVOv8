@@ -23,6 +23,19 @@ namespace HVO.JKBmsMonitor
         public virtual short TemperatureProbe01 { get; protected set; }
         public virtual short TemperatureProbe02 { get; protected set; }
         public virtual short PowerTubeTemperature { get; protected set; }
+
+        public virtual BitArray SystemAlarms { get; protected set; }
+        public virtual short BalanceCurrent { get; protected set; }
+        public virtual byte BalanceAction { get; protected set; }
+        public virtual byte StateOfCharge { get; protected set; }
+        public virtual uint CapacityRemaining { get; protected set; }
+        public virtual uint NominalRemaining { get; protected set; }
+        public virtual uint CycleCount { get; protected set; }
+        public virtual uint CycleCapacity { get; protected set; }
+        public virtual TimeSpan TotalRuntime { get; protected set; }
+        public virtual bool CharginMosfetEnabled { get; protected set; }
+        public virtual bool DisCharginMosfetEnabled { get; protected set; }
+
     }
 
 
@@ -99,8 +112,7 @@ namespace HVO.JKBmsMonitor
 
             // OffsetStart
 
-
-            // (112)  00-00  Power Tube Temperature
+            // (112)  00-00  Power Tube Temperature (HW v11)
             // (114)  00-00-00-00   Wire resistance warning bitmask
 
             // (118)  E4-E2-00-00   Battery Voltage
@@ -109,9 +121,9 @@ namespace HVO.JKBmsMonitor
 
             // (130)  06-01  Temp Sensor 1
             // (132)  01-01  Temp Sensor 2
-            // (134)  03-01  Power Tube Temp Sensor -OR- Errors Bitmask
+            // (134)  03-01  Power Tube Temp Sensor (HW v10) -OR- System Alarms Bitmask (HW v11)
             //
-            // (136)  00-00  System Alarms Bitmask
+            // (136)  00-00  System Alarms Bitmask (HW v10)
             // (138)  00-00  Balance Current
             // (140)  00     Bslance Action (0 = off, 1 = Charging, 2 = Discharging) 
             // (141)  62     State of Charge
@@ -149,8 +161,7 @@ namespace HVO.JKBmsMonitor
             #endregion
 
             // The offset is based on the device firmware version of this payload
-            int offset = 0;
-            int numberOfCells = 24 + (offset / 2);
+            int numberOfCells = 24;
 
             this.CellVoltages = new  ushort[numberOfCells];
             this.CellResistance = new ushort[numberOfCells];
@@ -158,30 +169,43 @@ namespace HVO.JKBmsMonitor
             for (int i = 0; i < numberOfCells; i++)
             {
                 this.CellVoltages[i] = BitConverter.ToUInt16(payload.Slice((i * 2) + 6, 2));
-                this.CellResistance[i] = BitConverter.ToUInt16(payload.Slice((i * 2) + 64 + offset, 2));
+                this.CellResistance[i] = BitConverter.ToUInt16(payload.Slice((i * 2) + 64, 2));
             }
 
-            this.EnabledCellsBitmask = new BitArray(payload.Slice(54 + offset, 4).ToArray());
+            this.EnabledCellsBitmask = new BitArray(payload.Slice(54, 4).ToArray());
 
-            this.AverageCellVoltage = BitConverter.ToUInt16(payload.Slice((58 + offset), 2));
-            this.DeltaCellVoltage = BitConverter.ToUInt16(payload.Slice((60 + offset), 2));
+            this.AverageCellVoltage = BitConverter.ToUInt16(payload.Slice((58), 2));
+            this.DeltaCellVoltage = BitConverter.ToUInt16(payload.Slice((60), 2));
 
             this.MaxCellVoltageIndex = payload[62];
             this.MinCellVoltageIndex = payload[63];
 
-            offset = offset * 2;
+            // 112:2 - ???
+            this.WireResistanceWarnings = new BitArray(payload.Slice(114, 4).ToArray());
 
-            var powerTubeTemperature = BitConverter.ToInt16(payload.Slice(112 + offset, 2));
+            this.BatteryVoltage = BitConverter.ToInt32(payload.Slice(118, 4));
+            this.BatteryPower = BitConverter.ToInt32(payload.Slice(122, 4)); // WARNING: Unsigned. Calculate manually (v*c)
+            this.ChargeCurrent = BitConverter.ToInt32(payload.Slice(126, 4));
 
-            this.WireResistanceWarnings = new BitArray(payload.Slice(114 + offset, 4).ToArray());
+            this.TemperatureProbe01 = BitConverter.ToInt16(payload.Slice(130, 2));
+            this.TemperatureProbe02 = BitConverter.ToInt16(payload.Slice(132, 2));
+            this.PowerTubeTemperature = BitConverter.ToInt16(payload.Slice(134, 2));
 
-            this.BatteryVoltage = BitConverter.ToInt32(payload.Slice(118 + offset, 4));
-            this.BatteryPower = BitConverter.ToInt32(payload.Slice(122 + offset, 4)); // WARNING: Unsigned. Calculate manually (v*c)
-            this.ChargeCurrent = BitConverter.ToInt32(payload.Slice(126 + offset, 4));
+            this.SystemAlarms = new BitArray(payload.Slice(136, 2).ToArray());
+            this.BalanceCurrent = BitConverter.ToInt16(payload.Slice(138, 2));
+            this.BalanceAction = payload[140]; // 0 = off, 1 = charging, 2 = discharing
+            this.StateOfCharge = payload[141];
+            this.CapacityRemaining = BitConverter.ToUInt32(payload.Slice(142, 4));
+            this.NominalRemaining = BitConverter.ToUInt32(payload.Slice(146, 4));
+            this.CycleCount = BitConverter.ToUInt32(payload.Slice(150, 4));
+            this.CycleCapacity = BitConverter.ToUInt32(payload.Slice(154, 4));
+            // 158:2
+            // 160:2
+            var totalRuntime = BitConverter.ToUInt32(payload.Slice(162, 4));
+            this.TotalRuntime = TimeSpan.FromSeconds(totalRuntime);
 
-            this.TemperatureProbe01 = BitConverter.ToInt16(payload.Slice(130 + offset, 2));
-            this.TemperatureProbe02 = BitConverter.ToInt16(payload.Slice(132 + offset, 2));
-            this.PowerTubeTemperature = BitConverter.ToInt16(payload.Slice(134 + offset, 2));
+            this.CharginMosfetEnabled = payload[166] == 0x01;
+            this.DisCharginMosfetEnabled = payload[167] == 0x01;
         }
     }
 
@@ -258,8 +282,7 @@ namespace HVO.JKBmsMonitor
 
             // OffsetStart
 
-
-            // (112)  00-00  Power Tube Temperature
+            // (112)  00-00  Power Tube Temperature (HW v11)
             // (114)  00-00-00-00   Wire resistance warning bitmask
 
             // (118)  E4-E2-00-00   Battery Voltage
@@ -268,9 +291,9 @@ namespace HVO.JKBmsMonitor
 
             // (130)  06-01  Temp Sensor 1
             // (132)  01-01  Temp Sensor 2
-            // (134)  03-01  Power Tube Temp Sensor -OR- Errors Bitmask
+            // (134)  03-01  Power Tube Temp Sensor (HW v10) -OR- System Alarms Bitmask (HW v11)
             //
-            // (136)  00-00  System Alarms Bitmask
+            // (136)  00-00  System Alarms Bitmask (HW v10)
             // (138)  00-00  Balance Current
             // (140)  00     Bslance Action (0 = off, 1 = Charging, 2 = Discharging) 
             // (141)  62     State of Charge
@@ -330,7 +353,7 @@ namespace HVO.JKBmsMonitor
 
             offset = offset * 2;
 
-            var powerTubeTemperature = BitConverter.ToInt16(payload.Slice(112 + offset, 2));
+            this.PowerTubeTemperature = BitConverter.ToInt16(payload.Slice(112 + offset, 2));
 
             this.WireResistanceWarnings = new BitArray(payload.Slice(114 + offset, 4).ToArray());
 
@@ -340,7 +363,24 @@ namespace HVO.JKBmsMonitor
 
             this.TemperatureProbe01 = BitConverter.ToInt16(payload.Slice(130 + offset, 2));
             this.TemperatureProbe02 = BitConverter.ToInt16(payload.Slice(132 + offset, 2));
-            this.PowerTubeTemperature = BitConverter.ToInt16(payload.Slice(134 + offset, 2));
+
+            this.SystemAlarms = new BitArray(payload.Slice(134 + offset, 2).ToArray());
+
+            this.BalanceCurrent = BitConverter.ToInt16(payload.Slice(138 + offset, 2));
+            this.BalanceAction = payload[140 + offset]; // 0 = off, 1 = charging, 2 = discharing
+            this.StateOfCharge = payload[141 + offset];
+            this.CapacityRemaining = BitConverter.ToUInt32(payload.Slice(142 + offset, 4));
+            this.NominalRemaining = BitConverter.ToUInt32(payload.Slice(146 + offset, 4));
+            this.CycleCount = BitConverter.ToUInt32(payload.Slice(150 + offset, 4));
+            this.CycleCapacity = BitConverter.ToUInt32(payload.Slice(154 + offset, 4));
+            // 158 + offset:2
+            // 160 + offset:2
+            var totalRuntime = BitConverter.ToUInt32(payload.Slice(162 + offset, 4));
+            this.TotalRuntime = TimeSpan.FromSeconds(totalRuntime);
+
+            this.CharginMosfetEnabled = payload[166 + offset] == 0x01;
+            this.DisCharginMosfetEnabled = payload[167 + offset] == 0x01;
+
         }
     }
 }
