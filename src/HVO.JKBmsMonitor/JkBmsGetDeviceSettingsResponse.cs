@@ -9,6 +9,35 @@ namespace HVO.JKBmsMonitor
             this.InitializeFromPayload();
         }
 
+        public int CellUnderVoltageProtection { get; private set; }
+        public int CellUnderVoltageProtectionRecovery { get; private set; }
+        public int CellOverVoltageProtection { get; private set; }
+        public int CellOverVoltageProtectionRecovery { get; private set; }
+        public int BalanceTriggerVoltage { get; private set; }
+        public int PowerOffVoltage { get; private set; }
+        public int MaxChargeCurrent { get; private set; }
+        public int ChargeOverCurrentProtectionDelay { get; private set; }
+        public int ChargeOverCurrentProtectionDelayRecovery { get; private set; }
+        public int MaxDischargeCurrent { get; private set; }
+        public int DischargeOverCurrentProtectionDelay { get; private set; }
+        public int DischargeOverCurrentProtectionDelayRecovery { get; private set; }
+        public int SCPRTime { get; private set; }
+        public int MaxBalanceCurrent { get; private set; }
+        public int ChargeOTP { get; private set; }
+        public int ChargeOTPRecovery { get; private set; }
+        public int DischargeOTP { get; private set; }
+        public int DischargeOTPRecovery { get; private set; }
+        public int ChargeUTP { get; private set; }
+        public int ChargeUTPRecovery { get; private set; }
+        public int MOSOTP { get; private set; }
+        public int MOSOTPRecovery { get; private set; }
+        public int CellCount { get; private set; }
+        public int ChargeSwitch { get; private set; }
+        public int DischargeSwitch { get; private set; }
+        public int BalancerSwitch { get; private set; }
+        public int NominalBatteryCapacity { get; private set; }
+        public int StaartBalanceVoltage { get; private set; }
+
         protected override void InitializeFromPayload()
         {
             var payload = this.Payload.Span;
