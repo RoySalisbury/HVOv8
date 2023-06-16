@@ -93,7 +93,7 @@ namespace HVO.JKBmsMonitor
                     }
                 case 0x02:
                     {
-                        Console.WriteLine("JK02 - Response Type 2");
+                        //Console.WriteLine("JK02 - Response Type 2");
                         if (this._jkBmsMonitorClient.LatestDeviceInfo is null)
                         {
                             // Should have already received this ... ask again.
@@ -102,9 +102,9 @@ namespace HVO.JKBmsMonitor
                         }
 
                         var hardwareVersion = this._jkBmsMonitorClient.LatestDeviceInfo.HardwareVersion;
-                        var softwareVersion = this._jkBmsMonitorClient.LatestDeviceInfo.SoftwareVersion;
+                        //var softwareVersion = this._jkBmsMonitorClient.LatestDeviceInfo.SoftwareVersion;
 
-                        if (hardwareVersion.ToUpperInvariant().StartsWith("11"))
+                        if (hardwareVersion.ToUpperInvariant().StartsWith("11."))
                         {
                             this._jkBmsMonitorClient.LatestCellInfoInfo = new JkBmsGetCellInfo32Response(e.Packet);
                         }
@@ -114,17 +114,17 @@ namespace HVO.JKBmsMonitor
                         }
 
                         var info = this._jkBmsMonitorClient.LatestCellInfoInfo;
-                        Console.WriteLine($"Cell Info - AVG: {info.AverageCellVoltage} mv, MIN: {info.CellVoltages[info.MinCellVoltageIndex]} mv, MAX: {info.CellVoltages[info.MaxCellVoltageIndex]} mv");
+                        Console.WriteLine($"Cell Info   - AVG: {info.AverageCellVoltage} mV, MIN: {info.CellVoltages[info.MinCellVoltageIndex]} mV, MAX: {info.CellVoltages[info.MaxCellVoltageIndex]} mV");
 
                         break;
                     }
                 case 0x03:
                     {
-                        Console.WriteLine("JK02 - Response Type 3");
+                        //Console.WriteLine("JK02 - Response Type 3");
                         this._jkBmsMonitorClient.LatestDeviceInfo = new JkBmsGetDeviceInfoResponse(e.Packet);
 
                         var info = this._jkBmsMonitorClient.LatestDeviceInfo;
-                        Console.WriteLine($"Cell Info - Name: {info.DeviceName}, Uptime: {info.Uptime}, HV Version: {info.HardwareVersion}, SW Version: {info.SoftwareVersion}");
+                        Console.WriteLine($"Device Info - Name: {info.DeviceName}, Uptime: {info.Uptime}, HV Version: {info.HardwareVersion}, SW Version: {info.SoftwareVersion}");
 
                         // Once we have the Type 3 packet, we can start requesting the type 1 and type 2 packets
                         await this._jkBmsMonitorClient.RequestDeviceSettings();
