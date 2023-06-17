@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace HVO.JKBmsMonitor
@@ -57,6 +58,16 @@ namespace HVO.JKBmsMonitor
         public static async void Publish(IManagedMqttClient mqttClient, string topic, string data)
         {
             await mqttClient.EnqueueAsync(topic, data);
+        }
+
+        public static async void Publish(IManagedMqttClient mqttClient, string topic, dynamic data)
+        {
+            var payload = JsonSerializer.Serialize<dynamic>(data, new JsonSerializerOptions() 
+            { 
+                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull 
+            });
+
+            await Publish(mqttClient, topic, payload);
         }
     }
 }
