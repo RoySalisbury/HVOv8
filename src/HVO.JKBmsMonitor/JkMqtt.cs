@@ -43,9 +43,9 @@ namespace HVO.JKBmsMonitor
                     sw_version = deviceSoftwareVersion
                 },
                 name = sensorName,
-                icon = sensorIcon.ToLower(),
-                device_class = deviceClass.ToLower(),
-                state_class = stateClass.ToLower(),
+                icon = sensorIcon?.ToLower(),
+                device_class = deviceClass?.ToLower(),
+                state_class = stateClass?.ToLower(),
                 state_topic = stateTopic,
                 unique_id = $"{deviceId.ToLower().Replace(" ", "_")}_{entityName.ToLower().Replace(" ", "_")}",
                 object_id = $"{deviceId.ToLower().Replace(" ", "_")}_{entityName.ToLower().Replace(" ", "_")}",
@@ -55,12 +55,12 @@ namespace HVO.JKBmsMonitor
             return (configTopic, configData, stateTopic, value);
         }
 
-        public static async void Publish(IManagedMqttClient mqttClient, string topic, string data)
+        public static async Task Publish(IManagedMqttClient mqttClient, string topic, string data)
         {
             await mqttClient.EnqueueAsync(topic, data);
         }
 
-        public static async void Publish(IManagedMqttClient mqttClient, string topic, dynamic data)
+        public static async Task Publish(IManagedMqttClient mqttClient, string topic, dynamic data)
         {
             var payload = JsonSerializer.Serialize<dynamic>(data, new JsonSerializerOptions() 
             { 
