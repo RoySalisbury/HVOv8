@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
@@ -78,6 +79,10 @@ namespace HVO.JKBmsMonitor
             }
         }
 
+        private DateTime _lastDeviceConfigPublish = DateTime.MinValue;
+        private DateTime _lastDeviceStatePublish = DateTime.MinValue;
+
+
         private async void JKBmsMonitorClient_PacketReceived(object sender, PacketReceivedEventArgs e)
         {
             // Whne we first start receiving packet data, we should wait for the response type of 3 before decoding any other types.  This allows us to get the
@@ -116,22 +121,133 @@ namespace HVO.JKBmsMonitor
                         }
 
                         var info = this._jkBmsMonitorClient.LatestCellInfoInfo;
-                        Console.WriteLine($"Cell Info   - AVG: {info.AverageCellVoltage} mV, MIN: {info.CellVoltages.Where(x => x > 0).Min()} mV, MAX: {info.CellVoltages.Max()} mV, SOC: {info.StateOfCharge}%, Power: {info.BatteryPower} mW, Total Runtime: {info.TotalRuntime}");
+                        Console.WriteLine($"Cell Info   - AVG: {info.AverageCellVoltage} mV, MIN: {info.CellVoltage.Where(x => x > 0).Min()} mV, MAX: {info.CellVoltage.Max()} mV, SOC: {info.StateOfCharge}%, Power: {info.BatteryPower} mW, Total Runtime: {info.TotalRuntime}");
 
-                        var softwareVersion = this._jkBmsMonitorClient.LatestDeviceInfo.SoftwareVersion;
-                        var deviceSerialNumber = this._jkBmsMonitorClient.LatestDeviceInfo.SerialNumber;
-                        var deviceModel = this._jkBmsMonitorClient.LatestDeviceInfo.VendorId;
-                        var deviceName = this._jkBmsMonitorClient.LatestDeviceInfo.DeviceName;
+                        if (DateTime.Now.Subtract(this._lastDeviceStatePublish).TotalSeconds > 2)
+                        {
+                            var deviceId = "jkbms_280_01";
+                            var softwareVersion = this._jkBmsMonitorClient.LatestDeviceInfo.SoftwareVersion;
+                            var deviceSerialNumber = this._jkBmsMonitorClient.LatestDeviceInfo.SerialNumber;
+                            var deviceModel = this._jkBmsMonitorClient.LatestDeviceInfo.VendorId;
+                            var deviceName = this._jkBmsMonitorClient.LatestDeviceInfo.DeviceName;
 
-                        var topics = JkMqtt.GenerateSensorTopic("jkbms_280_01", "Average Cell Voltage", "voltage", "measurement", "V", "mdi:flash-triangle", deviceName, deviceSerialNumber, deviceModel, "Jikong", hardwareVersion, softwareVersion);
+                            var balanceCurrent = JkMqtt.GenerateSensorData<float>(deviceId, "Balance Current", "balance_current",          "power", "measurement", "A",  "mdi:current-dc", info.BalanceCurrent * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var balanceEnabled = JkMqtt.GenerateSensorData<float>(deviceId, "Balance Enabled", "balance_enabled",          "power", "measurement", "",   "mdi:current-dc", info.BalanceCurrent * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var capacityNominal = JkMqtt.GenerateSensorData<float>(deviceId, "Nominal Capacity", "capacity_nominal",       "power", "measurement", "Ah", "mdi:current-dc", info.BalanceCurrent * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var capacityRemaining = JkMqtt.GenerateSensorData<float>(deviceId, "Remaining Capacity", "capacity_remaining", "power", "measurement", "Ah", "mdi:current-dc", info.BalanceCurrent * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
 
-                        var configPayload = JsonSerializer.Serialize<dynamic>(topics.Configuration);
-                        Console.WriteLine($"{topics.ConfigTopic}");
-                        Console.WriteLine($"{configPayload}");
+                            var cellResistance = new List<(string ConfigTopic, dynamic ConfigData, string StateTopic, float Value)>();
+                            for (int i = 0; i < info.CellResistance.Length; i++)
+                            {
+                                var cr = JkMqtt.GenerateSensorData<float>(deviceId, $"Cell Resistance {i+1:00}", $"cell_resistance_{i+1:00}", "power", "measurement", "Ohm", "mdi:current-dc", info.CellResistance[i] * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                                cellResistance.Add(cr);
+                            }
 
-                        Console.WriteLine($"{topics.StateTopic}");
-                        Console.WriteLine($"{info.AverageCellVoltage * 0.001f}");
+                            var cellVoltage = new List<(string ConfigTopic, dynamic ConfigData, string StateTopic, float Value)>();
+                            for (int i = 0; i < info.CellVoltage.Length; i++)
+                            {
+                                var cv = JkMqtt.GenerateSensorData<float>(deviceId, $"Cell Voltage {i + 1:00}", $"cell_voltage_{i + 1:00}", "voltage", "measurement", "V", "mdi:flash-triangle", info.CellVoltage[i] * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                                cellVoltage.Add(cv);
+                            }
 
+                            var cvMax = info.CellVoltage.Max();
+                            var cvMaxIndex = Array.IndexOf(info.CellVoltage, cvMax);
+                            var cvMin = info.CellVoltage.Where(x => x > 0).Min();
+                            var cvMinIndex = Array.IndexOf(info.CellVoltage, cvMin);
+
+                            var cellVoltgeAverage = JkMqtt.GenerateSensorData<float>(deviceId, "Cell Voltage Average", "cell_voltage_avg", "voltage", "measurement", "V", "mdi:flash-triangle", info.AverageCellVoltage * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var cellVoltageDelta = JkMqtt.GenerateSensorData<float>(deviceId, "Cell Voltage Delta", "cell_voltage_delta", "voltage", "measurement", "V", "mdi:flash-triangle", info.DeltaCellVoltage * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, hardwareVersion, deviceSerialNumber);
+                            var cellVoltgeMax = JkMqtt.GenerateSensorData<float>(deviceId, "Cell Voltage Max", "cell_voltage_max", "voltage", "measurement", "V", "mdi:flash-triangle", cvMax * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var cellVoltageMaxIndex = JkMqtt.GenerateSensorData<int>(deviceId, "Cell Voltage Max Index", "cell_voltage_max_index", "", "measurement", "", "", cvMaxIndex + 1, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var cellVoltageMin = JkMqtt.GenerateSensorData<float>(deviceId, "Cell Voltage Min", "cell_voltage_min", "voltage", "measurement", "V", "mdi:flash-triangle", cvMin * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var cellVoltageMinIndex = JkMqtt.GenerateSensorData<int>(deviceId, "Cell Voltage Min Index", "cell_voltage_min_index", "", "measurement", "", "", cvMinIndex + 1, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+
+                            var chargeCycleCount = JkMqtt.GenerateSensorData<uint>(deviceId, "Charge Cycle Count", "charge_cycle_count", "", "measurement", "", "", info.CycleCount, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var chargingEnabled = JkMqtt.GenerateSensorData<int>(deviceId, "Charging Enabled", "charging_enabled", "", "measurement", "", "", info.CharginMosfetEnabled ? 1: 0, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var current = JkMqtt.GenerateSensorData<float>(deviceId, "Current", "current", "power", "measurement", "A", "mdi:current-dc", info.ChargeCurrent * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var cycleCapacity = JkMqtt.GenerateSensorData<float>(deviceId, "Cycle Capacity", "cycle_capacity", "power", "measurement", "Ah", "", info.CycleCapacity * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var dischargingEnabled = JkMqtt.GenerateSensorData<int>(deviceId, "Discharging Enabled", "discharging_enabled", "", "measurement", "", "", info.DisCharginMosfetEnabled ? 1 : 0, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+
+                            var power = JkMqtt.GenerateSensorData<float>(deviceId, "Power", "power", "power", "measurement", "W", "", info.BatteryPower * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var stateOfCharge = JkMqtt.GenerateSensorData<byte>(deviceId, "State Of Charge", "state_of_charge", "", "measurement", "", "", info.StateOfCharge, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var temperature1 = JkMqtt.GenerateSensorData<float>(deviceId, "Temperature 1", "temperature_1", "", "measurement", "C", "", info.TemperatureProbe01 * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var temperature2 = JkMqtt.GenerateSensorData<float>(deviceId, "Temperature 2", "temperature_2", "", "measurement", "C", "", info.TemperatureProbe02 * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var temperatureMosfet = JkMqtt.GenerateSensorData<float>(deviceId, "Temperature Mosfet", "temperature_mosfet", "", "measurement", "C", "", info.PowerTubeTemperature * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var totalRuntime = JkMqtt.GenerateSensorData<string>(deviceId, "Total Runtime", "total_runtime", "", "measurement", "", "", info.TotalRuntime.ToString(), deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var totalVoltage = JkMqtt.GenerateSensorData<float>(deviceId, "Total Voltage", "total_voltage", "voltage", "measurement", "V", "", info.BatteryVoltage * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+
+
+                            // Publish the device configuration data every 60 seconds
+                            if (DateTime.Now.Subtract(this._lastDeviceConfigPublish).TotalSeconds > 60)
+                            {
+                                JkMqtt.Publish(balanceCurrent.ConfigTopic, JsonSerializer.Serialize<dynamic>(balanceCurrent.ConfigData));
+                                JkMqtt.Publish(balanceEnabled.ConfigTopic, JsonSerializer.Serialize<dynamic>(balanceEnabled.ConfigData));
+                                JkMqtt.Publish(capacityNominal.ConfigTopic, JsonSerializer.Serialize<dynamic>(capacityNominal.ConfigData));
+                                JkMqtt.Publish(capacityRemaining.ConfigTopic, JsonSerializer.Serialize<dynamic>(capacityRemaining.ConfigData));
+
+                                foreach (var item in cellResistance)
+                                {
+                                    JkMqtt.Publish(item.ConfigTopic, JsonSerializer.Serialize<dynamic>(item.ConfigData));
+                                }
+
+                                foreach (var item in cellVoltage)
+                                {
+                                    JkMqtt.Publish(item.ConfigTopic, JsonSerializer.Serialize<dynamic>(item.ConfigData));
+                                }
+
+                                JkMqtt.Publish(cellVoltgeAverage.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltgeAverage.ConfigData));
+                                JkMqtt.Publish(cellVoltageDelta.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltageDelta.ConfigData));
+                                JkMqtt.Publish(cellVoltgeMax.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltgeMax.ConfigData));
+                                JkMqtt.Publish(cellVoltageMaxIndex.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltageMaxIndex.ConfigData));
+                                JkMqtt.Publish(cellVoltageMin.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltageMin.ConfigData));
+                                JkMqtt.Publish(cellVoltageMinIndex.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltageMinIndex.ConfigData));
+                                JkMqtt.Publish(chargeCycleCount.ConfigTopic, JsonSerializer.Serialize<dynamic>(chargeCycleCount.ConfigData));
+                                JkMqtt.Publish(chargingEnabled.ConfigTopic, JsonSerializer.Serialize<dynamic>(chargingEnabled.ConfigData));
+                                JkMqtt.Publish(current.ConfigTopic, JsonSerializer.Serialize<dynamic>(current.ConfigData));
+                                JkMqtt.Publish(cycleCapacity.ConfigTopic, JsonSerializer.Serialize<dynamic>(cycleCapacity.ConfigData));
+                                JkMqtt.Publish(dischargingEnabled.ConfigTopic, JsonSerializer.Serialize<dynamic>(dischargingEnabled.ConfigData));
+                                JkMqtt.Publish(power.ConfigTopic, JsonSerializer.Serialize<dynamic>(power.ConfigData));
+                                JkMqtt.Publish(temperature1.ConfigTopic, JsonSerializer.Serialize<dynamic>(temperature1.ConfigData));
+                                JkMqtt.Publish(temperature2.ConfigTopic, JsonSerializer.Serialize<dynamic>(temperature2.ConfigData));
+                                JkMqtt.Publish(temperatureMosfet.ConfigTopic, JsonSerializer.Serialize<dynamic>(temperatureMosfet.ConfigData));
+                                JkMqtt.Publish(totalRuntime.ConfigTopic, JsonSerializer.Serialize<dynamic>(totalRuntime.ConfigData));
+                                JkMqtt.Publish(totalVoltage.ConfigTopic, JsonSerializer.Serialize<dynamic>(totalVoltage.ConfigData));
+                            }
+
+                            // Publish the state data
+                            JkMqtt.Publish(balanceCurrent.StateTopic, balanceCurrent.Value);
+                            JkMqtt.Publish(balanceEnabled.StateTopic, balanceEnabled.Value);
+                            JkMqtt.Publish(capacityNominal.StateTopic, capacityNominal.Value);
+                            JkMqtt.Publish(capacityRemaining.StateTopic, capacityRemaining.Value);
+
+                            foreach (var item in cellResistance)
+                            {
+                                JkMqtt.Publish(item.StateTopic, item.Value);
+                            }
+
+                            foreach (var item in cellVoltage)
+                            {
+                                JkMqtt.Publish(item.StateTopic, item.Value);
+                            }
+
+                            JkMqtt.Publish(cellVoltgeAverage.StateTopic, cellVoltgeAverage.Value);
+                            JkMqtt.Publish(cellVoltageDelta.StateTopic, cellVoltageDelta.Value);
+                            JkMqtt.Publish(cellVoltgeMax.StateTopic, cellVoltgeMax.Value);
+                            JkMqtt.Publish(cellVoltageMaxIndex.StateTopic, cellVoltageMaxIndex.Value);
+                            JkMqtt.Publish(cellVoltageMin.StateTopic, cellVoltageMin.Value);
+                            JkMqtt.Publish(cellVoltageMinIndex.StateTopic, cellVoltageMinIndex.Value);
+                            JkMqtt.Publish(chargeCycleCount.StateTopic, chargeCycleCount.Value);
+                            JkMqtt.Publish(chargingEnabled.StateTopic, chargingEnabled.Value);
+                            JkMqtt.Publish(current.StateTopic, current.Value);
+                            JkMqtt.Publish(cycleCapacity.StateTopic, cycleCapacity.Value);
+                            JkMqtt.Publish(dischargingEnabled.StateTopic, dischargingEnabled.Value);
+                            JkMqtt.Publish(power.StateTopic, power.Value);
+                            JkMqtt.Publish(temperature1.StateTopic, temperature1.Value);
+                            JkMqtt.Publish(temperature2.StateTopic, temperature2.Value);
+                            JkMqtt.Publish(temperatureMosfet.StateTopic, temperatureMosfet.Value);
+                            JkMqtt.Publish(totalRuntime.StateTopic, totalRuntime.Value);
+                            JkMqtt.Publish(totalVoltage.StateTopic, totalVoltage.Value);
+                        }
                         break;
                     }
                 case 0x03:

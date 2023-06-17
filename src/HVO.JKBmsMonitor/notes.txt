@@ -23,24 +23,26 @@ homeassistant/sensor/jkbms_280_01/voltage/config
 homeassistant/sensor/jkbms_280_01/voltage/state
 54.234
 
+                                 // "jkbms_280_01",    "Average Cell Voltage", "cell_voltage_avg",  "voltage",          "measurment",      "V",                     "mdi:flash-triangle"
+public static void GenerateMqttData(string deviceName, string sensorName,      string entityName,   string deviceClass, string stateClass, string unitOfMeasurment, string sensorIcon)
 
-string mqttConfig = JsonConvert.SerializeObject(new 
+
 {
-    device = new 
-    {
-        ids = new [] { "" },
-        mdl = "",
-        mf = "",
-        name = "",
-        hw_version = "",
-        sw_version = ""
-    },
-    name = "",
-    icon = "",
-    device_class = "",
-    state_class = "",
-    state_topic = "",
-    unique_id = "",
-    object_id = "",
-    unit_of_measurement = ""
-});
+  "device":
+  {
+    "ids":["2042102033"],
+    "mdl":"JK-B2A24S15P",
+    "mf":"Jikong",
+    "name":"JK-B2A24S15P",
+    "hw_version":"10.XW",
+    "sw_version":"10.08"
+  },
+  "name":"Average Cell Voltage",
+  "icon":"mdi:flash-triangle",
+  "device_class":"voltage",
+  "state_class":"measurement",
+  "state_topic":"homeassistant/sensor/jkbms_280_01/average_cell_voltage/state",
+  "unique_id":"jkbms_280_01_average_cell_voltage",
+  "object_id":"jkbms_280_01_average_cell_voltage",
+  "unit_of_measurement":"V"
+}

@@ -6,7 +6,7 @@ namespace HVO.JKBmsMonitor
     {
         protected JkBmsGetCellInfoResponse(ReadOnlyMemory<byte> data) : base(data) { }
 
-        public virtual ushort[] CellVoltages { get; protected set; }
+        public virtual ushort[] CellVoltage { get; protected set; }
         public virtual ushort[] CellResistance { get; protected set; }
         public virtual ushort AverageCellVoltage { get; protected set; }
         public virtual ushort DeltaCellVoltage { get; protected set; }
@@ -163,12 +163,12 @@ namespace HVO.JKBmsMonitor
             // The offset is based on the device firmware version of this payload
             int numberOfCells = 24;
 
-            this.CellVoltages = new  ushort[numberOfCells];
+            this.CellVoltage = new  ushort[numberOfCells];
             this.CellResistance = new ushort[numberOfCells];
 
             for (int i = 0; i < numberOfCells; i++)
             {
-                this.CellVoltages[i] = BitConverter.ToUInt16(payload.Slice((i * 2) + 6, 2));
+                this.CellVoltage[i] = BitConverter.ToUInt16(payload.Slice((i * 2) + 6, 2));
                 this.CellResistance[i] = BitConverter.ToUInt16(payload.Slice((i * 2) + 64, 2));
             }
 
@@ -337,12 +337,12 @@ namespace HVO.JKBmsMonitor
             int offset = 16;
             int numberOfCells = 24 + (offset / 2);
 
-            this.CellVoltages = new ushort[numberOfCells];
+            this.CellVoltage = new ushort[numberOfCells];
             this.CellResistance = new ushort[numberOfCells];
 
             for (int i = 0; i < numberOfCells; i++)
             {
-                this.CellVoltages[i] = BitConverter.ToUInt16(payload.Slice((i * 2) + 6, 2));
+                this.CellVoltage[i] = BitConverter.ToUInt16(payload.Slice((i * 2) + 6, 2));
                 this.CellResistance[i] = BitConverter.ToUInt16(payload.Slice((i * 2) + 64 + offset, 2));
             }
 

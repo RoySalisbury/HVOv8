@@ -9,13 +9,27 @@ namespace HVO.JKBmsMonitor
     internal static class JkMqtt
     {
 
-        public static (string ConfigTopic, string StateTopic, dynamic Configuration) GenerateSensorTopic(string deviceId, string sensorName, string deviceClass, string stateClass, string uom, string icon, string deviceName, string deviceSerialNumber, string deviceModel, string deviceManufacture, string deviceHardwareVersion, string deviceSoftwareVersion)
+        public static (string ConfigTopic, dynamic ConfigData, string StateTopic, T Value) GenerateSensorData<T>(
+            string deviceId,              // "jkbms_280_01"
+            string sensorName,            // "Average Cell Voltage"
+            string entityName,            // "cell_voltage_avg"
+            string deviceClass,           // "voltage"
+            string stateClass,            // "measurment"
+            string unitOfMeasurment,      // "V"
+            string sensorIcon,            // "mdi:flash-triangle"
+            T value,
+            string deviceName,            // "JK-B2A24S15P"
+            string deviceManufacture,     // "Jikong"
+            string deviceModel,           // "JK-B2A24S15P"
+            string deviceHardwareVersion, // "10.XW"
+            string deviceSoftwareVersion, // "10.08"
+            string deviceSerialNumber)    // "SN_2042102033"
         {
-            var topicBase = $"homeassistant/sensor/{deviceId.ToLower().Replace(" ", "_")}/{sensorName.ToLower().Replace(" ", "_")}";
+            var topicBase = $"homeassistant/sensor/{deviceId.ToLower().Replace(" ", "_")}/{entityName.ToLower().Replace(" ", "_")}";
             var configTopic = $"{topicBase}/config";
             var stateTopic = $"{topicBase}/state";
 
-            var config = new
+            var configData = new
             {
                 device = new
                 {
@@ -27,16 +41,23 @@ namespace HVO.JKBmsMonitor
                     sw_version = deviceSoftwareVersion
                 },
                 name = sensorName,
-                icon = icon.ToLower(),
+                icon = sensorIcon.ToLower(),
                 device_class = deviceClass.ToLower(),
                 state_class = stateClass.ToLower(),
                 state_topic = stateTopic,
-                unique_id = $"{deviceId.ToLower().Replace(" ", "_")}_{sensorName.ToLower().Replace(" ", "_")}",
-                object_id = $"{deviceId.ToLower().Replace(" ", "_")}_{sensorName.ToLower().Replace(" ", "_")}",
-                unit_of_measurement = uom
+                unique_id = $"{deviceId.ToLower().Replace(" ", "_")}_{entityName.ToLower().Replace(" ", "_")}",
+                object_id = $"{deviceId.ToLower().Replace(" ", "_")}_{entityName.ToLower().Replace(" ", "_")}",
+                unit_of_measurement = unitOfMeasurment
             };
 
-            return (configTopic, stateTopic, config);
+            return (configTopic, configData, stateTopic, value);
+        }
+
+        public static void Publish(string topic, object data)
+        {
+            Console.WriteLine(topic);
+            Console.WriteLine(data);
+            Console.WriteLine();
         }
     }
 }
