@@ -1,0 +1,46 @@
+
+homeassistant/sensor/jkbms_280_01/voltage/config
+{
+    "device":
+    {
+        "ids": [ "DeviceSerialNumber1" ],
+        "mdl": "JK-B2A24S15P",
+        "mf": "Jikong",
+        "name": "JKBMS_280_01",       
+        "hw_version": "10.XX",
+        "sw_version": "10.YY"
+    },
+    "name": "Voltage",
+    "icon": "mdi:flash-triangle",
+    "device_class": "voltage",
+    "state_class": "measurement",
+    "state_topic": "homeassistant/sensor/jkbms_280_01/voltage/state",
+    "unique_id": "jkbms_280_01_voltage",
+    "object_id": "jkbms_280_01_voltage",
+    "unit_of_measurement": "V"
+}
+
+homeassistant/sensor/jkbms_280_01/voltage/state
+54.234
+
+
+string mqttConfig = JsonConvert.SerializeObject(new 
+{
+    device = new 
+    {
+        ids = new [] { "" },
+        mdl = "",
+        mf = "",
+        name = "",
+        hw_version = "",
+        sw_version = ""
+    },
+    name = "",
+    icon = "",
+    device_class = "",
+    state_class = "",
+    state_topic = "",
+    unique_id = "",
+    object_id = "",
+    unit_of_measurement = ""
+});
