@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace HVO.JKBmsMonitor
@@ -104,7 +105,6 @@ namespace HVO.JKBmsMonitor
                         }
 
                         var hardwareVersion = this._jkBmsMonitorClient.LatestDeviceInfo.HardwareVersion;
-                        //var softwareVersion = this._jkBmsMonitorClient.LatestDeviceInfo.SoftwareVersion;
 
                         if (hardwareVersion.ToUpperInvariant().StartsWith("11."))
                         {
@@ -117,6 +117,20 @@ namespace HVO.JKBmsMonitor
 
                         var info = this._jkBmsMonitorClient.LatestCellInfoInfo;
                         Console.WriteLine($"Cell Info   - AVG: {info.AverageCellVoltage} mV, MIN: {info.CellVoltages.Where(x => x > 0).Min()} mV, MAX: {info.CellVoltages.Max()} mV, SOC: {info.StateOfCharge}%, Power: {info.BatteryPower} mW, Total Runtime: {info.TotalRuntime}");
+
+                        var softwareVersion = this._jkBmsMonitorClient.LatestDeviceInfo.SoftwareVersion;
+                        var deviceSerialNumber = this._jkBmsMonitorClient.LatestDeviceInfo.SerialNumber;
+                        var deviceModel = this._jkBmsMonitorClient.LatestDeviceInfo.VendorId;
+                        var deviceName = this._jkBmsMonitorClient.LatestDeviceInfo.DeviceName;
+
+                        var topics = JkMqtt.GenerateSensorTopics("jkbms_280_01", "Average Cell Voltage", "voltage", "measurement", "V", "mdi:flash-triangle", deviceName, deviceSerialNumber, deviceModel, "Jikong", hardwareVersion, softwareVersion);
+
+                        var configPayload = JsonSerializer.Serialize<string>(topics.Configuration);
+                        Console.WriteLine($"{topics.ConfigTopic}");
+                        Console.WriteLine($"{configPayload}");
+
+                        Console.WriteLine($"{topics.StateTopic}");
+                        Console.WriteLine($"{info.AverageCellVoltage * 0.01f}");
 
                         break;
                     }
