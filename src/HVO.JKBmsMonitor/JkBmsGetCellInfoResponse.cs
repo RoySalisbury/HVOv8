@@ -16,6 +16,7 @@ namespace HVO.JKBmsMonitor
         public virtual BitArray WireResistanceWarnings { get; protected set; }
         public virtual int BatteryVoltage { get; protected set; }
         public virtual int BatteryPower { get; protected set; }
+        public virtual byte BalancerEnabled { get; protected set; }
         public virtual int ChargeCurrent { get; protected set; }
 
         public virtual BitArray EnabledCellsBitmask { get; protected set; }
@@ -29,7 +30,7 @@ namespace HVO.JKBmsMonitor
         public virtual byte BalanceAction { get; protected set; }
         public virtual byte StateOfCharge { get; protected set; }
         public virtual uint CapacityRemaining { get; protected set; }
-        public virtual uint NominalRemaining { get; protected set; }
+        public virtual uint NominalCapacity { get; protected set; }
         public virtual uint CycleCount { get; protected set; }
         public virtual uint CycleCapacity { get; protected set; }
         public virtual TimeSpan TotalRuntime { get; protected set; }
@@ -199,7 +200,7 @@ namespace HVO.JKBmsMonitor
             this.BalanceAction = payload[140]; // 0 = off, 1 = charging, 2 = discharing
             this.StateOfCharge = payload[141];
             this.CapacityRemaining = BitConverter.ToUInt32(payload.Slice(142, 4));
-            this.NominalRemaining = BitConverter.ToUInt32(payload.Slice(146, 4));
+            this.NominalCapacity = BitConverter.ToUInt32(payload.Slice(146, 4));
             this.CycleCount = BitConverter.ToUInt32(payload.Slice(150, 4));
             this.CycleCapacity = BitConverter.ToUInt32(payload.Slice(154, 4));
             // 158:2
@@ -209,6 +210,8 @@ namespace HVO.JKBmsMonitor
 
             this.CharginMosfetEnabled = payload[166] == 0x01;
             this.DisCharginMosfetEnabled = payload[167] == 0x01;
+
+            this.BalancerEnabled = payload[191];
         }
     }
 
@@ -376,7 +379,7 @@ namespace HVO.JKBmsMonitor
             this.BalanceAction = payload[140 + offset]; // 0 = off, 1 = charging, 2 = discharing
             this.StateOfCharge = payload[141 + offset];
             this.CapacityRemaining = BitConverter.ToUInt32(payload.Slice(142 + offset, 4));
-            this.NominalRemaining = BitConverter.ToUInt32(payload.Slice(146 + offset, 4));
+            this.NominalCapacity = BitConverter.ToUInt32(payload.Slice(146 + offset, 4));
             this.CycleCount = BitConverter.ToUInt32(payload.Slice(150 + offset, 4));
             this.CycleCapacity = BitConverter.ToUInt32(payload.Slice(154 + offset, 4));
             // 158 + offset:2
