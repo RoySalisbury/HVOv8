@@ -132,9 +132,9 @@ namespace HVO.JKBmsMonitor
                             var deviceName = this._jkBmsMonitorClient.LatestDeviceInfo.DeviceName;
 
                             var balanceCurrent = JkMqtt.GenerateSensorData<float>(deviceId, "Balance Current", "balance_current",          "power", "measurement", "A",  "mdi:current-dc", info.BalanceCurrent * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
-                            var balanceEnabled = JkMqtt.GenerateSensorData<float>(deviceId, "Balance Enabled", "balance_enabled",          "power", "measurement", "",   "mdi:current-dc", info.BalanceCurrent * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
-                            var capacityNominal = JkMqtt.GenerateSensorData<float>(deviceId, "Nominal Capacity", "capacity_nominal",       "power", "measurement", "Ah", "mdi:current-dc", info.BalanceCurrent * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
-                            var capacityRemaining = JkMqtt.GenerateSensorData<float>(deviceId, "Remaining Capacity", "capacity_remaining", "power", "measurement", "Ah", "mdi:current-dc", info.BalanceCurrent * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var balanceEnabled = JkMqtt.GenerateSensorData<float>(deviceId, "Balance Enabled", "balance_enabled",          "power", "measurement", "",   "mdi:current-dc", info.BalanceAction, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var capacityNominal = JkMqtt.GenerateSensorData<float>(deviceId, "Nominal Capacity", "capacity_nominal",       "power", "measurement", "Ah", "mdi:current-dc", info.CycleCapacity * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var capacityRemaining = JkMqtt.GenerateSensorData<float>(deviceId, "Remaining Capacity", "capacity_remaining", "power", "measurement", "Ah", "mdi:current-dc", info.CapacityRemaining * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
 
                             var cellResistance = new List<(string ConfigTopic, dynamic ConfigData, string StateTopic, float Value)>();
                             for (int i = 0; i < info.CellResistance.Length; i++)
@@ -212,6 +212,8 @@ namespace HVO.JKBmsMonitor
                                 JkMqtt.Publish(temperatureMosfet.ConfigTopic, JsonSerializer.Serialize<dynamic>(temperatureMosfet.ConfigData));
                                 JkMqtt.Publish(totalRuntime.ConfigTopic, JsonSerializer.Serialize<dynamic>(totalRuntime.ConfigData));
                                 JkMqtt.Publish(totalVoltage.ConfigTopic, JsonSerializer.Serialize<dynamic>(totalVoltage.ConfigData));
+
+                                this._lastDeviceConfigPublish = DateTime.Now;
                             }
 
                             // Publish the state data
@@ -247,6 +249,8 @@ namespace HVO.JKBmsMonitor
                             JkMqtt.Publish(temperatureMosfet.StateTopic, temperatureMosfet.Value);
                             JkMqtt.Publish(totalRuntime.StateTopic, totalRuntime.Value);
                             JkMqtt.Publish(totalVoltage.StateTopic, totalVoltage.Value);
+
+                            this._lastDeviceStatePublish = DateTime.Now;
                         }
                         break;
                     }
