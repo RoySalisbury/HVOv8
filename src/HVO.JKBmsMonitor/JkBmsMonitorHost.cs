@@ -2,6 +2,9 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MQTTnet;
+using MQTTnet.Client;
+using MQTTnet.Extensions.ManagedClient;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,6 +22,7 @@ namespace HVO.JKBmsMonitor
         private JkBmsMonitorClient _jkBmsMonitorClient;
         private readonly IServiceProvider _serviceProvider;
         private readonly JkBmsMonitorHostOptions _jkBmsMonitorHostOptions;
+        private MQTTnet.Extensions.ManagedClient.IManagedMqttClient _mqttClient;
 
         public JkBmsMonitorHost(ILogger<JkBmsMonitorHost> logger, IServiceProvider serviceProvider, IOptions<JkBmsMonitorHostOptions> jkBmsMonitorHostOptions)
         {
@@ -37,38 +41,52 @@ namespace HVO.JKBmsMonitor
                 // Loop this until the service is requested to stop
                 while (stoppingToken.IsCancellationRequested == false)
                 {
-                    using (this._jkBmsMonitorClient = this._serviceProvider.GetRequiredService<JkBmsMonitorClient>())
+                    var mqttFactory = new MqttFactory();
+                    using (this._mqttClient = mqttFactory.CreateManagedMqttClient())
                     {
-                        this._jkBmsMonitorClient.PacketReceived += JKBmsMonitorClient_PacketReceived;
+                        var mqttClientOptions = new ManagedMqttClientOptionsBuilder()
+                            .WithClientOptions(options =>
+                            {
+                                options.WithCredentials("homeassistant", "iawuaPhoNg9ohp1top7oowangushahNgaegeehuegheiba0Pa8em2cahjae9hod1");
+                                options.WithTcpServer("192.168.0.10");
+                            })
+                            .Build();
 
-                        try
-                        {
-                            Console.WriteLine($"Initializing {nameof(JkBmsMonitorClient)} instance...");
-                            await this._jkBmsMonitorClient.InitializeAdaptorAsync("hci0", false, stoppingToken);
+                        await this._mqttClient.StartAsync(mqttClientOptions);
 
-                            await this._jkBmsMonitorClient.ConnectToDeviceAsync("C8:47:8C:E4:54:B1", true, 20);
-                            //await this._jkBmsMonitorClient.ConnectToDeviceAsync("C8:47:8C:EC:1E:B5", true, 20);
+                        using (this._jkBmsMonitorClient = this._serviceProvider.GetRequiredService<JkBmsMonitorClient>())
+                        {
+                            this._jkBmsMonitorClient.PacketReceived += JKBmsMonitorClient_PacketReceived;
 
-                            // Make this call to get the hardway/firmware versions so we can decode the CellInfo packets correctly.
-                            await this._jkBmsMonitorClient.RequestDeviceInfo();
+                            try
+                            {
+                                Console.WriteLine($"Initializing {nameof(JkBmsMonitorClient)} instance...");
+                                await this._jkBmsMonitorClient.InitializeAdaptorAsync("hci0", false, stoppingToken);
 
-                            Console.WriteLine($"Press Ctrl-C to stop instance...");
-                            await Task.Delay(-1, stoppingToken);
-                        }
-                        catch (TaskCanceledException)
-                        {
-                            this._logger.LogDebug($"{nameof(JkBmsMonitorHost)} TaskCanceledException.");
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            this._logger.LogError($"{nameof(JkBmsMonitorHost)} initialization error: {ex.Message}. Restarting in {this._jkBmsMonitorHostOptions.RestartOnFailureWaitTime} seconds unless cancelled.");
-                            //this._logger.LogError($"{nameof(JkBmsMonitorHost)} initialization error: {ex.StackTrace}");
-                            await Task.Delay(TimeSpan.FromSeconds(this._jkBmsMonitorHostOptions.RestartOnFailureWaitTime), stoppingToken);
-                        }
-                        finally
-                        {
-                            this._jkBmsMonitorClient.PacketReceived -= JKBmsMonitorClient_PacketReceived;
+                                await this._jkBmsMonitorClient.ConnectToDeviceAsync("C8:47:8C:E4:54:B1", true, 20);
+                                //await this._jkBmsMonitorClient.ConnectToDeviceAsync("C8:47:8C:EC:1E:B5", true, 20);
+
+                                // Make this call to get the hardway/firmware versions so we can decode the CellInfo packets correctly.
+                                await this._jkBmsMonitorClient.RequestDeviceInfo();
+
+                                Console.WriteLine($"Press Ctrl-C to stop instance...");
+                                await Task.Delay(-1, stoppingToken);
+                            }
+                            catch (TaskCanceledException)
+                            {
+                                this._logger.LogDebug($"{nameof(JkBmsMonitorHost)} TaskCanceledException.");
+                                break;
+                            }
+                            catch (Exception ex)
+                            {
+                                this._logger.LogError($"{nameof(JkBmsMonitorHost)} initialization error: {ex.Message}. Restarting in {this._jkBmsMonitorHostOptions.RestartOnFailureWaitTime} seconds unless cancelled.");
+                                //this._logger.LogError($"{nameof(JkBmsMonitorHost)} initialization error: {ex.StackTrace}");
+                                await Task.Delay(TimeSpan.FromSeconds(this._jkBmsMonitorHostOptions.RestartOnFailureWaitTime), stoppingToken);
+                            }
+                            finally
+                            {
+                                this._jkBmsMonitorClient.PacketReceived -= JKBmsMonitorClient_PacketReceived;
+                            }
                         }
                     }
                 }
@@ -181,77 +199,77 @@ namespace HVO.JKBmsMonitor
                             // Publish the device configuration data every 60 seconds
                             if (DateTime.Now.Subtract(this._lastDeviceConfigPublish).TotalSeconds > 60)
                             {
-                                JkMqtt.Publish(balanceCurrent.ConfigTopic, JsonSerializer.Serialize<dynamic>(balanceCurrent.ConfigData));
-                                JkMqtt.Publish(balanceAction.ConfigTopic, JsonSerializer.Serialize<dynamic>(balanceAction.ConfigData));
-                                JkMqtt.Publish(balancerEnabled.ConfigTopic, JsonSerializer.Serialize<dynamic>(balancerEnabled.ConfigData));
-                                JkMqtt.Publish(capacityRemaining.ConfigTopic, JsonSerializer.Serialize<dynamic>(capacityRemaining.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, balanceAction.ConfigTopic, JsonSerializer.Serialize<dynamic>(balanceAction.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, balanceCurrent.ConfigTopic, JsonSerializer.Serialize<dynamic>(balanceCurrent.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, balancerEnabled.ConfigTopic, JsonSerializer.Serialize<dynamic>(balancerEnabled.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, capacityRemaining.ConfigTopic, JsonSerializer.Serialize<dynamic>(capacityRemaining.ConfigData));
 
                                 foreach (var item in cellResistance)
                                 {
-                                    JkMqtt.Publish(item.ConfigTopic, JsonSerializer.Serialize<dynamic>(item.ConfigData));
+                                    JkMqtt.Publish(this._mqttClient, item.ConfigTopic, JsonSerializer.Serialize<dynamic>(item.ConfigData));
                                 }
 
                                 foreach (var item in cellVoltage)
                                 {
-                                    JkMqtt.Publish(item.ConfigTopic, JsonSerializer.Serialize<dynamic>(item.ConfigData));
+                                    JkMqtt.Publish(this._mqttClient, item.ConfigTopic, JsonSerializer.Serialize<dynamic>(item.ConfigData));
                                 }
 
-                                JkMqtt.Publish(cellVoltgeAverage.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltgeAverage.ConfigData));
-                                JkMqtt.Publish(cellVoltageDelta.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltageDelta.ConfigData));
-                                JkMqtt.Publish(cellVoltgeMax.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltgeMax.ConfigData));
-                                JkMqtt.Publish(cellVoltageMaxIndex.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltageMaxIndex.ConfigData));
-                                JkMqtt.Publish(cellVoltageMin.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltageMin.ConfigData));
-                                JkMqtt.Publish(cellVoltageMinIndex.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltageMinIndex.ConfigData));
-                                JkMqtt.Publish(chargeCycleCount.ConfigTopic, JsonSerializer.Serialize<dynamic>(chargeCycleCount.ConfigData));
-                                JkMqtt.Publish(chargingEnabled.ConfigTopic, JsonSerializer.Serialize<dynamic>(chargingEnabled.ConfigData));
-                                JkMqtt.Publish(current.ConfigTopic, JsonSerializer.Serialize<dynamic>(current.ConfigData));
-                                JkMqtt.Publish(cycleCapacity.ConfigTopic, JsonSerializer.Serialize<dynamic>(cycleCapacity.ConfigData));
-                                JkMqtt.Publish(dischargingEnabled.ConfigTopic, JsonSerializer.Serialize<dynamic>(dischargingEnabled.ConfigData));
-                                JkMqtt.Publish(nominalCapacity.ConfigTopic, JsonSerializer.Serialize<dynamic>(nominalCapacity.ConfigData));
-                                JkMqtt.Publish(power.ConfigTopic, JsonSerializer.Serialize<dynamic>(power.ConfigData));
-                                JkMqtt.Publish(temperature1.ConfigTopic, JsonSerializer.Serialize<dynamic>(temperature1.ConfigData));
-                                JkMqtt.Publish(temperature2.ConfigTopic, JsonSerializer.Serialize<dynamic>(temperature2.ConfigData));
-                                JkMqtt.Publish(temperatureMosfet.ConfigTopic, JsonSerializer.Serialize<dynamic>(temperatureMosfet.ConfigData));
-                                JkMqtt.Publish(totalRuntime.ConfigTopic, JsonSerializer.Serialize<dynamic>(totalRuntime.ConfigData));
-                                JkMqtt.Publish(totalVoltage.ConfigTopic, JsonSerializer.Serialize<dynamic>(totalVoltage.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, cellVoltgeAverage.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltgeAverage.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, cellVoltageDelta.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltageDelta.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, cellVoltgeMax.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltgeMax.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, cellVoltageMaxIndex.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltageMaxIndex.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, cellVoltageMin.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltageMin.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, cellVoltageMinIndex.ConfigTopic, JsonSerializer.Serialize<dynamic>(cellVoltageMinIndex.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, chargeCycleCount.ConfigTopic, JsonSerializer.Serialize<dynamic>(chargeCycleCount.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, chargingEnabled.ConfigTopic, JsonSerializer.Serialize<dynamic>(chargingEnabled.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, current.ConfigTopic, JsonSerializer.Serialize<dynamic>(current.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, cycleCapacity.ConfigTopic, JsonSerializer.Serialize<dynamic>(cycleCapacity.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, dischargingEnabled.ConfigTopic, JsonSerializer.Serialize<dynamic>(dischargingEnabled.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, nominalCapacity.ConfigTopic, JsonSerializer.Serialize<dynamic>(nominalCapacity.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, power.ConfigTopic, JsonSerializer.Serialize<dynamic>(power.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, temperature1.ConfigTopic, JsonSerializer.Serialize<dynamic>(temperature1.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, temperature2.ConfigTopic, JsonSerializer.Serialize<dynamic>(temperature2.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, temperatureMosfet.ConfigTopic, JsonSerializer.Serialize<dynamic>(temperatureMosfet.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, totalRuntime.ConfigTopic, JsonSerializer.Serialize<dynamic>(totalRuntime.ConfigData));
+                                JkMqtt.Publish(this._mqttClient, totalVoltage.ConfigTopic, JsonSerializer.Serialize<dynamic>(totalVoltage.ConfigData));
 
                                 this._lastDeviceConfigPublish = DateTime.Now;
                             }
 
                             // Publish the state data
-                            JkMqtt.Publish(balanceCurrent.StateTopic, balanceCurrent.Value);
-                            JkMqtt.Publish(balanceAction.StateTopic, balanceAction.Value);
-                            JkMqtt.Publish(balancerEnabled.StateTopic, balancerEnabled.Value);
-                            JkMqtt.Publish(capacityRemaining.StateTopic, capacityRemaining.Value);
+                            JkMqtt.Publish(this._mqttClient, balanceCurrent.StateTopic, balanceCurrent.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, balanceAction.StateTopic, balanceAction.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, balancerEnabled.StateTopic, balancerEnabled.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, capacityRemaining.StateTopic, capacityRemaining.Value.ToString());
 
                             foreach (var item in cellResistance)
                             {
-                                JkMqtt.Publish(item.StateTopic, item.Value);
+                                JkMqtt.Publish(this._mqttClient, item.StateTopic, item.Value.ToString());
                             }
 
                             foreach (var item in cellVoltage)
                             {
-                                JkMqtt.Publish(item.StateTopic, item.Value);
+                                JkMqtt.Publish(this._mqttClient, item.StateTopic, item.Value.ToString());
                             }
 
-                            JkMqtt.Publish(cellVoltgeAverage.StateTopic, cellVoltgeAverage.Value);
-                            JkMqtt.Publish(cellVoltageDelta.StateTopic, cellVoltageDelta.Value);
-                            JkMqtt.Publish(cellVoltgeMax.StateTopic, cellVoltgeMax.Value);
-                            JkMqtt.Publish(cellVoltageMaxIndex.StateTopic, cellVoltageMaxIndex.Value);
-                            JkMqtt.Publish(cellVoltageMin.StateTopic, cellVoltageMin.Value);
-                            JkMqtt.Publish(cellVoltageMinIndex.StateTopic, cellVoltageMinIndex.Value);
-                            JkMqtt.Publish(chargeCycleCount.StateTopic, chargeCycleCount.Value);
-                            JkMqtt.Publish(chargingEnabled.StateTopic, chargingEnabled.Value);
-                            JkMqtt.Publish(current.StateTopic, current.Value);
-                            JkMqtt.Publish(cycleCapacity.StateTopic, cycleCapacity.Value);
-                            JkMqtt.Publish(dischargingEnabled.StateTopic, dischargingEnabled.Value);
-                            JkMqtt.Publish(nominalCapacity.StateTopic, nominalCapacity.Value);
-                            JkMqtt.Publish(power.StateTopic, power.Value);
-                            JkMqtt.Publish(temperature1.StateTopic, temperature1.Value);
-                            JkMqtt.Publish(temperature2.StateTopic, temperature2.Value);
-                            JkMqtt.Publish(temperatureMosfet.StateTopic, temperatureMosfet.Value);
-                            JkMqtt.Publish(totalRuntime.StateTopic, totalRuntime.Value);
-                            JkMqtt.Publish(totalVoltage.StateTopic, totalVoltage.Value);
+                            JkMqtt.Publish(this._mqttClient, cellVoltgeAverage.StateTopic, cellVoltgeAverage.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, cellVoltageDelta.StateTopic, cellVoltageDelta.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, cellVoltgeMax.StateTopic, cellVoltgeMax.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, cellVoltageMaxIndex.StateTopic, cellVoltageMaxIndex.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, cellVoltageMin.StateTopic, cellVoltageMin.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, cellVoltageMinIndex.StateTopic, cellVoltageMinIndex.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, chargeCycleCount.StateTopic, chargeCycleCount.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, chargingEnabled.StateTopic, chargingEnabled.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, current.StateTopic, current.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, cycleCapacity.StateTopic, cycleCapacity.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, dischargingEnabled.StateTopic, dischargingEnabled.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, nominalCapacity.StateTopic, nominalCapacity.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, power.StateTopic, power.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, temperature1.StateTopic, temperature1.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, temperature2.StateTopic, temperature2.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, temperatureMosfet.StateTopic, temperatureMosfet.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, totalRuntime.StateTopic, totalRuntime.Value.ToString());
+                            JkMqtt.Publish(this._mqttClient, totalVoltage.StateTopic, totalVoltage.Value.ToString());
 
                             this._lastDeviceStatePublish = DateTime.Now;
                         }

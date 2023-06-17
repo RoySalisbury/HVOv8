@@ -390,6 +390,7 @@ namespace HVO.JKBmsMonitor
             this.CharginMosfetEnabled = payload[166 + offset] == 0x01;
             this.DisCharginMosfetEnabled = payload[167 + offset] == 0x01;
 
+            this.BalancerEnabled = payload[191 + offset];
         }
     }
 }

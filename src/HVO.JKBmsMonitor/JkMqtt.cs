@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MQTTnet.Extensions.ManagedClient;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -53,11 +54,9 @@ namespace HVO.JKBmsMonitor
             return (configTopic, configData, stateTopic, value);
         }
 
-        public static void Publish(string topic, object data)
+        public static async void Publish(IManagedMqttClient mqttClient, string topic, string data)
         {
-            Console.WriteLine(topic);
-            Console.WriteLine(data);
-            Console.WriteLine();
+            await mqttClient.EnqueueAsync(topic, data);
         }
     }
 }
