@@ -9,7 +9,7 @@ namespace HVO.JKBmsMonitor
             this.InitializeFromPayload();
         }
 
-        //public int Unknown6 { get; private set; }
+        public int Unknown6 { get; private set; }
         public int CellUnderVoltageProtection { get; private set; }
         public int CellUnderVoltageProtectionRecovery { get; private set; }
         public int CellOverVoltageProtection { get; private set; }
@@ -37,7 +37,7 @@ namespace HVO.JKBmsMonitor
         public int DischargeSwitch { get; private set; }
         public int BalancerSwitch { get; private set; }
         public int NominalBatteryCapacity { get; private set; }
-        //public int Unknown134 { get; private set; }
+        public int Unknown134 { get; private set; }
         public int StartBalanceVoltage { get; private set; }
 
         protected override void InitializeFromPayload()

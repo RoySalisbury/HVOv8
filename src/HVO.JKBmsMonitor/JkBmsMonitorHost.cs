@@ -123,14 +123,14 @@ namespace HVO.JKBmsMonitor
                         var deviceModel = this._jkBmsMonitorClient.LatestDeviceInfo.VendorId;
                         var deviceName = this._jkBmsMonitorClient.LatestDeviceInfo.DeviceName;
 
-                        var topics = JkMqtt.GenerateSensorTopics("jkbms_280_01", "Average Cell Voltage", "voltage", "measurement", "V", "mdi:flash-triangle", deviceName, deviceSerialNumber, deviceModel, "Jikong", hardwareVersion, softwareVersion);
+                        var topics = JkMqtt.GenerateSensorTopic("jkbms_280_01", "Average Cell Voltage", "voltage", "measurement", "V", "mdi:flash-triangle", deviceName, deviceSerialNumber, deviceModel, "Jikong", hardwareVersion, softwareVersion);
 
-                        var configPayload = JsonSerializer.Serialize<string>(topics.Configuration);
+                        var configPayload = JsonSerializer.Serialize<dynamic>(topics.Configuration);
                         Console.WriteLine($"{topics.ConfigTopic}");
                         Console.WriteLine($"{configPayload}");
 
                         Console.WriteLine($"{topics.StateTopic}");
-                        Console.WriteLine($"{info.AverageCellVoltage * 0.01f}");
+                        Console.WriteLine($"{info.AverageCellVoltage * 0.001f}");
 
                         break;
                     }

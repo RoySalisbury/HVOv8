@@ -9,9 +9,9 @@ namespace HVO.JKBmsMonitor
     internal static class JkMqtt
     {
 
-        public static (string ConfigTopic, string StateTopic, dynamic Configuration) GenerateSensorTopics(string deviceId, string sensorName, string deviceClass, string stateClass, string uom, string icon, string deviceName, string deviceSerialNumber, string deviceModel, string deviceManufacture, string deviceHardwareVersion, string deviceSoftwareVersion)
+        public static (string ConfigTopic, string StateTopic, dynamic Configuration) GenerateSensorTopic(string deviceId, string sensorName, string deviceClass, string stateClass, string uom, string icon, string deviceName, string deviceSerialNumber, string deviceModel, string deviceManufacture, string deviceHardwareVersion, string deviceSoftwareVersion)
         {
-            var topicBase = $"homeassistant/sensor/{deviceId.ToLower().Replace("", "_")}/{sensorName.ToLower().Replace("' ", "_")}";
+            var topicBase = $"homeassistant/sensor/{deviceId.ToLower().Replace(" ", "_")}/{sensorName.ToLower().Replace(" ", "_")}";
             var configTopic = $"{topicBase}/config";
             var stateTopic = $"{topicBase}/state";
 
@@ -19,7 +19,7 @@ namespace HVO.JKBmsMonitor
             {
                 device = new
                 {
-                    ids = new[] { deviceSerialNumber },
+                    ids = new[] { $"SN_{deviceSerialNumber}" },
                     mdl = deviceModel,
                     mf = deviceManufacture,
                     name = deviceName,
@@ -31,8 +31,8 @@ namespace HVO.JKBmsMonitor
                 device_class = deviceClass.ToLower(),
                 state_class = stateClass.ToLower(),
                 state_topic = stateTopic,
-                unique_id = $"{deviceId.ToLower().Replace("", "_")}_{sensorName.ToLower().Replace("' ", "_")}",
-                object_id = $"{deviceId.ToLower().Replace("", "_")}_{sensorName.ToLower().Replace("' ", "_")}",
+                unique_id = $"{deviceId.ToLower().Replace(" ", "_")}_{sensorName.ToLower().Replace(" ", "_")}",
+                object_id = $"{deviceId.ToLower().Replace(" ", "_")}_{sensorName.ToLower().Replace(" ", "_")}",
                 unit_of_measurement = uom
             };
 
