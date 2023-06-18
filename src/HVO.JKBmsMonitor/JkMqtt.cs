@@ -107,7 +107,7 @@ namespace HVO.JKBmsMonitor
             string stateClass,            // "measurment"
             string unitOfMeasurment,      // "V"
             string sensorIcon,            // "mdi:flash-triangle"
-            string value,
+            bool value,
             string deviceName,            // "JK-B2A24S15P"
             string deviceManufacture,     // "Jikong"
             string deviceModel,           // "JK-B2A24S15P"
@@ -137,7 +137,8 @@ namespace HVO.JKBmsMonitor
                 state_topic = stateTopic,
                 unique_id = $"{deviceId.ToLower().Replace(" ", "_")}_{entityName.ToLower().Replace(" ", "_")}",
                 object_id = $"{deviceId.ToLower().Replace(" ", "_")}_{entityName.ToLower().Replace(" ", "_")}",
-                unit_of_measurement = unitOfMeasurment
+                payload_on = true.ToString(),
+                payload_off = false.ToString()
             };
 
             return (configTopic, configData, stateTopic, value);

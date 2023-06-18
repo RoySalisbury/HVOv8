@@ -34,8 +34,8 @@ namespace HVO.JKBmsMonitor
         public virtual uint CycleCount { get; protected set; }
         public virtual uint CycleCapacity { get; protected set; }
         public virtual TimeSpan TotalRuntime { get; protected set; }
-        public virtual bool CharginMosfetEnabled { get; protected set; }
-        public virtual bool DisCharginMosfetEnabled { get; protected set; }
+        public virtual bool ChargingMosfetEnabled { get; protected set; }
+        public virtual bool DischarginMosfetEnabled { get; protected set; }
 
     }
 
@@ -208,8 +208,8 @@ namespace HVO.JKBmsMonitor
             var totalRuntime = BitConverter.ToUInt32(payload.Slice(162, 4));
             this.TotalRuntime = TimeSpan.FromSeconds(totalRuntime);
 
-            this.CharginMosfetEnabled = payload[166] == 0x01;
-            this.DisCharginMosfetEnabled = payload[167] == 0x01;
+            this.ChargingMosfetEnabled = payload[166] == 0x01;
+            this.DischarginMosfetEnabled = payload[167] == 0x01;
 
             this.BalancerStatus = payload[191];
         }
@@ -387,8 +387,8 @@ namespace HVO.JKBmsMonitor
             var totalRuntime = BitConverter.ToUInt32(payload.Slice(162 + offset, 4));
             this.TotalRuntime = TimeSpan.FromSeconds(totalRuntime);
 
-            this.CharginMosfetEnabled = payload[166 + offset] == 0x01;
-            this.DisCharginMosfetEnabled = payload[167 + offset] == 0x01;
+            this.ChargingMosfetEnabled = payload[166 + offset] == 0x01;
+            this.DischarginMosfetEnabled = payload[167 + offset] == 0x01;
 
             this.BalancerStatus = payload[191 + offset];
         }
