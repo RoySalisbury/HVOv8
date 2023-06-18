@@ -36,6 +36,21 @@ namespace HVO.JKBmsMonitor
             stoppingToken.Register(() => this._logger.LogDebug($"{nameof(JkBmsMonitorHost)} background task is stopping."));
 
             this._logger.LogDebug($"{nameof(JkBmsMonitorHost)} background task is starting.");
+
+            if (string.IsNullOrWhiteSpace(this._jkBmsMonitorHostOptions.MqttBluetoothDeviceId))
+            {
+                Console.WriteLine("Configuraiton Error: BluetoothDevcieId not configured.");
+                System.Environment.Exit(-1);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(this._jkBmsMonitorHostOptions.BluetoothDeviceAddress))
+            {
+                Console.WriteLine("Configuraiton Error: BluetoothDeviceAddress not configured.");
+                System.Environment.Exit(-2);
+                return;
+            }
+
             try
             {
                 // Loop this until the service is requested to stop
@@ -47,8 +62,8 @@ namespace HVO.JKBmsMonitor
                         var mqttClientOptions = new ManagedMqttClientOptionsBuilder()
                             .WithClientOptions(options =>
                             {
-                                options.WithCredentials("homeassistant", "iawuaPhoNg9ohp1top7oowangushahNgaegeehuegheiba0Pa8em2cahjae9hod1");
-                                options.WithTcpServer("192.168.0.10");
+                                options.WithCredentials(this._jkBmsMonitorHostOptions.MqttUserName, this._jkBmsMonitorHostOptions.MqttPassword);
+                                options.WithTcpServer(this._jkBmsMonitorHostOptions.MqttHost, port: this._jkBmsMonitorHostOptions.MqttPort);
                             })
                             .Build();
 
@@ -61,10 +76,9 @@ namespace HVO.JKBmsMonitor
                             try
                             {
                                 Console.WriteLine($"Initializing {nameof(JkBmsMonitorClient)} instance...");
-                                await this._jkBmsMonitorClient.InitializeAdaptorAsync("hci0", false, stoppingToken);
+                                await this._jkBmsMonitorClient.InitializeAdaptorAsync(this._jkBmsMonitorHostOptions.BluetoothAdapterName, false, stoppingToken);
 
-                                await this._jkBmsMonitorClient.ConnectToDeviceAsync("C8:47:8C:E4:54:B1", true, 20);
-                                //await this._jkBmsMonitorClient.ConnectToDeviceAsync("C8:47:8C:EC:1E:B5", true, 20);
+                                await this._jkBmsMonitorClient.ConnectToDeviceAsync(this._jkBmsMonitorHostOptions.BluetoothDeviceAddress, true, this._jkBmsMonitorHostOptions.BluetoothScanTimeout);
 
                                 // Make this call to get the hardway/firmware versions so we can decode the CellInfo packets correctly.
                                 await this._jkBmsMonitorClient.RequestDeviceInfo();
@@ -146,7 +160,7 @@ namespace HVO.JKBmsMonitor
 
                             if (DateTime.Now.Subtract(this._lastDeviceStatePublish).TotalSeconds > 2)
                             {
-                                var deviceId = "jkbms_280_01";
+                                var deviceId = this._jkBmsMonitorHostOptions.MqttBluetoothDeviceId;
                                 var softwareVersion = this._jkBmsMonitorClient.LatestDeviceInfo.SoftwareVersion;
                                 var deviceSerialNumber = this._jkBmsMonitorClient.LatestDeviceInfo.SerialNumber;
                                 var deviceModel = this._jkBmsMonitorClient.LatestDeviceInfo.VendorId;

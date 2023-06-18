@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "HVO.JKBmsMonitor": {
+      "commandName": "Project",
+      "commandLineArgs": "--JkBmsMonitorHostOptions:MqttBluetoothDeviceId=\"jkbms-280-01\"\r\n--JkBmsMonitorHostOptions:BluetoothDeviceAddress=\"C8:47:8C:E4:54:B1\""
+    }
+  }
+}

@@ -13,14 +13,13 @@ namespace HVO.JKBmsMonitor
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
-             .ConfigureServices(context =>
+             .ConfigureServices((context, services) =>
              {
-                 context.AddOptions();
-                 context.AddOptions<JkBmsMonitorClientOptions>(nameof(JkBmsMonitorClientOptions));
-                 context.AddOptions<JkBmsMonitorHostOptions>(nameof(JkBmsMonitorHostOptions));
+                 services.Configure<JkBmsMonitorHostOptions>(context.Configuration.GetSection(nameof(JkBmsMonitorHostOptions)));
+                 services.Configure<JkBmsMonitorClientOptions>(context.Configuration.GetSection(nameof(JkBmsMonitorClientOptions)));
 
-                 context.AddSingleton<JkBmsMonitorClient>();
-                 context.AddHostedService<JkBmsMonitorHost>();
+                 services.AddSingleton<JkBmsMonitorClient>();
+                 services.AddHostedService<JkBmsMonitorHost>();
              });
     }
 }
