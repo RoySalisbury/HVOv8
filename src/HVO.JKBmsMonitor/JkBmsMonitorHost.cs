@@ -227,6 +227,7 @@ namespace HVO.JKBmsMonitor
                                 await JkMqtt.Publish(this._mqttClient, dischargingEnabled.ConfigTopic, dischargingEnabled.ConfigData);
                                 await JkMqtt.Publish(this._mqttClient, nominalCapacity.ConfigTopic, nominalCapacity.ConfigData);
                                 await JkMqtt.Publish(this._mqttClient, power.ConfigTopic, power.ConfigData);
+                                await JkMqtt.Publish(this._mqttClient, stateOfCharge.ConfigTopic, stateOfCharge.ConfigData);
                                 await JkMqtt.Publish(this._mqttClient, temperature1.ConfigTopic, temperature1.ConfigData);
                                 await JkMqtt.Publish(this._mqttClient, temperature2.ConfigTopic, temperature2.ConfigData);
                                 await JkMqtt.Publish(this._mqttClient, temperatureMosfet.ConfigTopic, temperatureMosfet.ConfigData);
@@ -237,39 +238,40 @@ namespace HVO.JKBmsMonitor
                             }
 
                             // Publish the state data
-                            await JkMqtt.Publish(this._mqttClient, balanceCurrent.StateTopic, balanceCurrent.Value.ToString("0.###"));
+                            await JkMqtt.Publish(this._mqttClient, balanceCurrent.StateTopic, balanceCurrent.Value.ToString("0.000"));
                             await JkMqtt.Publish(this._mqttClient, balanceAction.StateTopic, balanceAction.Value.ToString());
                             await JkMqtt.Publish(this._mqttClient, balancerEnabled.StateTopic, balancerEnabled.Value.ToString());
-                            await JkMqtt.Publish(this._mqttClient, capacityRemaining.StateTopic, capacityRemaining.Value.ToString("0.###"));
+                            await JkMqtt.Publish(this._mqttClient, capacityRemaining.StateTopic, capacityRemaining.Value.ToString("0.000"));
 
                             foreach (var item in cellResistance)
                             {
-                                await JkMqtt.Publish(this._mqttClient, item.StateTopic, item.Value.ToString("0.###"));
+                                await JkMqtt.Publish(this._mqttClient, item.StateTopic, item.Value.ToString("0.000"));
                             }
 
                             foreach (var item in cellVoltage)
                             {
-                                await JkMqtt.Publish(this._mqttClient, item.StateTopic, item.Value.ToString("0.###"));
+                                await JkMqtt.Publish(this._mqttClient, item.StateTopic, item.Value.ToString("0.000"));
                             }
 
-                            await JkMqtt.Publish(this._mqttClient, cellVoltgeAverage.StateTopic, cellVoltgeAverage.Value.ToString("0.###"));
-                            await JkMqtt.Publish(this._mqttClient, cellVoltageDelta.StateTopic, cellVoltageDelta.Value.ToString("0.###"));
-                            await JkMqtt.Publish(this._mqttClient, cellVoltgeMax.StateTopic, cellVoltgeMax.Value.ToString("0.###"));
+                            await JkMqtt.Publish(this._mqttClient, cellVoltgeAverage.StateTopic, cellVoltgeAverage.Value.ToString("0.000"));
+                            await JkMqtt.Publish(this._mqttClient, cellVoltageDelta.StateTopic, cellVoltageDelta.Value.ToString("0.000"));
+                            await JkMqtt.Publish(this._mqttClient, cellVoltgeMax.StateTopic, cellVoltgeMax.Value.ToString("0.000"));
                             await JkMqtt.Publish(this._mqttClient, cellVoltageMaxIndex.StateTopic, cellVoltageMaxIndex.Value.ToString());
-                            await JkMqtt.Publish(this._mqttClient, cellVoltageMin.StateTopic, cellVoltageMin.Value.ToString("0.###"));
+                            await JkMqtt.Publish(this._mqttClient, cellVoltageMin.StateTopic, cellVoltageMin.Value.ToString("0.000"));
                             await JkMqtt.Publish(this._mqttClient, cellVoltageMinIndex.StateTopic, cellVoltageMinIndex.Value.ToString());
                             await JkMqtt.Publish(this._mqttClient, chargeCycleCount.StateTopic, chargeCycleCount.Value.ToString());
                             await JkMqtt.Publish(this._mqttClient, chargingEnabled.StateTopic, chargingEnabled.Value.ToString());
-                            await JkMqtt.Publish(this._mqttClient, current.StateTopic, current.Value.ToString("0.###"));
-                            await JkMqtt.Publish(this._mqttClient, cycleCapacity.StateTopic, cycleCapacity.Value.ToString("0.###"));
+                            await JkMqtt.Publish(this._mqttClient, current.StateTopic, current.Value.ToString("0.000"));
+                            await JkMqtt.Publish(this._mqttClient, cycleCapacity.StateTopic, cycleCapacity.Value.ToString("0.000"));
                             await JkMqtt.Publish(this._mqttClient, dischargingEnabled.StateTopic, dischargingEnabled.Value.ToString());
-                            await JkMqtt.Publish(this._mqttClient, nominalCapacity.StateTopic, nominalCapacity.Value.ToString("0.###"));
-                            await JkMqtt.Publish(this._mqttClient, power.StateTopic, power.Value.ToString("0.###"));
-                            await JkMqtt.Publish(this._mqttClient, temperature1.StateTopic, temperature1.Value.ToString("0.##"));
-                            await JkMqtt.Publish(this._mqttClient, temperature2.StateTopic, temperature2.Value.ToString("0.##"));
-                            await JkMqtt.Publish(this._mqttClient, temperatureMosfet.StateTopic, temperatureMosfet.Value.ToString("0.##"));
+                            await JkMqtt.Publish(this._mqttClient, nominalCapacity.StateTopic, nominalCapacity.Value.ToString("0.000"));
+                            await JkMqtt.Publish(this._mqttClient, power.StateTopic, power.Value.ToString("0.000"));
+                            await JkMqtt.Publish(this._mqttClient, stateOfCharge.StateTopic, stateOfCharge.Value.ToString());
+                            await JkMqtt.Publish(this._mqttClient, temperature1.StateTopic, temperature1.Value.ToString("0.00"));
+                            await JkMqtt.Publish(this._mqttClient, temperature2.StateTopic, temperature2.Value.ToString("0.00"));
+                            await JkMqtt.Publish(this._mqttClient, temperatureMosfet.StateTopic, temperatureMosfet.Value.ToString("0.00"));
                             await JkMqtt.Publish(this._mqttClient, totalRuntime.StateTopic, totalRuntime.Value.ToString());
-                            await JkMqtt.Publish(this._mqttClient, totalVoltage.StateTopic, totalVoltage.Value.ToString("0.###"));
+                            await JkMqtt.Publish(this._mqttClient, totalVoltage.StateTopic, totalVoltage.Value.ToString("0.000"));
 
                             this._lastDeviceStatePublish = DateTime.Now;
                         }
