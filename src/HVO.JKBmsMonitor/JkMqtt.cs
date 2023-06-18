@@ -68,7 +68,7 @@ namespace HVO.JKBmsMonitor
             string deviceSoftwareVersion, // "10.08"
             string deviceSerialNumber)    // "SN_2042102033"
         {
-            var topicBase = $"homeassistant/textsensor/{deviceId.ToLower().Replace(" ", "_")}/{entityName.ToLower().Replace(" ", "_")}";
+            var topicBase = $"homeassistant/sensor/{deviceId.ToLower().Replace(" ", "_")}/{entityName.ToLower().Replace(" ", "_")}";
             var configTopic = $"{topicBase}/config";
             var stateTopic = $"{topicBase}/state";
 
