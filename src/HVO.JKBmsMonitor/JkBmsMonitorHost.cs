@@ -162,7 +162,7 @@ namespace HVO.JKBmsMonitor
                             var cellResistance = new List<(string ConfigTopic, dynamic ConfigData, string StateTopic, float Value)>();
                             for (int i = 0; i < info.CellResistance.Length; i++)
                             {
-                                var cr = JkMqtt.GenerateSensorData<float>(deviceId, $"Cell Resistance {i+1:00}", $"cell_resistance_{i+1:00}", null, "measurement", "Ohm", null, info.CellResistance[i] * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                                var cr = JkMqtt.GenerateSensorData<float>(deviceId, $"Cell Resistance {i+1:00}", $"cell_resistance_{i+1:00}", null, "measurement", "Ohm", "mdi:omega", info.CellResistance[i] * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
                                 cellResistance.Add(cr);
                             }
 
