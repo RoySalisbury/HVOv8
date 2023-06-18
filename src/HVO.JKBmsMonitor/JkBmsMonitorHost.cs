@@ -206,6 +206,14 @@ namespace HVO.JKBmsMonitor
                             var totalRuntime = JkMqtt.GenerateSensorData<double>(deviceId, "Total Runtime", "total_runtime", "duration", "total_increasing", "s", null, info.TotalRuntime.TotalSeconds, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
                             var totalVoltage = JkMqtt.GenerateSensorData<float>(deviceId, "Total Voltage", "total_voltage", "voltage", "measurement", "V", null, info.BatteryVoltage * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
 
+
+                            var cp = info.BatteryPower > 0 ? info.BatteryPower : 0;
+                            var dp = info.BatteryPower < 0 ? info.BatteryPower : info.BatteryPower * -1;
+
+                            var chargingPower = JkMqtt.GenerateSensorData<float>(deviceId, "Charging Power", "charging_power", "power", "measurement", "W", null, cp * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var dischargingPower = JkMqtt.GenerateSensorData<float>(deviceId, "Discharging Power", "discharging_power", "power", "measurement", "W", null, dp * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+
+
                             // Publish the device configuration data every 60 seconds
                             if (DateTime.Now.Subtract(this._lastDeviceConfigPublish).TotalSeconds > 60)
                             {
@@ -243,6 +251,9 @@ namespace HVO.JKBmsMonitor
                                 await JkMqtt.Publish(this._mqttClient, temperatureMosfet.ConfigTopic, temperatureMosfet.ConfigData);
                                 await JkMqtt.Publish(this._mqttClient, totalRuntime.ConfigTopic, totalRuntime.ConfigData);
                                 await JkMqtt.Publish(this._mqttClient, totalVoltage.ConfigTopic, totalVoltage.ConfigData);
+
+                                await JkMqtt.Publish(this._mqttClient, chargingPower.ConfigTopic, chargingPower.ConfigData);
+                                await JkMqtt.Publish(this._mqttClient, dischargingPower.ConfigTopic, dischargingPower.ConfigData);
 
                                 this._lastDeviceConfigPublish = DateTime.Now;
                             }
@@ -282,6 +293,9 @@ namespace HVO.JKBmsMonitor
                             await JkMqtt.Publish(this._mqttClient, temperatureMosfet.StateTopic, temperatureMosfet.Value.ToString("0.00"));
                             await JkMqtt.Publish(this._mqttClient, totalRuntime.StateTopic, totalRuntime.Value.ToString());
                             await JkMqtt.Publish(this._mqttClient, totalVoltage.StateTopic, totalVoltage.Value.ToString("0.000"));
+
+                            await JkMqtt.Publish(this._mqttClient, chargingPower.StateTopic, chargingPower.Value.ToString("0.000"));
+                            await JkMqtt.Publish(this._mqttClient, dischargingPower.StateTopic, dischargingPower.Value.ToString("0.000"));
 
                             this._lastDeviceStatePublish = DateTime.Now;
                         }
