@@ -28,7 +28,7 @@ namespace HVO.JKBmsMonitor
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
-            _jkBmsMonitorHostOptions = jkBmsMonitorHostOptions.Value; // hci0 and deviceAddress should come from here
+            _jkBmsMonitorHostOptions = jkBmsMonitorHostOptions.Value;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
