@@ -71,7 +71,7 @@ namespace HVO.JKBmsMonitor
             string deviceSoftwareVersion, // "10.08"
             string deviceSerialNumber)    // "SN_2042102033"
         {
-            var topicBase = $"homeassistant/text_sensor/{deviceId.ToLower().Replace(" ", "_")}/{entityName.ToLower().Replace(" ", "_")}";
+            var topicBase = $"homeassistant/textsensor/{deviceId.ToLower().Replace(" ", "_")}/{entityName.ToLower().Replace(" ", "_")}";
             var configTopic = $"{topicBase}/config";
             var stateTopic = $"{topicBase}/state";
 
@@ -98,6 +98,51 @@ namespace HVO.JKBmsMonitor
 
             return (configTopic, configData, stateTopic, value);
         }
+
+        public static (string ConfigTopic, dynamic ConfigData, string StateTopic, bool Value) GenerateBinarySensorData(
+            string deviceId,              // "jkbms_280_01"
+            string sensorName,            // "Average Cell Voltage"
+            string entityName,            // "cell_voltage_avg"
+            string deviceClass,           // "voltage"
+            string stateClass,            // "measurment"
+            string unitOfMeasurment,      // "V"
+            string sensorIcon,            // "mdi:flash-triangle"
+            string value,
+            string deviceName,            // "JK-B2A24S15P"
+            string deviceManufacture,     // "Jikong"
+            string deviceModel,           // "JK-B2A24S15P"
+            string deviceHardwareVersion, // "10.XW"
+            string deviceSoftwareVersion, // "10.08"
+            string deviceSerialNumber)    // "SN_2042102033"
+        {
+            var topicBase = $"homeassistant/binarysensor/{deviceId.ToLower().Replace(" ", "_")}/{entityName.ToLower().Replace(" ", "_")}";
+            var configTopic = $"{topicBase}/config";
+            var stateTopic = $"{topicBase}/state";
+
+            var configData = new
+            {
+                device = new
+                {
+                    ids = new[] { $"SN_{deviceSerialNumber}" },
+                    mdl = deviceModel,
+                    mf = deviceManufacture,
+                    name = deviceName,
+                    hw_version = deviceHardwareVersion,
+                    sw_version = deviceSoftwareVersion
+                },
+                name = sensorName,
+                icon = sensorIcon?.ToLower(),
+                device_class = deviceClass?.ToLower(),
+                state_class = stateClass?.ToLower(),
+                state_topic = stateTopic,
+                unique_id = $"{deviceId.ToLower().Replace(" ", "_")}_{entityName.ToLower().Replace(" ", "_")}",
+                object_id = $"{deviceId.ToLower().Replace(" ", "_")}_{entityName.ToLower().Replace(" ", "_")}",
+                unit_of_measurement = unitOfMeasurment
+            };
+
+            return (configTopic, configData, stateTopic, value);
+        }
+
 
 
         public static async Task Publish(IManagedMqttClient mqttClient, string topic, string data)
