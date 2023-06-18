@@ -150,12 +150,12 @@ namespace HVO.JKBmsMonitor
                             var deviceName = this._jkBmsMonitorClient.LatestDeviceInfo.DeviceName;
 
                             var ba = (info.BalanceAction == 0x00) ? "Off" : (info.BalanceAction == 0x01) ? "Charging" : "Discharging";
-                            var balanceAction = JkMqtt.GenerateSensorData<string>(deviceId, "Balance Action", "balance_action", null, "measurement", null, null, ba, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var balanceAction = JkMqtt.GenerateTextSensorData(deviceId, "Balance Action", "balance_action", null, "measurement", null, null, ba, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
 
                             var balanceCurrent = JkMqtt.GenerateSensorData<float>(deviceId, "Balance Current", "balance_current", "current", "measurement", "A",  "mdi:current-dc", info.BalanceCurrent * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
 
                             var bs = info.BalancerStatus == 0x00 ? "Idle" : "Working";
-                            var balancerStatus = JkMqtt.GenerateSensorData<string>(deviceId, "Balancer Status", "balancer_status", null, "measurement", null, null, bs, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var balancerStatus = JkMqtt.GenerateTextSensorData(deviceId, "Balancer Status", "balancer_status", null, "measurement", null, null, bs, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
 
                             var capacityRemaining = JkMqtt.GenerateSensorData<float>(deviceId, "Remaining Capacity", "capacity_remaining", "current", "measurement", "Ah", null, info.CapacityRemaining * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
 
@@ -188,13 +188,13 @@ namespace HVO.JKBmsMonitor
                             var chargeCycleCount = JkMqtt.GenerateSensorData<uint>(deviceId, "Charge Cycle Count", "charge_cycle_count", null, "measurement", null, null, info.CycleCount, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
 
                             var ce = info.CharginMosfetEnabled ? "On" : "Off";
-                            var chargingEnabled = JkMqtt.GenerateSensorData<string>(deviceId, "Charging Enabled", "charging_enabled", null, "measurement", null, null, ce, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var chargingEnabled = JkMqtt.GenerateTextSensorData(deviceId, "Charging Enabled", "charging_enabled", null, "measurement", null, null, ce, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
 
                             var current = JkMqtt.GenerateSensorData<float>(deviceId, "Current", "current", "current", "measurement", "A", "mdi:current-dc", info.ChargeCurrent * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
                             var cycleCapacity = JkMqtt.GenerateSensorData<float>(deviceId, "Cycle Capacity", "cycle_capacity", "current", "total_increasing", "Ah", null, info.CycleCapacity * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
 
                             var de = info.DisCharginMosfetEnabled ? "On" : "Off";
-                            var dischargingEnabled = JkMqtt.GenerateSensorData<string>(deviceId, "Discharging Enabled", "discharging_enabled", null, "measurement", null, null, de, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
+                            var dischargingEnabled = JkMqtt.GenerateTextSensorData(deviceId, "Discharging Enabled", "discharging_enabled", null, "measurement", null, null, de, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
 
                             var nominalCapacity = JkMqtt.GenerateSensorData<float>(deviceId, "Nominal Capacity", "nominal_capacity", "current", "measurement", "Ah", "mdi:current-dc", info.NominalCapacity * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
 
