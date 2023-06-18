@@ -27,7 +27,10 @@ namespace HVO.JKBmsMonitor
             string deviceSoftwareVersion, // "10.08"
             string deviceSerialNumber)    // "SN_2042102033"
         {
-            var topicBase = $"homeassistant/sensor/{deviceId.ToLower().Replace(" ", "_")}/{entityName.ToLower().Replace(" ", "_")}";
+            deviceId = deviceId.Replace(" ", "_").Replace("-", "_").ToLower();
+            entityName = entityName.Replace(" ", "_").Replace("-", "_").ToLower();
+
+            var topicBase = $"homeassistant/sensor/{deviceId}/{entityName}";
             var configTopic = $"{topicBase}/config";
             var stateTopic = $"{topicBase}/state";
 
@@ -47,8 +50,8 @@ namespace HVO.JKBmsMonitor
                 device_class = deviceClass?.ToLower(),
                 state_class = stateClass?.ToLower(),
                 state_topic = stateTopic,
-                unique_id = $"{deviceId.ToLower().Replace(" ", "_")}_{entityName.ToLower().Replace(" ", "_")}",
-                object_id = $"{deviceId.ToLower().Replace(" ", "_")}_{entityName.ToLower().Replace(" ", "_")}",
+                unique_id = $"{deviceId}_{entityName}",
+                object_id = $"{deviceId}_{entityName}",
                 unit_of_measurement = unitOfMeasurment
             };
 
@@ -68,7 +71,10 @@ namespace HVO.JKBmsMonitor
             string deviceSoftwareVersion, // "10.08"
             string deviceSerialNumber)    // "SN_2042102033"
         {
-            var topicBase = $"homeassistant/sensor/{deviceId.ToLower().Replace(" ", "_")}/{entityName.ToLower().Replace(" ", "_")}";
+            deviceId = deviceId.Replace(" ", "_").Replace("-", "_").ToLower();
+            entityName = entityName.Replace(" ", "_").Replace("-", "_").ToLower();
+
+            var topicBase = $"homeassistant/sensor/{deviceId}/{entityName}";
             var configTopic = $"{topicBase}/config";
             var stateTopic = $"{topicBase}/state";
 
@@ -86,8 +92,8 @@ namespace HVO.JKBmsMonitor
                 name = sensorName,
                 icon = sensorIcon?.ToLower(),
                 state_topic = stateTopic,
-                unique_id = $"{deviceId.ToLower().Replace(" ", "_")}_{entityName.ToLower().Replace(" ", "_")}",
-                object_id = $"{deviceId.ToLower().Replace(" ", "_")}_{entityName.ToLower().Replace(" ", "_")}",
+                unique_id = $"{deviceId}_{entityName}",
+                object_id = $"{deviceId}_{entityName}",
             };
 
             return (configTopic, configData, stateTopic, value);
