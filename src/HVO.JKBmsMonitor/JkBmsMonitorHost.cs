@@ -125,7 +125,7 @@ namespace HVO.JKBmsMonitor
                 {
                     case 0x01:
                         {
-                            Console.WriteLine("JK02 - Response Type 1");
+                            this._logger.LogInformation("JK02 - Response Type 1");
 
                             this._jkBmsMonitorClient.LatestDeviceSettings = new JkBmsGetDeviceSettingsResponse(e.Packet);
 
@@ -136,7 +136,7 @@ namespace HVO.JKBmsMonitor
                         }
                     case 0x02:
                         {
-                            Console.WriteLine("JK02 - Response Type 2");
+                            this._logger.LogInformation("JK02 - Response Type 2");
                             if (this._jkBmsMonitorClient.LatestDeviceInfo is null)
                             {
                                 // Should have already received this ... ask again.
@@ -322,7 +322,7 @@ namespace HVO.JKBmsMonitor
                         }
                     case 0x03:
                         {
-                            Console.WriteLine("JK02 - Response Type 3");
+                            this._logger.LogInformation("JK02 - Response Type 3");
                             this._jkBmsMonitorClient.LatestDeviceInfo = new JkBmsGetDeviceInfoResponse(e.Packet);
 
                             var info = this._jkBmsMonitorClient.LatestDeviceInfo;
@@ -338,7 +338,7 @@ namespace HVO.JKBmsMonitor
                             break;
                         }
                     default:
-                        Console.WriteLine("JK02 - Response Type ?");
+                        this._logger.LogInformation("JK02 - Response Type ?");
                         break;
                 }
 
