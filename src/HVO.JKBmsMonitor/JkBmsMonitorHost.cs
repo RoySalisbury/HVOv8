@@ -208,7 +208,7 @@ namespace HVO.JKBmsMonitor
 
 
                             var cp = info.BatteryPower > 0 ? info.BatteryPower : 0;
-                            var dp = info.BatteryPower < 0 ? info.BatteryPower : info.BatteryPower * -1;
+                            var dp = info.BatteryPower < 0 ? Math.Abs(info.BatteryPower) : 0;
 
                             var chargingPower = JkMqtt.GenerateSensorData<float>(deviceId, "Charging Power", "charging_power", "power", "measurement", "W", null, cp * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
                             var dischargingPower = JkMqtt.GenerateSensorData<float>(deviceId, "Discharging Power", "discharging_power", "power", "measurement", "W", null, dp * 0.001f, deviceName, "Jikong", deviceModel, hardwareVersion, softwareVersion, deviceSerialNumber);
