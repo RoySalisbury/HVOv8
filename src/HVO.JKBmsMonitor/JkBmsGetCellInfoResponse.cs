@@ -16,7 +16,7 @@ namespace HVO.JKBmsMonitor
         public virtual BitArray WireResistanceWarnings { get; protected set; }
         public virtual int BatteryVoltage { get; protected set; }
         public virtual int BatteryPower { get; protected set; }
-        public virtual bool BalancerStatus { get; protected set; }
+        public virtual byte BalancerStatus { get; protected set; }
         public virtual int ChargeCurrent { get; protected set; }
 
         public virtual BitArray EnabledCellsBitmask { get; protected set; }
@@ -211,7 +211,7 @@ namespace HVO.JKBmsMonitor
             this.CharginMosfetEnabled = payload[166] == 0x01;
             this.DisCharginMosfetEnabled = payload[167] == 0x01;
 
-            this.BalancerStatus = payload[191] == 0x01;
+            this.BalancerStatus = payload[191];
         }
     }
 
@@ -390,7 +390,7 @@ namespace HVO.JKBmsMonitor
             this.CharginMosfetEnabled = payload[166 + offset] == 0x01;
             this.DisCharginMosfetEnabled = payload[167 + offset] == 0x01;
 
-            this.BalancerStatus = payload[191 + offset] == 0x01;
+            this.BalancerStatus = payload[191 + offset];
         }
     }
 }
