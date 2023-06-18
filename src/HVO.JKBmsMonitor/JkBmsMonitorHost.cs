@@ -105,7 +105,7 @@ namespace HVO.JKBmsMonitor
         {
             // Whne we first start receiving packet data, we should wait for the response type of 3 before decoding any other types.  This allows us to get the
             // hardware/firmware versions of the device because we will need these to properly decode the type 2 packet data.
-            try
+            //try
             {
                 switch (e.Packet[4])
                 {
@@ -259,6 +259,9 @@ namespace HVO.JKBmsMonitor
                                     await JkMqtt.Publish(this._mqttClient, dischargingPower.ConfigTopic, dischargingPower.ConfigData);
 
                                     this._lastDeviceConfigPublish = DateTime.Now;
+
+                                    // Also request a new copy of the device settings just so we are up to date.
+                                    await this._jkBmsMonitorClient.RequestDeviceSettings();
                                 }
 
                                 // Publish the state data
@@ -328,7 +331,10 @@ namespace HVO.JKBmsMonitor
 
                 //Console.WriteLine($"PacketReceived: {BitConverter.ToString(e.Packet)}");
             }
-            catch { }
+            //catch (Exception ex) 
+            {
+                //Console.WriteLine($"PacketReceived Error: {ex.Message}");
+            }
         }
     }
 }
