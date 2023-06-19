@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.Systemd;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MQTTnet;
@@ -23,12 +24,14 @@ namespace HVO.JKBmsMonitor
         private readonly IServiceProvider _serviceProvider;
         private readonly JkBmsMonitorHostOptions _jkBmsMonitorHostOptions;
         private MQTTnet.Extensions.ManagedClient.IManagedMqttClient _mqttClient;
+        private readonly ISystemdNotifier _systemdNotifier;
 
-        public JkBmsMonitorHost(ILogger<JkBmsMonitorHost> logger, IServiceProvider serviceProvider, IOptions<JkBmsMonitorHostOptions> jkBmsMonitorHostOptions)
+        public JkBmsMonitorHost(ILogger<JkBmsMonitorHost> logger, IServiceProvider serviceProvider, IOptions<JkBmsMonitorHostOptions> jkBmsMonitorHostOptions, ISystemdNotifier systemdNotifier)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
             _jkBmsMonitorHostOptions = jkBmsMonitorHostOptions.Value;
+            _systemdNotifier = systemdNotifier;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -121,6 +124,7 @@ namespace HVO.JKBmsMonitor
             // hardware/firmware versions of the device because we will need these to properly decode the type 2 packet data.
             //try
             {
+                this._systemdNotifier.Notify(new ServiceState("WATCHDOG=1"));
                 switch (e.Packet[4])
                 {
                     case 0x01:
