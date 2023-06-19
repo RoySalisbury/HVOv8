@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Hosting.Systemd;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MQTTnet;
@@ -14,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting.Systemd;
 
 namespace HVO.JKBmsMonitor
 {
@@ -26,12 +26,12 @@ namespace HVO.JKBmsMonitor
         private MQTTnet.Extensions.ManagedClient.IManagedMqttClient _mqttClient;
         private readonly ISystemdNotifier _systemdNotifier;
 
-        public JkBmsMonitorHost(ILogger<JkBmsMonitorHost> logger, IServiceProvider serviceProvider, IOptions<JkBmsMonitorHostOptions> jkBmsMonitorHostOptions, ISystemdNotifier systemdNotifier)
+        public JkBmsMonitorHost(ILogger<JkBmsMonitorHost> logger, IServiceProvider serviceProvider, IOptions<JkBmsMonitorHostOptions> jkBmsMonitorHostOptions)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
             _jkBmsMonitorHostOptions = jkBmsMonitorHostOptions.Value;
-            _systemdNotifier = systemdNotifier;
+            _systemdNotifier = new SystemdNotifier();;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

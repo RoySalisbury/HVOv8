@@ -20,6 +20,6 @@ namespace HVO.JKBmsMonitor
 
                  services.AddSingleton<JkBmsMonitorClient>();
                  services.AddHostedService<JkBmsMonitorHost>();
-             });
+             }).UseSystemd();
     }
 }
