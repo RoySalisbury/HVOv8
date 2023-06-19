@@ -15,6 +15,7 @@ namespace HVO.JKBmsMonitor
         public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
              .ConfigureServices((context, services) =>
              {
+                 services.AddSystemd();
                  services.Configure<JkBmsMonitorHostOptions>(context.Configuration.GetSection(nameof(JkBmsMonitorHostOptions)));
                  services.Configure<JkBmsMonitorClientOptions>(context.Configuration.GetSection(nameof(JkBmsMonitorClientOptions)));
 
