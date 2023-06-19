@@ -224,13 +224,19 @@ namespace HVO.JKBmsMonitor
                     return;
                 }
 
-                this.OnPacketReceived(sender, new PacketReceivedEventArgs(buffer));
-                await Task.Yield();
+                var _ = Task.Run(async () => 
+                {
+                    await Task.Delay(250);
+                    this._logger.LogTrace("DeviceNotifyCharacteristic_Value - OnPacketReceived");
+                    this.OnPacketReceived(sender, new PacketReceivedEventArgs(buffer));
+                });
             }
             finally 
             {
                 this._logger.LogTrace("DeviceNotifyCharacteristic_Value - End");
             }
+
+            await Task.Yield();
         }
 
         private static bool ValidateCrc(ReadOnlySpan<byte> data, byte originalCrc)
