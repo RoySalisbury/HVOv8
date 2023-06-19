@@ -23,7 +23,6 @@ namespace HVO.JKBmsMonitor
 
         public byte[] Packet { get; private set; } = new byte[0];
     }
-    
 
     public sealed class JkBmsMonitorClient : IDisposable
     {
@@ -50,7 +49,6 @@ namespace HVO.JKBmsMonitor
         public JkBmsGetDeviceInfoResponse LatestDeviceInfo { get; set; } = null;
         public JkBmsGetCellInfoResponse LatestCellInfoInfo { get; set; } = null;
         public JkBmsGetDeviceSettingsResponse LatestDeviceSettings { get; set; } = null;
-
 
         private void OnPacketReceived(object sender, PacketReceivedEventArgs e)
         {
@@ -109,7 +107,7 @@ namespace HVO.JKBmsMonitor
             return device;
         }
 
-        public async Task ConnectToDeviceAsync(string deviceAddress, bool scanIfNecessary, int timeout = 20)
+        public async Task ConnectToDeviceAsync(string deviceAddress, bool scanIfNecessary, int timeout = 20, CancellationToken cancellationToken = default)
         {
             if (AdaptorInitialized == false)
             {
@@ -127,6 +125,13 @@ namespace HVO.JKBmsMonitor
             // Are we connected?
             if (await device.GetConnectedAsync() == false)
             {
+                // device.Disconnected += delegate (Device sender, BlueZEventArgs eventArgs)
+                // {
+                //     this._logger.LogTrace("device.Disconnected Event Handler - Cancel Token");
+                //     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken).Cancel();
+                //     return Task.CompletedTask;
+                // };
+
                 try
                 {
                     await device.WaitForPropertyValueAsync("Connected", value: true, timeout: TimeSpan.FromSeconds(timeout));
@@ -190,32 +195,42 @@ namespace HVO.JKBmsMonitor
             }
         }
 
-        private Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
+        private async Task DeviceNotifyCharacteristic_Value(GattCharacteristic sender, GattCharacteristicValueEventArgs eventArgs)
         {
-            var header = new byte[] { 0x55, 0xAA, 0xEB, 0x90 };
-            if (header.SequenceEqual(eventArgs.Value[0..4])) 
+            this._logger.LogTrace("DeviceNotifyCharacteristic_Value - Start");
+            try 
             {
+                var header = new byte[] { 0x55, 0xAA, 0xEB, 0x90 };
+                if (header.SequenceEqual(eventArgs.Value[0..4])) 
+                {
+                    this._notificationBuffer.Clear();
+                }
+
+                this._notificationBuffer.AddRange(eventArgs.Value);
+                if (this._notificationBuffer.Count < 300)
+                {
+                    this._logger.LogTrace("DeviceNotifyCharacteristic_Value - Not within range");
+                    return;
+                }
+
+                var buffer = this._notificationBuffer.ToArray();
                 this._notificationBuffer.Clear();
-            }
 
-            this._notificationBuffer.AddRange(eventArgs.Value);
-            if (this._notificationBuffer.Count < 300)
+                // Validate the CRC. 
+                if (ValidateCrc(buffer[0..299], buffer[299]) == false)
+                {
+                    //throw new ArgumentException("CRC validation of the repsonse does not match expected calculation.");
+                    this._logger.LogTrace("DeviceNotifyCharacteristic_Value - CRC Error");
+                    return;
+                }
+
+                this.OnPacketReceived(sender, new PacketReceivedEventArgs(buffer));
+                await Task.Yield();
+            }
+            finally 
             {
-                return Task.CompletedTask;
+                this._logger.LogTrace("DeviceNotifyCharacteristic_Value - End");
             }
-
-            var buffer = this._notificationBuffer.ToArray();
-            this._notificationBuffer.Clear();
-
-            // Validate the CRC. 
-            if (ValidateCrc(buffer[0..299], buffer[299]) == false)
-            {
-                //throw new ArgumentException("CRC validation of the repsonse does not match expected calculation.");
-                return Task.CompletedTask;
-            }
-
-            this.OnPacketReceived(sender, new PacketReceivedEventArgs(buffer));
-            return Task.CompletedTask;
         }
 
         private static bool ValidateCrc(ReadOnlySpan<byte> data, byte originalCrc)

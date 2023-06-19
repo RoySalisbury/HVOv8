@@ -61,6 +61,8 @@ namespace HVO.JKBmsMonitor
                 // Loop this until the service is requested to stop
                 while (stoppingToken.IsCancellationRequested == false)
                 {
+                    this._systemdNotifier?.Notify(new ServiceState("WATCHDOG=1"));
+
                     var mqttFactory = new MqttFactory();
                     using (this._mqttClient = mqttFactory.CreateManagedMqttClient())
                     {
@@ -83,12 +85,16 @@ namespace HVO.JKBmsMonitor
                                 Console.WriteLine($"Initializing {nameof(JkBmsMonitorClient)} instance...");
                                 await this._jkBmsMonitorClient.InitializeAdaptorAsync(this._jkBmsMonitorHostOptions.BluetoothAdapterName, false, stoppingToken);
 
+                                this._logger.LogTrace("ConnectToDeviceAsync: {datetime}", DateTime.Now);
                                 await this._jkBmsMonitorClient.ConnectToDeviceAsync(this._jkBmsMonitorHostOptions.BluetoothDeviceAddress, true, this._jkBmsMonitorHostOptions.BluetoothScanTimeout);
 
                                 // Make this call to get the hardway/firmware versions so we can decode the CellInfo packets correctly.
+                                this._logger.LogTrace("RequestDeviceInfo: {datetime}", DateTime.Now);
                                 await this._jkBmsMonitorClient.RequestDeviceInfo();
 
                                 Console.WriteLine($"Press Ctrl-C to stop instance...");
+
+                                this._systemdNotifier?.Notify(new ServiceState("WATCHDOG=1"));
                                 await Task.Delay(-1, stoppingToken);
                             }
                             catch (TaskCanceledException)
@@ -140,6 +146,7 @@ namespace HVO.JKBmsMonitor
                         if (this._jkBmsMonitorClient.LatestDeviceInfo is null)
                         {
                             // Should have already received this ... ask again.
+                            this._logger.LogTrace("RequestDeviceInfo: {datetime}", DateTime.Now);
                             await this._jkBmsMonitorClient.RequestDeviceInfo();
                             break;
                         }
@@ -276,6 +283,7 @@ namespace HVO.JKBmsMonitor
                                 this._lastDeviceConfigPublish = DateTime.Now;
 
                                 // Also request a new copy of the device settings just so we are up to date.
+                                this._logger.LogTrace("RequestDeviceSettings: {datetime}", DateTime.Now);
                                 await this._jkBmsMonitorClient.RequestDeviceSettings();
                             }
 

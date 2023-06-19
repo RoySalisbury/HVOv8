@@ -13,6 +13,7 @@ namespace HVO.JKBmsMonitor
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Host.CreateDefaultBuilder(args)
+             .UseSystemd()
              .ConfigureServices((context, services) =>
              {
                  services.AddSystemd();
@@ -21,6 +22,6 @@ namespace HVO.JKBmsMonitor
 
                  services.AddSingleton<JkBmsMonitorClient>();
                  services.AddHostedService<JkBmsMonitorHost>();
-             }).UseSystemd();
+             });
     }
 }
