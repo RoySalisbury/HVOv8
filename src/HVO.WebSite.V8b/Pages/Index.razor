@@ -1,0 +1,61 @@
+﻿@page "/"
+@attribute [RenderModeServer]
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<RadzenRow>
+    <RadzenColumn Size="6">
+        <RadzenSpeechToTextButton Change="@(args => OnSpeechCaptured(args, false, "Button1"))" />
+        <EventConsole @ref=@console />
+    </RadzenColumn>
+    <RadzenColumn Size="6">
+        <RadzenSpeechToTextButton Change="@(args => OnSpeechCaptured(args, true, "Button2"))" />
+        <RadzenTextArea @bind-Value=@value Change=@(args => OnTextAreaChange(args, "TextArea")) class="w-100" Style="margin-top:15px" />
+    </RadzenColumn>
+</RadzenRow>
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+X<br />
+Z<br />
+
+@code {
+    string value;
+    EventConsole console;
+
+    void OnTextAreaChange(string value, string name)
+    {
+        console.Log($"{name} value changed to {value}");
+    }
+
+    void OnSpeechCaptured(string speechValue, bool updateTextArea, string name)
+    {
+        console.Log($"Speech Captured from {name}: {speechValue}");
+
+        if (updateTextArea)
+        {
+            value += speechValue;
+        }
+    }
+}

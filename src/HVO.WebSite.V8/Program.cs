@@ -1,8 +1,16 @@
-
 using HVO.WebSite.V8.Repository;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
+using System;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.UI;
+using Microsoft.Graph.ExternalConnectors;
 
 namespace HVO.WebSite.V8
 {
@@ -45,7 +53,19 @@ namespace HVO.WebSite.V8
             services.AddApplicationInsightsTelemetry();
             //services.AddSnapshotCollector((configuration) => Configuration.Bind(nameof(SnapshotCollectorConfiguration), configuration));
 
-            services.AddRazorPages();
+            //var initialScopes = configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ');
+
+            //services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+            //    .AddMicrosoftIdentityWebApp(configuration.GetSection("AzureAd"))
+            //        .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
+            //            .AddMicrosoftGraph(configuration.GetSection("DownstreamApi"))
+            //            .AddInMemoryTokenCaches();
+
+
+            services.AddRazorPages()
+                //.AddMvcOptions(options => {}).AddMicrosoftIdentityUI()
+                ;
+
             services.AddServerSideBlazor();
         }
 
@@ -63,7 +83,13 @@ namespace HVO.WebSite.V8
             app.UseStaticFiles();
             app.UseRouting();
 
+            //app.UseAuthentication();
+            //app.UseAuthorization();
+
             app.MapBlazorHub();
+            app.MapRazorPages();
+            //app.MapControllers();
+
             app.MapFallbackToPage("/_Host");
 
             // Inline (minimal) API calls

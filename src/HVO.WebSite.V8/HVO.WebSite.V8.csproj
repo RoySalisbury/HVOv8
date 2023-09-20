@@ -18,6 +18,12 @@
     <PackageReference Include="Radzen.Blazor" Version="4.14.4" />
   </ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Identity.Web" Version="2.13.2" />
+		<PackageReference Include="Microsoft.Identity.Web.MicrosoftGraph" Version="2.13.2" />
+		<PackageReference Include="Microsoft.Identity.Web.UI" Version="2.13.2" />
+	</ItemGroup>	
+
   <ItemGroup>
     <ProjectReference Include="..\HVO.DataContracts\HVO.DataContracts.csproj" />
     <ProjectReference Include="..\HVO\HVO.csproj" />

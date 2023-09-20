@@ -41,9 +41,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HVO.WebSiteApi.V8", "HVO.We
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HVO.DataContracts", "HVO.DataContracts\HVO.DataContracts.csproj", "{3DADB331-89C6-4DB5-8521-304722DF7CA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{7CA4EFD7-0270-4E35-A600-E8B7C8A30085}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{7CA4EFD7-0270-4E35-A600-E8B7C8A30085}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HVO.JKBmsMonitor", "HVO.JKBmsMonitor\HVO.JKBmsMonitor.csproj", "{4C4B0F43-A441-492E-8C85-B345E981FE16}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HVO.JKBmsMonitor", "HVO.JKBmsMonitor\HVO.JKBmsMonitor.csproj", "{4C4B0F43-A441-492E-8C85-B345E981FE16}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HVO.WebSite.SecurityTokenService", "HVO.WebSite.SecurityTokenService\HVO.WebSite.SecurityTokenService.csproj", "{5B912C7F-5D09-4150-B43A-30B9DB0EF239}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HVO.WebSite.V8b", "HVO.WebSite.V8b\HVO.WebSite.V8b.csproj", "{D09411CF-AE17-4EA8-B27C-BECF60C59DA9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HVO.WebSite.V8c", "HVO.WebSite.V8c\HVO.WebSite.V8c.csproj", "{3A836E3E-105D-4535-8326-AB1CEA704BA1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -123,6 +129,18 @@ Global
 		{4C4B0F43-A441-492E-8C85-B345E981FE16}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C4B0F43-A441-492E-8C85-B345E981FE16}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4C4B0F43-A441-492E-8C85-B345E981FE16}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B912C7F-5D09-4150-B43A-30B9DB0EF239}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B912C7F-5D09-4150-B43A-30B9DB0EF239}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B912C7F-5D09-4150-B43A-30B9DB0EF239}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B912C7F-5D09-4150-B43A-30B9DB0EF239}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D09411CF-AE17-4EA8-B27C-BECF60C59DA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D09411CF-AE17-4EA8-B27C-BECF60C59DA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D09411CF-AE17-4EA8-B27C-BECF60C59DA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D09411CF-AE17-4EA8-B27C-BECF60C59DA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A836E3E-105D-4535-8326-AB1CEA704BA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A836E3E-105D-4535-8326-AB1CEA704BA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A836E3E-105D-4535-8326-AB1CEA704BA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A836E3E-105D-4535-8326-AB1CEA704BA1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
