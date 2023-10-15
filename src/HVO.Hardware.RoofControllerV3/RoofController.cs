@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Device.Gpio;
 using System.Device.Gpio.Drivers;
+using System.Diagnostics;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,6 +18,7 @@ namespace HVO.Hardware.RoofControllerV3
         private readonly RoofControllerOptions _roofControllerOptions;
         private readonly object _syncLock = new object();
         private bool _disposed;
+        private Stopwatch _closeLimitDelay = new Stopwatch();
 
         private GpioController _gpioController;
 
@@ -146,6 +148,7 @@ namespace HVO.Hardware.RoofControllerV3
                         break;
                     case PinEventTypes.Falling:
                         this._logger.LogInformation($"CloseRoofButtonCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  DoClose");
+                        this._closeLimitDelay.Reset();
                         this.Close();
                         break;
                     default:
@@ -200,8 +203,14 @@ namespace HVO.Hardware.RoofControllerV3
                     this._logger.LogInformation($"OpenLimitSwitchCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  N/A");
                     break;
                 case PinEventTypes.Falling:
-                    this._logger.LogInformation($"OpenLimitSwitchCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  DoStop");
-                    this.Stop();
+                    if (this._closeLimitDelay.ElapsedMilliseconds > 1000)
+                    {
+                        this._logger.LogInformation($"OpenLimitSwitchCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  DoStop");
+                        this.Stop();
+                    } else
+                    {
+                        this._logger.LogInformation($"OpenLimitSwitchCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  DoStop DELAYED");
+                    }
                     break;
                 default:
                     break;
