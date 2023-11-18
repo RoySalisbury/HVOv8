@@ -19,6 +19,7 @@ namespace HVO.Hardware.RoofControllerV3
         private readonly object _syncLock = new object();
         private bool _disposed;
         private Stopwatch _closeLimitDelay = new Stopwatch();
+        private Stopwatch _openLimitDelay = new Stopwatch();
 
         private GpioController _gpioController;
 
@@ -183,6 +184,7 @@ namespace HVO.Hardware.RoofControllerV3
                         break;
                     case PinEventTypes.Falling:
                         this._logger.LogInformation($"OpenRoofButtonCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  DoOpen");
+                        this._openLimitDelay.Reset();
                         this.Open();
                         break;
                     default:
@@ -203,14 +205,14 @@ namespace HVO.Hardware.RoofControllerV3
                     this._logger.LogInformation($"OpenLimitSwitchCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  N/A");
                     break;
                 case PinEventTypes.Falling:
-                    if (this._closeLimitDelay.ElapsedMilliseconds > 1000)
-                    {
+                    //if (this._closeLimitDelay.ElapsedMilliseconds > 1000)
+                    //{
                         this._logger.LogInformation($"OpenLimitSwitchCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  DoStop");
                         this.Stop();
-                    } else
-                    {
-                        this._logger.LogInformation($"OpenLimitSwitchCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  DoStop DELAYED");
-                    }
+                    //} else
+                    // {
+                    //     this._logger.LogInformation($"OpenLimitSwitchCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  DoStop DELAYED  -  {this._closeLimitDelay.ElapsedMilliseconds}");
+                    //}
                     break;
                 default:
                     break;
@@ -229,8 +231,15 @@ namespace HVO.Hardware.RoofControllerV3
                     this._logger.LogInformation($"RoofClosedLimitSwitchCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  N/A");
                     break;
                 case PinEventTypes.Falling:
-                    this._logger.LogInformation($"RoofClosedLimitSwitchCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  DoStop");
-                    this.Stop();
+                    //if (this._openLimitDelay.ElapsedMilliseconds > 1000)
+                    //{
+                        this._logger.LogInformation($"RoofClosedLimitSwitchCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  DoStop");
+                        this.Stop();
+                    //}
+                    //else
+                    //{
+                    //    this._logger.LogInformation($"RoofClosedLimitSwitchCallback - {DateTime.Now:O}  -  {e.ChangeType}  -  DoStop DELAYED  -  {this._openLimitDelay.ElapsedMilliseconds}");
+                    //}
                     break;
                 default:
                     break;
