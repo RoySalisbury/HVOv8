@@ -1,0 +1,132 @@
+﻿<div class="card h-100 hvo-card" style="width: 560px;">
+    @if (DisplayInitialLoader)
+    {
+        <div style="top: 0; left: 0; height: 100%; position: absolute; inset: 0px; z-index: 1050; display: block; overflow: hidden; background-color: rgb(255, 255, 255); opacity: 0.6; text-align: center; font-weight: bold; transition: visibility 0s linear 500ms; visibility: visible;">
+            <div style="height: 30%"></div>
+            <h5 style="color: black;">Loading...</h5>
+            <div style="border-width: 0.3em; border-style: solid; border-color: rgb(52, 152, 219) rgb(243, 243, 243) rgb(243, 243, 243); border-image: initial; border-radius: 50%; width: 2em; height: 2em; display: inline-block;"></div>
+        </div>
+    }
+
+    <div class="card-header">
+        <div class="row fs-5">
+            <div class="col-auto me-auto">Astronomical Information</div>
+            <div class="col-auto mb-auto"><span class="fa fa-moon fa-fw"></span></div>
+        </div>
+    </div>
+    <div class="card-body py-1">
+        <div class="row mx-0 fw-normal">
+            <div class="col-12 px-0">
+                <div class="row mx-0">
+                    <div class="col-6 ps-0">
+                        <div class="row mx-0">
+                            <div class="col-4 px-0 text-start" style="border-bottom: 1px solid #505050;">Sunrise</div>
+                            <div class="col-8 px-0 text-end text-nowrap" style="border-bottom: 1px solid #505050;">Nov 13 - 07:09:31</div>
+                        </div>
+                    </div>
+                    <div class="col-6 pe-0">
+                        <div class="row mx-0">
+                            <div class="col-4 px-0 text-start" style="border-bottom: 1px solid #505050;">Sunset</div>
+                            <div class="col-8 px-0 text-end text-nowrap" style="border-bottom: 1px solid #505050;">Nov 13 - 17:30:23</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mx-0 mb-3">
+                    <div class="col-6 ps-0">
+                        <div class="row mx-0">
+                            <div class="col-8 px-0 text-start" style="border-bottom: 1px solid #505050;">Moonrise</div>
+                            <div class="col-4 px-0 text-end" style="border-bottom: 1px solid #505050;">@string.Format("{0}", "N/A")</div>
+                        </div>
+                    </div>
+                    <div class="col-6 pe-0">
+                        <div class="row mx-0">
+                            <div class="col-8 px-0 text-start" style="border-bottom: 1px solid #505050;">Moonset</div>
+                            <div class="col-4 px-0 text-end" style="border-bottom: 1px solid #505050;">@string.Format("{0}", "N/A")</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start"></div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 fst-italic text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">Dawn</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">Dusk</div>
+                                    <div class="col-4 px-0 text-nowrap">Dawn + 1</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start " style="border-bottom: 1px solid #505050;">Civil Twilight</div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">06:42:35</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">17:57:18</div>
+                                    <div class="col-4 px-0 text-nowrap">06:43:32</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start " style="border-bottom: 1px solid #505050;">Nautical Twilight</div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">06:42:35</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">17:57:18</div>
+                                    <div class="col-4 px-0 text-nowrap">06:43:32</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3 mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start " style="border-bottom: 1px solid #505050;">Astronomical Twilight</div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">06:42:35</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">17:57:18</div>
+                                    <div class="col-4 px-0 text-nowrap">06:43:32</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mx-0">
+            <div class="d-flex px-0">
+                <div class="flex-grow-1 pe-2">
+                    <SunMoonRiseGraph />
+                </div>
+                <div class="flex ps-2">
+                    <MoonPhaseImage />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="row mx-0">
+            <div class="col-auto ms-auto px-0">
+                <span>@System.DateTime.Now.ToString("F")</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code{
+    [Parameter]
+    public bool DisplayInitialLoader { get; set; } = false;
+
+
+}

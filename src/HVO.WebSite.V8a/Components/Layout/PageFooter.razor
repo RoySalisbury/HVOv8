@@ -1,0 +1,32 @@
+﻿<nav class="navbar fixed-bottom navbar-expand-md navbar-dark bg-dark" style="height: 2rem;">
+    <div class="navbar-brand" style="padding-top: 0.1em;">
+        @*<img alt="" src="~/images/wide-logo.png" height="14" />*@
+    </div>
+
+    <div class="container-fluid">
+        <ul class="navbar-nav me-auto"></ul>
+        <ul class="navbar-nav" style="margin-top: 0em;">
+            <AuthorizeView>
+                <Authorized>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="~/Account">
+                            <span class="fa fa-user-alt fa-fw" aria-hidden="true"></span>UserName
+                        </NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="~/Account/Logout">
+                            <span class="fa fa-sign-out-alt fa-fw" aria-hidden="true"></span>Logout
+                        </NavLink>
+                    </li>
+                </Authorized>
+                <NotAuthorized>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="~/Account/Login">
+                            <span class="fas fa-sign-in-alt fa-fw" aria-hidden="true"></span>Login
+                        </NavLink>
+                    </li>
+                </NotAuthorized>
+            </AuthorizeView>
+        </ul>
+    </div>
+</nav>

@@ -1,12 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationInsightsResourceId>/subscriptions/beec1afc-268f-424a-aa60-34812bef200b/resourceGroups/HVOv8/providers/microsoft.insights/components/HVOv8</ApplicationInsightsResourceId>
     <UserSecretsId>448b2972-99a8-4816-b84f-393b365d821d</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Startup.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Startup.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.4" />

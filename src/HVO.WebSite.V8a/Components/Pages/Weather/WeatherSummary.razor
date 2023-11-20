@@ -1,0 +1,249 @@
+﻿@using HVO.DataContracts
+@implements IDisposable
+
+<div class="card h-100 hvo-card" style="min-width: 880px;">
+    @if (DisplayInitialLoader)
+    {
+        <div style="top: 0; left: 0; height: 100%; position: absolute; inset: 0px; z-index: 1050; display: block; overflow: hidden; background-color: rgb(255, 255, 255); opacity: 0.6; text-align: center; font-weight: bold; transition: visibility 0s linear 500ms; visibility: visible;">
+            <div style="height: 30%"></div>
+            <h5 style="color: black;">Loading...</h5>
+            <div style="border-width: 0.3em; border-style: solid; border-color: rgb(52, 152, 219) rgb(243, 243, 243) rgb(243, 243, 243); border-image: initial; border-radius: 50%; width: 2em; height: 2em; display: inline-block;"></div>
+        </div>
+    }
+
+    <div class="card-header">
+        <div class="row fs-5">
+            <div class="col-auto me-auto">Daily Weather Summary</div>
+            <div class="col-auto mb-auto"><span class="fa fa-sun fa-fw"></span></div>
+        </div>
+    </div>
+    <div class="card-body pt-1 text-white">
+        <div class="row mx-0 fw-normal">
+            <div class="col-6 ps-0">
+                <div class="row mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start"></div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 fst-italic text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">Current</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">Low</div>
+                                    <div class="col-4 px-0 text-nowrap">High</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start" style="border-bottom: 1px solid #505050;">Outside Temperature</div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0:F2}° F", Model.OutsideTemperature?.Latest)</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">@string.Format("{0:F2}° F", Model.OutsideTemperature?.Low.Value)</div>
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0:F2}° F", Model.OutsideTemperature?.High.Value)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mx-0 mb-3">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start " style="border-bottom: 1px solid #505050;">Outside Humidity</div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0:D0}%", Model.OutsideHumidity?.Latest)</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">@string.Format("{0:D0}%", Model.OutsideHumidity?.Low.Value)</div>
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0:D0}%", Model.OutsideHumidity?.High.Value)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start " style="border-bottom: 1px solid #505050;">Inside Temperature</div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0:F2}° F", Model.InsideTemperature?.Latest)</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">@string.Format("{0:F2}° F", Model.InsideTemperature?.Low.Value)</div>
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0:F2}° F", Model.InsideTemperature?.High.Value)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mx-0 mb-3">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start " style="border-bottom: 1px solid #505050;">Inside Humidity</div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0:D0}%", Model.InsideHumidity?.Latest)</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">@string.Format("{0:D0}%", Model.InsideHumidity?.Low.Value)</div>
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0:D0}%", Model.InsideHumidity?.High.Value)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start " style="border-bottom: 1px solid #505050;">Barometric Pressure</div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0}", Model.Barometer?.Latest.Value)</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">@string.Format("{0}", Model.Barometer?.Low.Value)</div>
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0}", Model.Barometer?.High.Value)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start " style="border-bottom: 1px solid #505050;">Wind Speed</div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0} mph", Model.WindSpeed?.Latest.Value)</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">@string.Format("{0} mph", Model.WindSpeed?.Low.Value)</div>
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0} mph", Model.WindSpeed?.High.Value)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start " style="border-bottom: 1px solid #505050;">Wind Direction</div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0}", CompassDirection(Model.WindSpeed?.Latest.Direction))</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">@string.Format("{0}", CompassDirection(Model.WindSpeed?.Low.Direction))</div>
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0}", CompassDirection(Model.WindSpeed?.High.Direction))</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 pe-0">
+                <div class="row mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start"></div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 fst-italic text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">Current</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">Low</div>
+                                    <div class="col-4 px-0 text-nowrap">High</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start " style="border-bottom: 1px solid #505050;">Heat Index</div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0}° F", Model.OutsideHeatIndex?.Latest)</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">@string.Format("{0}° F", Model.OutsideHeatIndex?.Low.Value)</div>
+                                    <div class="col-4 text-nowrap">@string.Format("{0}° F", Model.OutsideHeatIndex?.High.Value)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start " style="border-bottom: 1px solid #505050;">Dew Point</div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0}° F", Model.OutsideDewpoint?.Latest)</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">@string.Format("{0}° F", Model.OutsideDewpoint?.Low.Value)</div>
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0}° F", Model.OutsideDewpoint?.High.Value)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-3 mx-0">
+                    <div class="col-12 px-0">
+                        <div class="row mx-0">
+                            <div class="col-6 px-0 text-start " style="border-bottom: 1px solid #505050;">Wind Chill</div>
+                            <div class="col-6 px-0 text-end text-nowrap">
+                                <div class="row mx-0 text-center" style="border-bottom: 1px solid #505050;">
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0}° F", Model.OutsideWindChill?.Latest)</div>
+                                    <div class="col-4 px-0 text-nowrap" style="border-left: 1px solid #505050; border-right: 1px solid #505050;">@string.Format("{0}° F", Model.OutsideWindChill?.Low.Value)</div>
+                                    <div class="col-4 px-0 text-nowrap">@string.Format("{0}° F", Model.OutsideWindChill?.High.Value)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mx-0">
+                    <div class="col-6 ps-0">
+                        <div class="row mx-0">
+                            <div class="col-7 px-0 text-start text-nowrap" style="border-bottom: 1px solid #505050;">Todays Rainfall</div>
+                            <div class="col-5 px-0 text-end text-nowrap" style="border-bottom: 1px solid #505050;">@string.Format("{0:F2} in", Model.Rain?.DailyAmount)</div>
+                        </div>
+                    </div>
+                    <div class="col-6 pe-0">
+                        <div class="row mx-0">
+                            <div class="col-7 px-0 text-start text-nowrap" style="border-bottom: 1px solid #505050;">Monthly Rainfall</div>
+                            <div class="col-5 px-0 text-end text-nowrap" style="border-bottom: 1px solid #505050;">@string.Format("{0:F2} in", Model.Rain?.MonthlyAmount)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mx-0 mb-3">
+                    <div class="col-6 ps-0">
+                        <div class="row mx-0">
+                            <div class="col-7 px-0 text-start text-nowrap" style="border-bottom: 1px solid #505050;">Rainfall Rate /hr</div>
+                            <div class="col-5 px-0 text-end text-nowrap" style="border-bottom: 1px solid #505050;">@string.Format("{0:F2} in", Model.Rain?.RainRate)</div>
+                        </div>
+                    </div>
+                    <div class="col-6 pe-0">
+                        <div class="row mx-0">
+                            <div class="col-7 px-0 text-start text-nowrap" style="border-bottom: 1px solid #505050;">Yearly Rainfall</div>
+                            <div class="col-5 px-0 text-end text-nowrap" style="border-bottom: 1px solid #505050;">@string.Format("{0:F2} in", Model.Rain?.YearlyAmount)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mx-0">
+                    <div class="col-6 ps-0">
+                        <div class="row mx-0">
+                            <div class="col-7 px-0 text-start text-nowrap" style="border-bottom: 1px solid #505050;">Solar Radiation</div>
+                            <div class="col-5 px-0 text-end text-nowrap" style="border-bottom: 1px solid #505050;">@string.Format("{0}  w/m²", Model.SolarRadiation?.Latest)</div>
+                        </div>
+                    </div>
+                    <div class="col-6 pe-0">
+                        <div class="row mx-0">
+                            <div class="col-7 px-0 text-start text-nowrap" style="border-bottom: 1px solid #505050;">UV Index</div>
+                            <div class="col-5 px-0 text-end text-nowrap" style="border-bottom: 1px solid #505050;">---</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="row mx-0">
+            <div class="col-auto ms-auto px-0">
+                <span>@TimeZoneInfo.ConvertTime(Model.MaxRecordDateTime, Program.ObservatoryTimeZone).ToString("F") @Program.ObservatoryTimeZone.DisplayName</span>
+            </div>
+        </div>
+    </div>
+</div>

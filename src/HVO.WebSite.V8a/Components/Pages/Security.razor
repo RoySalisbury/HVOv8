@@ -1,0 +1,8 @@
+﻿@page "/security"
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize(Roles = "Administrator")]
+
+<PageTitle>Security</PageTitle>
+
+Security Page

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
     <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
@@ -26,8 +26,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="7.0.0" />
-    <PackageReference Include="ZWOptical.ASISDK" Version="1.0.61" />
+    <PackageReference Include="IronSoftware.System.Drawing" Version="2023.12.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.0" />
+    <PackageReference Include="ZWOptical.ASISDK" Version="1.2.221" />
   </ItemGroup>
 
   <ItemGroup>
