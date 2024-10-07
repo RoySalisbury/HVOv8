@@ -1,0 +1,17 @@
+﻿@page "/"
+
+
+
+<PageTitle>Home</PageTitle>
+
+Current Roof Status: @CurrentRoofStatus<br />
+
+<button @onclick="RefreshRoofStatus">Status</button>
+<br />
+<button @onclick="StopRoof">Stop</button>
+<br />
+<button @onclick="OpenRoof">Open</button>
+<br />
+<button @onclick="CloseRoof">Close</button>
+<br />
+

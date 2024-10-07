@@ -130,28 +130,28 @@ namespace HVO.Astronomy
                 return MoonPhase.WaningCrescent;
         }
 
-        public static Bitmap DrawMoonPhaseImage(DateTime date)
-        {
-            int imageSize = 300; // Set the desired image size
-            Bitmap moonPhaseImage = new Bitmap(imageSize, imageSize);
-            using (Graphics g = Graphics.FromImage(moonPhaseImage))
-            {
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        //public static Bitmap DrawMoonPhaseImage(DateTime date)
+        //{
+        //    int imageSize = 300; // Set the desired image size
+        //    Bitmap moonPhaseImage = new Bitmap(imageSize, imageSize);
+        //    using (Graphics g = Graphics.FromImage(moonPhaseImage))
+        //    {
+        //        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
-                MoonPhase phase = GetMoonPhase(date);
-                double illuminatedPortion = GetIlluminatedPortion(phase);
+        //        MoonPhase phase = GetMoonPhase(date);
+        //        double illuminatedPortion = GetIlluminatedPortion(phase);
 
-                g.FillRectangle(Brushes.Black, 0, 0, imageSize, imageSize);
+        //        g.FillRectangle(Brushes.Black, 0, 0, imageSize, imageSize);
 
-                // Draw the moon with the illuminated portion as a circle
-                int moonDiameter = imageSize - 20;
-                int moonX = 10 + (int)(illuminatedPortion * moonDiameter);
-                int moonY = imageSize / 2;
-                g.FillEllipse(Brushes.White, moonX, moonY - moonDiameter / 2, moonDiameter, moonDiameter);
-            }
+        //        // Draw the moon with the illuminated portion as a circle
+        //        int moonDiameter = imageSize - 20;
+        //        int moonX = 10 + (int)(illuminatedPortion * moonDiameter);
+        //        int moonY = imageSize / 2;
+        //        g.FillEllipse(Brushes.White, moonX, moonY - moonDiameter / 2, moonDiameter, moonDiameter);
+        //    }
 
-            return moonPhaseImage;
-        }
+        //    return moonPhaseImage;
+        //}
 
         /// <summary>
         /// Calculates the altitude and azimuth of the Moon for a specific date and observer's location (latitude and longitude).
