@@ -1,6 +1,7 @@
 ﻿using HVO.Hardware.RoofControllerV4;
 using HVO.WebSite.RoofControlV4.HostedServices;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace HVO.WebSite.RoofControlV4.Components.Pages
 {
@@ -12,7 +13,11 @@ namespace HVO.WebSite.RoofControlV4.Components.Pages
         [Inject]
         IRoofController _roofController { get; set; }
 
-        private string CurrentRoofStatus { get; set; } = RoofControllerStatus.Unknown.ToString();
+
+        bool IsOpenButtonDisabled => this._roofController.Status != RoofControllerStatus.Closed && this._roofController.Status != RoofControllerStatus.Stopped;
+        bool IsCloseButtonDisabled => this._roofController.Status != RoofControllerStatus.Open && this._roofController.Status != RoofControllerStatus.Stopped;
+        bool IsStopButtonDisabled => false; //this._roofController.Status == RoofControllerStatus.Opening || this._roofController.Status == RoofControllerStatus.Closing;
+
 
         public Home() 
         {
@@ -29,27 +34,23 @@ namespace HVO.WebSite.RoofControlV4.Components.Pages
             await base.OnInitializedAsync();
         }
 
-        private async Task OpenRoof()
+        protected async Task OnOpenRoofClick(MouseEventArgs args)
         {
             this._roofController.Open();
-            this.CurrentRoofStatus = this._roofController.Status.ToString();
+            this.StateHasChanged();
         }
 
-        private async Task CloseRoof()
+        protected async Task OnCloseRoofClick(MouseEventArgs args)
         {
             this._roofController.Close();
-            this.CurrentRoofStatus = this._roofController.Status.ToString();
+            this.StateHasChanged();
         }
 
-        private async Task StopRoof()
+        protected async Task OnStopRoofClick(MouseEventArgs args)
         {
             this._roofController.Stop();
-            this.CurrentRoofStatus = this._roofController.Status.ToString();
-        }
 
-        private async Task RefreshRoofStatus()
-        {
-            this.CurrentRoofStatus = this._roofController.Status.ToString();
+            this.InvokeAsync(() => this.StateHasChanged());
         }
     }
 }

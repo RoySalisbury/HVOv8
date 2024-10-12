@@ -1,17 +1,14 @@
 ﻿@page "/"
 
+<PageTitle>Roof Controller</PageTitle>
+
+<RadzenRow class="rz-mx-auto" Style="max-width: 100%;">
+    <RadzenColumn Size="12">
+        <RadzenButton Text="Open Roof" Disabled="@IsOpenButtonDisabled" Size="Radzen.ButtonSize.Large" ButtonStyle="Radzen.ButtonStyle.Success" Style="font-size: 60px; font-weight: 700; min-height: 150px; min-width: 400px;  margin: 30px" Click="@OnOpenRoofClick" />
+        <RadzenButton Text="Close Roof" Disabled="@IsCloseButtonDisabled" Size="Radzen.ButtonSize.Large" ButtonStyle="Radzen.ButtonStyle.Info" Style="font-size: 60px; font-weight: 700; min-height: 150px; min-width: 400px;  margin: 30px" Click="@OnCloseRoofClick" />
+        <RadzenButton Text="Stop Roof" Disabled="@IsStopButtonDisabled" Size="Radzen.ButtonSize.Large" ButtonStyle="Radzen.ButtonStyle.Danger" Style="font-size: 60px; font-weight: 700; min-height: 150px; min-width: 400px;  margin: 30px" Click="@OnStopRoofClick" />
+    </RadzenColumn>
+</RadzenRow>
 
 
-<PageTitle>Home</PageTitle>
-
-Current Roof Status: @CurrentRoofStatus<br />
-
-<button @onclick="RefreshRoofStatus">Status</button>
-<br />
-<button @onclick="StopRoof">Stop</button>
-<br />
-<button @onclick="OpenRoof">Open</button>
-<br />
-<button @onclick="CloseRoof">Close</button>
-<br />
 

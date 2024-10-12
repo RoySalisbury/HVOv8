@@ -1,9 +1,64 @@
-﻿@inherits LayoutComponentBase
+﻿@using HVO.Hardware.RoofControllerV4
 
-@Body
+@inherits LayoutComponentBase
+@inject IRoofController _roofController
+
+<RadzenComponents @rendermode="InteractiveServer" />
+
+<RadzenLayout>
+    <RadzenHeader>
+        <RadzenRow JustifyContent="JustifyContent.Start" AlignItems="AlignItems.Center" Gap="0">
+            <RadzenColumn Size="5">
+                <RadzenSidebarToggle Click="@NavigationHomeButtonClick"></RadzenSidebarToggle>
+                <RadzenLabel Text="Hualapai Valley Observatory - Roof Control" Style="vertical-align: text-bottom; font-size: 22px; font-weight: bold" />
+            </RadzenColumn>
+            <RadzenColumn Size="7">
+                <RadzenStack AlignItems="AlignItems.Center" Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem" class="rz-px-2">
+                    <RadzenAppearanceToggle />
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenHeader>
+    <RadzenBody>
+        <RadzenRow class="rz-mx-auto" Style="min-width: 1395px; max-width: 1395px">
+            <RadzenColumn Size="12">
+                @Body
+            </RadzenColumn>
+        </RadzenRow>
+    </RadzenBody>
+    <RadzenFooter>
+        Roof Status - @CurrentRoofStatus
+    </RadzenFooter>
+</RadzenLayout>
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code 
+{
+    RoofControllerStatus CurrentRoofStatus = RoofControllerStatus.Unknown;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var timer = new System.Threading.Timer(e =>
+        {
+            if (this._roofController.IsInitialized) 
+            {
+                InvokeAsync(() => { 
+                    this.CurrentRoofStatus = this._roofController.Status;
+                    StateHasChanged();
+                });
+            }
+        }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(250));
+
+        await base.OnInitializedAsync();
+    }
+
+
+    void NavigationHomeButtonClick()
+    {
+    }
+}

@@ -2,14 +2,9 @@ using HVO.Hardware.RoofControllerV4;
 using HVO.WebSite.RoofControlV4.Components;
 using HVO.WebSite.RoofControlV4.HostedServices;
 using System.Text.Json.Serialization;
-using Microsoft.Extensions.Options;
 using Asp.Versioning;
-using Asp.Versioning.ApiExplorer;
-using Microsoft.VisualBasic;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.OpenApi.Any;
+using Radzen;
 
 namespace HVO.WebSite.RoofControlV4
 {
@@ -18,52 +13,63 @@ namespace HVO.WebSite.RoofControlV4
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            ConfigureServices(builder.Services, builder.Configuration);
 
+            var app = builder.Build();
+            Configure(app);
 
-            // ConfigureServices(IServiceCollection services)
-            // ==============================================
-            builder.Services.AddOptions();
-            builder.Services.Configure<RoofControllerOptions>(builder.Configuration.GetSection(nameof(RoofControllerOptions)));
-            builder.Services.Configure<RoofControllerHostOptions>(builder.Configuration.GetSection(nameof(RoofControllerHostOptions)));
+            app.Run();
+        }
 
-            builder.Services.AddSingleton<IRoofController, RoofController>();
-            builder.Services.AddHostedService<RoofControllerHost>();
+        private static void ConfigureServices(IServiceCollection services, ConfigurationManager Configuration)
+        {
+            services.AddOptions();
+            services.Configure<RoofControllerOptions>(Configuration.GetSection(nameof(RoofControllerOptions)));
+            services.Configure<RoofControllerHostOptions>(Configuration.GetSection(nameof(RoofControllerHostOptions)));
 
-            builder.Services.AddApiVersioning(setup =>
+            services.AddSingleton<IRoofController, RoofController>();
+            services.AddHostedService<RoofControllerHost>();
+
+            services.AddApiVersioning(setup =>
             {
                 setup.DefaultApiVersion = new ApiVersion(4, 0);
                 setup.AssumeDefaultVersionWhenUnspecified = true;
                 setup.ReportApiVersions = true;
                 setup.ApiVersionReader = new UrlSegmentApiVersionReader(); // ApiVersionReader.Combine(new QueryStringApiVersionReader("version"), new HeaderApiVersionReader("api-version"), new MediaTypeApiVersionReader("version")); 
-            }).AddApiExplorer(options => 
+            }).AddApiExplorer(options =>
             {
                 options.GroupNameFormat = "'v'VVV";
                 options.SubstituteApiVersionInUrl = true;
             });
 
 
-            builder.Services.AddProblemDetails(configure =>
+            services.AddProblemDetails(configure =>
             {
             });
 
-            builder.Services.AddControllers()
-                .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(setup =>
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen(setup =>
             {
                 setup.SwaggerDoc("v4", new OpenApiInfo { Title = "HVO Roof Control API", Version = "v4.0", Description = "Controls the observatory roof for HVO." });
             });
 
-            builder.Services.AddRazorComponents()
+            services.AddRazorComponents()
                 .AddInteractiveServerComponents();
 
-            var app = builder.Build();
+            services.AddControllers()
+                .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-            // Configure(IApplicationBuilder app)
-            //===================================
+            services.AddRadzenComponents();
+            services.AddRadzenCookieThemeService(options =>
+            {
+                options.Name = "Test1Theme";
+                options.Duration = TimeSpan.FromDays(365);
+            });
+            services.AddHttpClient();
+        }
 
-            // Configure the HTTP request pipeline.
+        private static void Configure(WebApplication app)
+        {
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
@@ -83,15 +89,12 @@ namespace HVO.WebSite.RoofControlV4
                 }
             });
 
-
             app.UseStaticFiles();
             app.UseAntiforgery();
 
             app.MapControllers();
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();
-
-            app.Run();
         }
     }
 }
