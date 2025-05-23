@@ -1,7 +1,6 @@
 ﻿@using HVO.Hardware.RoofControllerV4
 
 @inherits LayoutComponentBase
-@inject IRoofController _roofController
 
 <RadzenComponents @rendermode="InteractiveServer" />
 
@@ -27,7 +26,7 @@
         </RadzenRow>
     </RadzenBody>
     <RadzenFooter>
-        Roof Status - @CurrentRoofStatus
+        Roof Status - @RoofStatus
     </RadzenFooter>
 </RadzenLayout>
 
@@ -39,26 +38,4 @@
 
 @code 
 {
-    RoofControllerStatus CurrentRoofStatus = RoofControllerStatus.Unknown;
-
-    protected async override Task OnInitializedAsync()
-    {
-        var timer = new System.Threading.Timer(e =>
-        {
-            if (this._roofController.IsInitialized) 
-            {
-                InvokeAsync(() => { 
-                    this.CurrentRoofStatus = this._roofController.Status;
-                    StateHasChanged();
-                });
-            }
-        }, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(250));
-
-        await base.OnInitializedAsync();
-    }
-
-
-    void NavigationHomeButtonClick()
-    {
-    }
 }

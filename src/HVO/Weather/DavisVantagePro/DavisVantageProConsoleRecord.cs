@@ -139,7 +139,7 @@ namespace HVO.Weather.DavisVantagePro
                 MonthlyRainAmount = monthlyRainAmount / 100.0,
                 NextArchiveRecord = nextArchiveRecord,
                 OutsideHumidity = (outsideHumidity == byte.MaxValue) ? (byte?)null : outsideHumidity,
-                OutsideTemperature = (outsideTemperature == short.MaxValue) ? null : Temperature.FromFahrenheit(outsideTemperature / 10.0),
+                OutsideTemperature = (outsideTemperature == short.MaxValue) ? (Temperature?)null : Temperature.FromFahrenheit(outsideTemperature / 10.0),
                 RainRate = (rainRate == ushort.MaxValue) ? (double?)(null) : rainRate / 100.0,
                 SolarRadiation = (solarRadiation == short.MaxValue) ? (ushort?)null : solarRadiation,
                 StormRain = (stormRain == short.MaxValue) ? (double?)null : stormRain / 100.0,
@@ -217,7 +217,7 @@ namespace HVO.Weather.DavisVantagePro
         }
 
         [DataMember]
-        public Temperature OutsideTemperature
+        public Temperature? OutsideTemperature
         {
             get;
             private set;
@@ -357,27 +357,13 @@ namespace HVO.Weather.DavisVantagePro
         }
 
         [IgnoreDataMember]
-        public Temperature OutsideHeatIndex
+        public Temperature? OutsideHeatIndex
         {
             get
             {
-                if ((OutsideTemperature != null) && (OutsideHumidity != null) && (OutsideTemperature.Fahrenheit > 80) && (OutsideHumidity > 40))
+                if (OutsideTemperature.HasValue && (OutsideHumidity != null) && (OutsideTemperature.Value.Fahrenheit > 80) && (OutsideHumidity > 40))
                 {
-                    // Rothfusz 1990 [(OutsideTemperature > 80) && (OutsideHumidity > 40)]
-                    //return (-42.379) +
-                    //  (2.04901523 * OutsideTemperature.Value) +
-                    //  (10.14333127 * OutsideHumidity.Value) -
-                    //  (0.22475541 * OutsideTemperature.Value * OutsideHumidity.Value) -
-                    //  (6.83783 * (Math.Pow(10, -3)) * (Math.Pow(OutsideTemperature.Value, 2))) -
-                    //  (5.481717 * (Math.Pow(10, -2)) * (Math.Pow(OutsideHumidity.Value, 2))) +
-                    //  (1.22874 * (Math.Pow(10, -3)) * (Math.Pow(OutsideTemperature.Value, 2)) * OutsideHumidity.Value) +
-                    //  (8.5282 * (Math.Pow(10, -4)) * OutsideTemperature.Value * (Math.Pow(OutsideHumidity.Value, 2))) -
-                    //  (1.99 * (Math.Pow(10, -6)) * (Math.Pow(OutsideTemperature.Value, 2)) * (Math.Pow(OutsideHumidity.Value, 2)));
-
-                    // Schoen 2005
-                    double heatIndex = (OutsideTemperature.Fahrenheit) - (0.9971 * Math.Exp(0.020867 * (OutsideTemperature.Fahrenheit * (1 - Math.Exp(0.0445 * (OutsideDewpoint.Fahrenheit - 57.2))))));
-                    //return Temperature.FromFahrenheit((heatIndex > OutsideTemperature.Fahrenheit) ? heatIndex : OutsideTemperature.Fahrenheit);
-
+                    double heatIndex = (OutsideTemperature.Value.Fahrenheit) - (0.9971 * Math.Exp(0.020867 * (OutsideTemperature.Value.Fahrenheit * (1 - Math.Exp(0.0445 * (OutsideDewpoint.HasValue ? OutsideDewpoint.Value.Fahrenheit : 0 - 57.2))))));
                     return Temperature.FromFahrenheit(heatIndex);
                 }
                 return OutsideTemperature;
@@ -386,18 +372,14 @@ namespace HVO.Weather.DavisVantagePro
         }
 
         [IgnoreDataMember]
-        public Temperature OutsideWindChill
+        public Temperature? OutsideWindChill
         {
             get
             {
-                if ((OutsideTemperature != null) && (TenMinuteWindSpeedAverage != null) /* && (OutsideTemperature < 50) */ && (TenMinuteWindSpeedAverage > 0))
+                if (OutsideTemperature.HasValue && (TenMinuteWindSpeedAverage != null) /* && (OutsideTemperature < 50) */ && (TenMinuteWindSpeedAverage > 0))
                 {
-                    // NWS (OutsideTemperature < 50 & TenMinuteWindSpeedAverage >= 3)
-                    //double? windChill = 35.74 + (0.6215 * OutsideTemperature.Value) - (35.75 * Math.Pow(TenMinuteWindSpeedAverage.Value, 0.16)) + (0.4275 * OutsideTemperature.Value * Math.Pow(TenMinuteWindSpeedAverage.Value, 0.16));
-
-                    // Steadman revised (1998)
-                    double windChill = (3.16) - (1.20 * TenMinuteWindSpeedAverage.Value) + (0.980 * OutsideTemperature.Fahrenheit) + (0.0044 * Math.Pow(TenMinuteWindSpeedAverage.Value, 2)) + (0.0083 * (TenMinuteWindSpeedAverage.Value * OutsideTemperature.Fahrenheit));
-                    return Temperature.FromFahrenheit((windChill < OutsideTemperature.Fahrenheit) ? windChill : OutsideTemperature.Fahrenheit);
+                    double windChill = (3.16) - (1.20 * TenMinuteWindSpeedAverage.Value) + (0.980 * OutsideTemperature.Value.Fahrenheit) + (0.0044 * Math.Pow(TenMinuteWindSpeedAverage.Value, 2)) + (0.0083 * (TenMinuteWindSpeedAverage.Value * OutsideTemperature.Value.Fahrenheit));
+                    return Temperature.FromFahrenheit((windChill < OutsideTemperature.Value.Fahrenheit) ? windChill : OutsideTemperature.Value.Fahrenheit);
                 }
                 return OutsideTemperature;
             }
@@ -405,21 +387,19 @@ namespace HVO.Weather.DavisVantagePro
         }
 
         [IgnoreDataMember]
-        public Temperature OutsideDewpoint
+        public Temperature? OutsideDewpoint
         {
             get
             {
-                // For humidity below <= 0%
                 double outsideHumidity = 0.1;
                 if ((OutsideHumidity != null) || (OutsideHumidity > 0))
                 {
                     outsideHumidity = (double)OutsideHumidity.Value;
                 }
 
-                if ((OutsideTemperature != null) && (OutsideHumidity != null) && (OutsideHumidity > 0))
+                if (OutsideTemperature.HasValue && (OutsideHumidity != null) && (OutsideHumidity > 0))
                 {
-                    // Magnus–Tetens formula (Barenbrug 1974)
-                    var z1 = ((17.27 * OutsideTemperature.Celsius) / (237.7 + OutsideTemperature.Celsius)) + Math.Log(outsideHumidity / 100);
+                    var z1 = ((17.27 * OutsideTemperature.Value.Celsius) / (237.7 + OutsideTemperature.Value.Celsius)) + Math.Log(outsideHumidity / 100);
                     return Temperature.FromCelsius((237.7 * z1) / (17.27 - z1));
                 }
                 return null;

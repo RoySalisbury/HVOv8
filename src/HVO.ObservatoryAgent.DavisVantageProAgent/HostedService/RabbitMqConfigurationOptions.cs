@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace HVO.ObservatoryAgent.DavisVantageProAgent.HostedService
 {
-    public sealed class RabbitMQConfigurationOptions
+    public record RabbitMQConfigurationOptions
     {
-        public bool Enabled { get; set; } = true;
-        public string UserName { get; set; } = "hvo";
-        public string Password { get; set; } = "salisbury";
-        public string HostName { get; set; } = "100.106.103.14";
-        public ushort Port { get; set; } = 5672;
-        public bool AutomaticRecoveryEnabled { get; set; } = true;
+        public bool Enabled { get; init; } = true;
+        public string UserName { get; init; } = "hvo";
+        public string Password { get; init; } = "salisbury";
+        public string HostName { get; init; } = "100.106.103.14";
+        public ushort Port { get; init; } = 5672;
+        public bool AutomaticRecoveryEnabled { get; init; } = true;
     }
 }

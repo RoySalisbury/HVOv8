@@ -5,6 +5,9 @@ using System.Text.Json.Serialization;
 using Asp.Versioning;
 using Microsoft.OpenApi.Models;
 using Radzen;
+using Microsoft.AspNetCore.Components;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace HVO.WebSite.RoofControlV4
 {
@@ -67,6 +70,8 @@ namespace HVO.WebSite.RoofControlV4
             });
             services.AddHttpClient();
         }
+
+
 
         private static void Configure(WebApplication app)
         {
