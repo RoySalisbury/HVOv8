@@ -4,69 +4,43 @@ using System.Runtime.Serialization;
 namespace HVO.Weather
 {
     [DataContract]
-    public sealed class BarometricPressure
+    public readonly struct BarometricPressure
     {
-        private BarometricPressure() { }
+        public BarometricPressure(double inchesHg)
+        {
+            InchesHg = inchesHg;
+        }
 
         public static BarometricPressure FromInchesHg(double value)
         {
-            return new BarometricPressure()
-            {
-                InchesHg = (double)value
-            };
+            return new BarometricPressure(value);
         }
 
         public static BarometricPressure FromInchesHg(decimal value)
         {
-            return new BarometricPressure()
-            {
-                InchesHg = (double)value
-            };
+            return FromInchesHg((double)value);
         }
 
         public static BarometricPressure FromMillibars(double value)
         {
-            return new BarometricPressure()
-            {
-                Millibars = value,
-            };
+            return new BarometricPressure(value / 33.8637526);
         }
 
         public static BarometricPressure FromMillibars(decimal value)
         {
-            return new BarometricPressure()
-            {
-                Millibars = (double)value,
-            };
+            return FromMillibars((double)value);
         }
 
         public static BarometricPressure FromPascals(double value)
         {
-            return new BarometricPressure()
-            {
-                Millibars = (double)value * 0.01,
-            };
+            return FromMillibars((double)value * 0.01);
         }
 
         [DataMember]
-        public double InchesHg
-        {
-            get;
-            private set;
-        }
+        public double InchesHg { get; }
 
         [IgnoreDataMember]
-        public double Millibars
-        {
-            get
-            {
-                return InchesHg * 33.8637526;
-            }
-            private set
-            {
-                InchesHg = value / 33.8637526;
-            }
-        }
+        public double Millibars => InchesHg * 33.8637526;
 
         public static BarometricPressure AltimeterFromAbsoluteMb(double absoluteMillibars, double elevationMeters)
         {

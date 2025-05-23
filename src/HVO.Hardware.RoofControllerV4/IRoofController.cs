@@ -1,7 +1,9 @@
 ﻿
+using System.ComponentModel;
+
 namespace HVO.Hardware.RoofControllerV4
 {
-    public interface IRoofController
+    public interface IRoofController : INotifyPropertyChanged
     {
         bool IsInitialized { get; set; }
 

@@ -1,11 +1,15 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.ComponentModel;
 using System.Device.Gpio;
+using System.Runtime.CompilerServices;
 
 namespace HVO.Hardware.RoofControllerV4
 {
     public class RoofController : IRoofController, IDisposable
     {
+        private RoofControllerStatus _status = RoofControllerStatus.NotInitialized;
+
         // Just makes it easier to understand whats happening.
         private PinValue RelayOn = PinValue.High;
         private PinValue RelayOff = PinValue.Low;
@@ -24,7 +28,19 @@ namespace HVO.Hardware.RoofControllerV4
 
         public bool IsInitialized { get; set; } = false;
 
-        public RoofControllerStatus Status { get; private set; } = RoofControllerStatus.NotInitialized;
+        public RoofControllerStatus Status { 
+            get { return this._status; }
+            private set 
+            {
+                if (this._status == value)
+                {
+                    return;
+                }
+
+                this._status = value;
+                this.OnPropertyChanged();
+            }
+        }
 
         public async Task<bool> Initialize(CancellationToken cancellationToken)
         {
@@ -53,6 +69,13 @@ namespace HVO.Hardware.RoofControllerV4
         public void Stop()
         {
             this.Status = RoofControllerStatus.Stopped;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = default)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         protected virtual void Dispose(bool disposing)
